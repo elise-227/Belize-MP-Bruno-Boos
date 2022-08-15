@@ -1,0 +1,95 @@
+---
+title: "Cleaning_2014_data"
+author: "Elise Boos"
+date: '2022-08-15'
+output: pdf_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#set wd 
+getwd()
+```
+
+
+```{r load packages etc}
+getwd()
+#packages
+require(tidyverse)
+require(dplyr)
+require(sf)
+require(leaflet)
+require(mapview)
+require(readxl)
+require(lubridate)
+
+library(unmarked)
+library(AICcmodavg)
+#make mapview work on a mac
+mapviewOptions(fgb = FALSE)
+```
+
+```{r load data}
+#load data
+records_2014 <- read.csv("./By_year/2014_Records_Yalbac_data.csv", stringsAsFactors = T)
+records_2015 <- read.csv("./By_year/2015_Records_Yalbac_data.csv", stringsAsFactors = T)
+records_2016 <- read.csv("./By_year/2016_Records_Yalbac_data.csv", stringsAsFactors = T)
+records_2017 <- read.csv("./By_year/2017_Records_Yalbac_data.csv", stringsAsFactors = T)
+records_2018 <- read.csv("./By_year/2018_Records_Yalbac_data.csv", stringsAsFactors = T)
+records_2019 <- read.csv("./By_year/2019_Records_Yalbac_data.csv", stringsAsFactors = T)
+records_2020 <- read.csv("./By_year/2020_Records_Yalbac_data.csv", stringsAsFactors = T)
+```
+
+
+```{r species names}
+#figure out what each species name is 
+unique(records_2014$Species)
+unique(records_2015$Species)
+unique(records_2016$species.name)
+unique(records_2017$species.name)
+unique(records_2018$species.name)
+unique(records_2019$species.name)
+unique(records_2020$species.name)
+```
+
+Ultimately need to make this:
+
+unmarkedMultFrame(y, siteCovs, obsCovs, numPrimary, yearlySiteCovs)
+
+y	- A matrix of the observed data.
+
+siteCovs - Data frame of covariates that vary at the site level.
+
+obsCovs	- Data frame of covariates that vary within site-year-observation level.
+
+numPrimary - Number of primary time periods (seasons in the multiseason model).
+
+yearlySiteCovs - Data frame containing covariates at the site-year level.
+
+```{r 2014 cleaning}
+#clean all 2014 data
+records_2014_clean <- records_2014 %>%
+  mutate(site = paste0(Cam.nr,Series))
+
+unique(records_2014_clean$site)
+```
+71 cameras have observations for 2014. 79 cameras are listed with 3 not placed or stolen. Allegedly 76 should have been recording so logically 5 sites had 0 observations of any animal
+
+These cameras that observed nothing (hypothetically) are 402A, 402C, 406F, 408F and 412C2.
+
+length of all matrices for 2014 then should be 76 because there are than many sites.
+
+```{r days op and ect}
+cameraops2014 <- read.csv("OperationalDays2014.csv")
+
+datafor2014 <- full_join(records_2014_clean, cameraops2014, by = "site")
+
+datafor2014$startday <- as.Date(datafor2014$startday, "%Y-%m-%d")
+#calculate end date
+
+datafor2014_edit <- datafor2014 %>%
+  mutate(endday = startday + daysop)
+```
+
