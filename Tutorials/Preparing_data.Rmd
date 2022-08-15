@@ -1,0 +1,296 @@
+---
+title: "Prepare Data"
+author: "Kelly Bruno"
+date: '2022-08-15'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+file 'raw_survey_data'
+includes multiple rows for each survey event (or each visit to each site). Each row represents an observation of an organism during a single site visit event. If you observed 9 species of organism during a given visit, there should be 9 rows for that site's visit. Note that ALL site visits must be present within this file, even if no organisms were observed. This means that, for visits with both 1 species observation and 0 species observation, there should be 1 row in the dataset.
+
+file 'point_locations'
+provides the coordinates for each site and we will link these site coordinates to the raw survey data for analysis.
+
+```{r}
+
+library(dplyr)
+
+setwd("~/Duke/Summer 2022/Occupancy_Modeling") #set working directory
+
+frogs <- read.csv("raw_survey_data.csv") #read raw frog data into R
+
+sitecoords1 <- read.csv("point_locations.csv") #read coordinate data into R
+
+View(frogs)
+#unique point ID for point location #visit number (1/2/3) #date #time #sunset #wind #temp #cloud cover #noise index #frog species #distance to nearest individual #abundance
+
+unique(frogs$species) #view species
+
+```
+
+for single-season occupancy models, we want our data structure to include a SINGLE row for each site with three columns for detections (e.g., 110, 000, 101, 111, etc.) and three columns for each of our detection variables (covariate histories).
+
+```{r}
+##Prepare survey covariates##
+
+#First create detection data file
+
+frogsV1 <- subset(frogs, visit == 1) #extract first visits to each site
+
+lookup_1a <- merge(x = sitecoords1, by.x = "point_id", y = frogsV1, by.y = "pointID", all.x = TRUE) #link coordinate data with each site (left join) #vlookup
+
+lookup_1b <- group_by(lookup_1a, point_id) #sites must be IDed as a group
+
+#summarize the dataset for each detection covariate
+#gives you detection covariate
+
+lookup_1cloud <- data.frame(summarise(lookup_1b, cloud = mean(cloud)))
+
+lookup_1julian <- data.frame(summarise(lookup_1b, julian = mean(date))) #julian is a date format
+
+lookup_1temp <- data.frame(summarise(lookup_1b, temp = mean(temp)))
+
+lookup_1wind <- data.frame(summarise(lookup_1b, wind = mean(wind)))
+
+lookup_1msss <- data.frame(summarise(lookup_1b, msss = mean(minutes)))
+
+lookup_1noise <- data.frame(summarise(lookup_1b, noise = mean(noise_index)))
+
+
+```
+
+```{r}
+#second visit
+
+frogsV2 <- subset(frogs, visit == 2) #only keep data from visit 2
+
+lookup_2a <- merge(x = sitecoords1, by.x = "point_id", y = frogsV2, by.y = "pointID", all.x = TRUE) #vlookup
+
+lookup_2b <- group_by(lookup_2a, point_id)
+
+lookup_2cloud <- data.frame(summarise(lookup_2b, cloud = mean(cloud)))
+
+lookup_2julian <- data.frame(summarise(lookup_2b, julian = mean(date)))
+
+lookup_2temp <- data.frame(summarise(lookup_2b, temp = mean(temp)))
+
+lookup_2wind <- data.frame(summarise(lookup_2b, wind = mean(wind)))
+
+lookup_2msss <- data.frame(summarise(lookup_2b, msss = mean(minutes)))
+
+lookup_2noise <- data.frame(summarise(lookup_2b, noise = mean(noise_index)))
+
+```
+
+```{r}
+
+# third visit
+
+frogsV3 <- subset(frogs, visit == 3) # removing all data except from visit 3
+
+lookup_3a <- merge(x = sitecoords1, by.x = "point_id", y = frogsV3, by.y = "pointID", all.x = TRUE) #vlookup
+lookup_3b <- group_by(lookup_3a, point_id)
+
+lookup_3cloud <- data.frame(summarise(lookup_3b, cloud = mean(cloud)))
+
+lookup_3julian <- data.frame(summarise(lookup_3b, julian = mean(date)))
+
+lookup_3temp <- data.frame(summarise(lookup_3b, temp = mean(temp)))
+
+lookup_3wind <- data.frame(summarise(lookup_3b, wind = mean(wind)))
+
+lookup_3msss <- data.frame(summarise(lookup_3b, msss = mean(minutes)))
+
+lookup_3noise <- data.frame(summarise(lookup_3b, noise = mean(noise_index)))
+
+```
+
+```{r}
+#combine each visit's covariates of each type
+
+point_idVals <- data.frame("point_id" = lookup_1wind$point_id)
+
+windVals <- cbind("wind1" = lookup_1wind$wind, "wind2" = lookup_2wind$wind, "wind3" = lookup_3wind$wind)
+
+cloudVals <- cbind("cloud1" = lookup_1cloud$cloud, "cloud2" = lookup_2cloud$cloud, "cloud3" = lookup_3cloud$cloud)
+
+julianVals <- cbind("julian1" = lookup_1julian$julian, "julian2" = lookup_2julian$julian, "julian3" = lookup_3julian$julian)
+
+tempVals <- cbind("temp1" = lookup_1temp$temp, "temp2" = lookup_2temp$temp, "temp3" = lookup_3temp$temp)
+
+msssVals <- cbind("msss1" = lookup_1msss$msss, "msss2" = lookup_2msss$msss, "msss3" = lookup_3msss$msss)
+
+noiseVals <- cbind("noise1" = lookup_1noise$noise, "noise2" = lookup_2noise$noise, "noise3" = lookup_3noise$noise)
+
+
+```
+
+```{r}
+#finally combine into a single file
+
+AllDetCovs <- cbind(point_idVals, windVals, cloudVals, julianVals, tempVals, msssVals, noiseVals)
+
+View(AllDetCovs)
+```
+
+Now we can prepare and add our detection history for a focal species. Let's select the wood frog (Lithobates sylvaticus) as our focal species and remove detections that occurred beyond 100 m from the observer
+
+```{r}
+frogs100 <- subset(frogs, distance <= 100)
+# remove detections beyond 100m
+
+focalspecies <- "wood frog"
+
+frogsV1 <- subset(frogs100, visit == 1) #first visit
+
+frogsV2 <- subset(frogs100, visit == 2) #second visit
+
+frogsV3 <- subset(frogs100, visit == 3) #third visit
+
+frogsV1_foc <- subset(frogsV1, species == focalspecies) #focal species, first visit
+
+frogsV2_foc <- subset(frogsV2, species == focalspecies) #focal species, second visit
+
+frogsV3_foc <- subset(frogsV3, species == focalspecies) #focal species, third visit
+
+```
+
+Now extract occupancy data
+
+```{r}
+#first visit
+
+lookup1 <- merge(x = sitecoords1, by.x = "point_id", y = frogsV1_foc, by.y = "pointID", all.x = TRUE) #vlookup
+
+lookup1$abundance[is.na(lookup1$abundance)] <- 0 #convert non-detections to zero in 'abundance'
+
+lookup1 <- mutate(lookup1, vis1 = if_else(abundance == 0, 0, 1))
+
+visit1data <- data.frame("v1" = lookup1$vis1, "point1" = lookup1$point_id) #point id added as double check
+
+
+```
+
+```{r}
+#second visit
+
+lookup2 <- merge(x = sitecoords1, by.x = "point_id", y = frogsV2_foc, by.y = "pointID", all.x = TRUE) #vlookup
+
+lookup2$abundance[is.na(lookup2$abundance)] <- 0
+
+# convert non-detections to zero in 'abundance'
+
+lookup2 <- mutate(lookup2, vis2 = if_else(abundance == 0, 0, 1))
+
+visit2data <- data.frame("v2" = lookup2$vis2, "point2" = lookup1$point_id)
+# point id added as a double-check
+
+```
+
+```{r}
+# third visit
+
+lookup3 <- merge(x = sitecoords1, by.x = "point_id", y = frogsV3_foc, by.y = "pointID", all.x = TRUE) #vlookup
+
+lookup3$abundance[is.na(lookup3$abundance)] <- 0
+# convert non-detections to zero in 'abundance'
+
+lookup3 <- mutate(lookup3, vis3 = if_else(abundance == 0, 0, 1))
+
+visit3data <- data.frame("v3" = lookup3$vis3, "point3" = lookup1$point_id)
+# point id added as a double-check
+```
+
+Now combine
+
+```{r}
+#combine detection history
+
+dethistory <- cbind(visit1data, visit2data, visit3data)
+
+sitehistory <- merge(x = sitecoords1, by.x = "point_id", y = dethistory, by.y = "point1", all.x = TRUE) #vlookup
+
+sitehistory <- select(sitehistory, -pointid, -point2, -point3) #delete trash columns
+
+View(sitehistory)
+```
+
+Now combine into a single file
+
+```{r}
+
+FrogOccupancyData <-merge(x = sitehistory, by.x = "point_id", y = AllDetCovs, by.y = "point_id", all.x = TRUE) #vlookup
+
+View(FrogOccupancyData)
+```
+
+For this last piece, we will extract land cover characteristics from the National Land Cover Database (NLCD) that I have cropped to a buffer around the study area.
+
+A brief note about this file (like all raster files); the output will be numerical values for the categories of each land cover depicted by each cell. For example, you'll have a % for each category in its numerical form. This might look like: "41" (which represents deciduous forest) or "82" (which represents cultivated row crops). 
+
+```{r}
+
+library(raster)
+library(rgdal)
+
+nlcd_data <- raster("state_college_nlcd.tif") #read raster
+
+nlcd_data <- setMinMax(nlcd_data) #set extent of raster
+
+#re-project the raster
+
+nlcd_data_a <- projectRaster(from = nlcd_data, crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs")
+#r shorthand for Alber's Equal Area Conic projection
+```
+
+Next, let's load in our coordinates, turn them into a spatial object, then reproject them into Alber's Equal Area Conic
+
+```{r}
+library(sf)
+
+coords1 <- data.frame(cbind("long" = sitehistory$long, "lat" = sitehistory$lat))
+#read in coords of survey locs
+
+sites1 <- sf::st_as_sf(coords1, coords = c("long", "lat"), crs = 4269) #turn coords int a spatial object
+#used crs = 4269 because this represents NAD83
+
+sites1 <- sf::st_transform(sites1, crs = "+proj=aea + lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs")
+
+#plot
+plot(nlcd_data_a, xlim = c(xmin(nlcd_data_a) + 15000, xmax(nlcd_data_a) - 15000),
+     ylim = c(ymin(nlcd_data_a) + 10000, ymax(nlcd_data_a)))
+
+plot(nlcd_data_a, add = TRUE)
+
+plot(sites1, add = TRUE)
+
+```
+
+Now let's extract the land cover within 500 m around each point from the underlying land cover.
+
+```{r}
+
+extract1 <- raster::extract(x = nlcd_data_a, y = sites1, buffer = 500, df = TRUE)
+
+extract1 <- data.frame(extract1)
+
+#summarize data to be usable
+
+NLCD_freq <- mutate(extract1, NLCD = as.integer(state_college_nlcd)) %>%
+  group_by(ID, NLCD) %>%
+  summarise(freq = n()) %>%
+  ungroup() %>%
+  group_by(ID) %>%
+  mutate(ncells = sum(freq), prop_land = round(freq/ncells, 2) * 100) %>%
+  ungroup()
+
+#reassign site names
+
+
+
+```
+
