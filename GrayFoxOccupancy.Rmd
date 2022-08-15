@@ -23,6 +23,7 @@ require(sf)
 require(leaflet)
 require(mapview)
 require(readxl)
+require(lubridate)
 
 library(unmarked)
 library(AICcmodavg)
@@ -110,6 +111,8 @@ These cameras that observed nothing (hypothetically) are 402A, 402C, 406F, 408F 
 length of all matrices for 2014 then should be 76 because there are than many sites.
 
 ```{r make observation data frame}
+#####SCRATCH#######
+
 grayfoxobs2014 = data.frame(matrix(nrow = 71, ncol = 63))
 
 recsites2014 <- unique(records_2014_clean$site)
@@ -127,4 +130,15 @@ operationaldays <- full_join(grayfoxobs2014, cameraops2014, by = c("X1" = "site"
 opdays <- operationaldays$daysop
 ```
 
+```{r days op and ect}
+cameraops2014 <- read.csv("OperationalDays2014.csv")
+
+datafor2014 <- full_join(records_2014_clean, cameraops2014, by = "site")
+
+datafor2014$startday <- as.Date(datafor2014$startday, "%Y-%m-%d")
+#calculate end date
+
+datafor2014_edit <- datafor2014 %>%
+  mutate(endday = startday + daysop)
+```
 
