@@ -19,7 +19,7 @@ provides the coordinates for each site and we will link these site coordinates t
 
 library(dplyr)
 
-setwd("~/Duke/Summer 2022/Occupancy_Modeling") #set working directory
+setwd("~/Duke/Master's Project/Belize-MP-Bruno-Boos/Tutorials") #set working directory
 
 frogs <- read.csv("raw_survey_data.csv") #read raw frog data into R
 
@@ -214,7 +214,7 @@ dethistory <- cbind(visit1data, visit2data, visit3data)
 
 sitehistory <- merge(x = sitecoords1, by.x = "point_id", y = dethistory, by.y = "point1", all.x = TRUE) #vlookup
 
-sitehistory <- select(sitehistory, -pointid, -point2, -point3) #delete trash columns
+sitehistory <- dplyr::select(sitehistory, -pointid, -point2, -point3) #delete trash columns
 
 View(sitehistory)
 ```
@@ -290,7 +290,17 @@ NLCD_freq <- mutate(extract1, NLCD = as.integer(state_college_nlcd)) %>%
 
 #reassign site names
 
+sitesPicklist <- data.frame(FalseName = seq(from = 1, to = 41, length.out = 41), OrigName = sitehistory$point_id)
 
+#restructure dataset
+
+wide <- full_join(NLCD_freq, sitesPicklist, by = c("ID" = "FalseName")) %>% dplyr::select(-ID, -freq, -ncells) %>% tidyr::spread(NLCD, prop_land, fill = 0)
+
+#Link site data with detection data
+###SOMETHING WENT WRONG HERE
+FinalData <- as.data.frame(full_join(wide, FrogOccupancyData, by = c("OrigName" = "point_id")))
+
+View(FinalData)
 
 ```
 
