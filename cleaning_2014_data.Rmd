@@ -80,7 +80,7 @@ length of all matrices for 2014 then should be 76 because there are than many si
 
 ```{r days op and ect}
 #load operational days
-cameraops2014 <- read.csv("OperationalDays2014.csv")
+cameraops2014 <- read.csv("./2014/OperationalDays2014.csv")
 
 #data frame for 2014 
 datafor2014 <- full_join(records_2014_clean, cameraops2014, by = "site")
