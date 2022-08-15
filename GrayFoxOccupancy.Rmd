@@ -7,6 +7,9 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+#set wd 
+getwd()
 ```
 
 ## Gray fox occupancy
@@ -88,11 +91,13 @@ numPrimary - Number of primary time periods (seasons in the multiseason model).
 yearlySiteCovs - Data frame containing covariates at the site-year level.
 
 ```{r 2014 cleaning}
+#clean gray fox only data
 grayfox2014_clean <- grayfox2014 %>%
   mutate(site = paste0(Cam.nr,Series))
   
 unique(grayfox2014_clean$site)
 
+#clean all 2014 data
 records_2014_clean <- records_2014 %>%
   mutate(site = paste0(Cam.nr,Series))
 
