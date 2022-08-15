@@ -123,6 +123,8 @@ cameraops2014 <- read.csv("OperationsDays2014.csv")
 
 #join the length of observation to dataframe
 operationaldays <- full_join(grayfoxobs2014, cameraops2014, by = c("X1" = "site"))
+
+opdays <- operationaldays$daysop
 ```
 
 
