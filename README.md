@@ -6,3 +6,4 @@ elise.boos@duke.edu
 
 Kelly Bruno
 kelly.a.bruno@duke.edu
+MEM Student
