@@ -80,13 +80,14 @@ length of all matrices for 2014 then should be 76 because there are than many si
 
 ```{r days op and ect}
 #load operational days
-cameraops2014 <- read.csv("./2014/OperationalDays2014.csv", header = T)
+cameraops2014 <- read.csv("./2014/OperationalDays2014_edits.csv", header = T)
 
 #data frame for 2014 
 datafor2014 <- full_join(records_2014_clean, cameraops2014, by = "site")
 
 #set as date column
 datafor2014$startday <- as.Date(datafor2014$startday, "%Y-%m-%d")
+datafor2014$removeday <- as.Date(datafor2014$removeday, "%Y-%m-%d")
 
 #calculate end date
 datafor2014_edit <- datafor2014 %>%
@@ -99,9 +100,13 @@ datafor2014_visit <- datafor2014_edit %>%
 
 #error finder 
 datafor2014_errors <- datafor2014_visit %>%
-  mutate(errors = ifelse(obsdate > endday, TRUE, FALSE))
-
+  mutate(errors = ifelse(obsdate > endday, TRUE, FALSE)) 
 summary(datafor2014_errors$errors)
+
+#get list of cameras that need op days changed
+errorinopdays2014 <- filter(datafor2014_errors, errors == TRUE)
+
+unique(errorinopdays2014$site)
 ```
 Errors in data found that need to fix: 
 
@@ -113,3 +118,5 @@ ERROR SEEMS TO BE IN C2 and C points - repeated in data of days operational (mor
 are days operational including day 1? From looking at data day 1 is included as one operational day.
 
 Some points that are inconsistent going to need to just put 0s to the days the camera was out there.
+
+47 cameras have incorrect operational days. for 2014 might just have to do the days the camera was out
