@@ -82,8 +82,6 @@ length of all matrices for 2014 then should be 76 because there are than many si
 #load operational days
 cameraops2014 <- read.csv("./2014/OperationalDays2014.csv")
 
-colnames(cameraops2014)[1] <- "site" #fix error in column name from import
-
 #data frame for 2014 
 datafor2014 <- full_join(records_2014_clean, cameraops2014, by = "site")
 
@@ -112,4 +110,4 @@ Errors in data found that need to fix:
 Record 2234 is an obs after the camera was removed so need to removed probably. A couple data points are like this need to look into!!!! 241 observations are after end date!
 ERROR SEEMS TO BE IN C2 and C points - repeated in data of days operational (more than this tho)
 
-are days operational including day 1?
+are days operational including day 1? From looking at data day 1 is included as one operational day.
