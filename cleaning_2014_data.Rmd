@@ -91,5 +91,10 @@ datafor2014$startday <- as.Date(datafor2014$startday, "%Y-%m-%d")
 #calculate end date
 datafor2014_edit <- datafor2014 %>%
   mutate(endday = startday + daysop)
+
+#find visit number
+datafor2014_visit <- datafor2014_edit %>%
+  mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
+  mutate(visit = as.numeric(obsdate - startday) + 1)
 ```
 
