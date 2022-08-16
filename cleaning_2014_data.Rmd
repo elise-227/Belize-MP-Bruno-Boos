@@ -97,4 +97,6 @@ datafor2014_visit <- datafor2014_edit %>%
   mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
   mutate(visit = as.numeric(obsdate - startday) + 1)
 ```
+Errors in data found that need to fix -- 410C2 is repeated 410C needed to be fixed in the days operational.
 
+Record 2234 is an obs after the camera was removed so need to removed probably. A couple data points are like this need to look into!!!!
