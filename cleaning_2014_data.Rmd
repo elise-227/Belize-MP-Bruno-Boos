@@ -82,6 +82,8 @@ length of all matrices for 2014 then should be 76 because there are than many si
 #load operational days
 cameraops2014 <- read.csv("./2014/OperationalDays2014.csv")
 
+colnames(cameraops2014)[1] <- "site" #fix error in column name from import
+
 #data frame for 2014 
 datafor2014 <- full_join(records_2014_clean, cameraops2014, by = "site")
 
