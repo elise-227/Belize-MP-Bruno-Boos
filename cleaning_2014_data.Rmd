@@ -111,3 +111,5 @@ Record 2234 is an obs after the camera was removed so need to removed probably. 
 ERROR SEEMS TO BE IN C2 and C points - repeated in data of days operational (more than this tho)
 
 are days operational including day 1? From looking at data day 1 is included as one operational day.
+
+Some points that are inconsistent going to need to just put 0s to the days the camera was out there.
