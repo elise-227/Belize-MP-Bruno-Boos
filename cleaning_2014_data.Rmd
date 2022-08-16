@@ -105,9 +105,9 @@ summary(datafor2014_errors$errors)
 ```
 Errors in data found that need to fix: 
 
-410C2 is repeated 410C needed to be fixed in the days operational in the original excel file (should be right in data).
+410C2 is repeated 410C needed to be fixed in the days operational in the original excel file.
 
 Record 2234 is an obs after the camera was removed so need to removed probably. A couple data points are like this need to look into!!!! 241 observations are after end date!
-ERROR SEEMS TO BE IN C2 and C points - repeated in data of days operational
+ERROR SEEMS TO BE IN C2 and C points - repeated in data of days operational (more than this tho)
 
 are days operational including day 1?
