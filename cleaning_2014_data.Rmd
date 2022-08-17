@@ -120,3 +120,23 @@ are days operational including day 1? From looking at data day 1 is included as 
 Some points that are inconsistent going to need to just put 0s to the days the camera was out there.
 
 39 or more like 47? cameras have incorrect operational days. for 2014 might just have to do the days the camera was out
+
+------------------------------
+```{r 2015 cleaning}
+#clean all 2014 data
+records_2015_clean <- records_2015 %>%
+  mutate(site = paste0(Cam.nr,Series)) %>%
+  drop_na(Cam.nr)
+
+unique(records_2015_clean$site)
+```
+
+```{r joining cams}
+cameraops2015 <- read.csv("./2015/Cameras_2015.csv", header = T)
+
+datafor2015 <- full_join(records_2015_clean, cameraops2015, by = c("site" = "Name"))
+
+#set as date 
+datafor2015$Date_Place <- as.Date(datafor2015$Date_Place, "%B %d, %Y")
+datafor2015$Date_Remov <- as.Date(datafor2015$Date_Remov, "%B %d, %Y")
+```
