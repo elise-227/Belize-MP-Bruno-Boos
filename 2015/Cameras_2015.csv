@@ -1,0 +1,66 @@
+﻿Name,Brand,Date_Place,Time,Date_Remov,Days,Easting,Northing,Lat,Lat,Notes,Compartmen,Conservati,Active_Log,Logged_in,Hurricane,Fire_Damag,Location_d,Landscape
+501C,Bushnell,"April 10, 2015", ,"May 30, 2015",49,292447,1954693,17.67130000150,-88.95662300000, , ,No,Yes,NA,No,No,Along narrow seismic line,Mature forest
+502C,Moultrycam,"April 10, 2015", ,"May 30, 2015",1,292758,1955010,17.67419700160,-88.95372800000,Took 3000 pictures in 1 day, ,No,Yes,NA,No,No,Along narrow seismic line,Mature forest
+503C,Scoutguard,"April 10, 2015", ,"May 30, 2015",17,291102,1950731,17.63538900160,-88.96890799990,Only took pictures for three weeks, ,Yes,No,No,No,No,Edge of stream,Mature Forest
+504C,Scoutguard,"April 10, 2015", ,"May 30, 2015",49,292789,1954318,17.66795100150,-88.95336300000, , ,No,Yes,NA,No,No,Along narrow seismic line,Mature forest
+505C,Moultrycam,"April 10, 2015", ,"May 30, 2015",3,289335,1956401,17.68644300160,-88.98611700000, , ,No,Yes,NA,No,No,Along wide logging road,Mature forest
+506C,Bushnell,"April 10, 2015", ,"May 30, 2015",16,291308,1950725,17.63535500150,-88.96696700000,"In stream, people only", ,Yes,No,No,No,No,Edge of stream,Mature Forest
+507C,Bushnell,"April 10, 2015", ,"May 30, 2015",49,283656,1935412,17.49629400160,-89.03750800000, , ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+508C,Scoutguard,"April 10, 2015", ,"May 30, 2015",8,280364,1934433,17.48713100160,-89.06840000000,Took mostly movies!, ,No,Yes,2015,Yes,No,Along narrow logging trail,Disturbed High forest
+509C,Bushnell,"April 10, 2015", ,"May 30, 2015",49,280114,1935198,17.49401200160,-89.07083300000, , ,No,Yes,2015,Yes,No,Along narrow logging trail,Disturbed High forest
+510C,Moultrycam,"April 10, 2015", ,"May 30, 2015",38,282382,1935493,17.49690500160,-89.04950800000, , ,No,Yes,2015,Yes,No,Along narrow logging trail,Disturbed High forest
+511C,Moultrycam,"April 10, 2015", ,"May 30, 2015",2,282077,1935175,17.49399500160,-89.05235000000,"Moving branch, 3300 pictures of nothing", ,No,Yes,2015,Yes,No,Along narrow logging trail,Disturbed High forest
+512C,Scoutguard,"April 10, 2015", ,"May 30, 2015",8,281740,1935290,17.49500300160,-89.05553600000,"Tons of pictures, too hot?", ,No,Yes,2015,Yes,No,Along narrow logging trail,Disturbed High forest
+501D,Bushnell,"May 30, 2015", ,"June 29, 2015",67,292588,1957992,17.70112065720,-88.95562208190, , ,No,Yes,NA,No,No,Along wide logging road,Mature forest
+502D,Moultrycam,"May 30, 2015", ,"June 29, 2015",67,291686,1955608,17.67950261550,-88.96388417300, , ,No,Yes,NA,No,No,Along wide logging road,Mature forest
+503D,Bushnell,"May 30, 2015", ,"June 29, 2015",67,292559,1958254,17.70348066130,-88.95591808650, , ,No,Yes,NA,No,No,Along wide logging road,Mature forest
+504D,Scoutguard,"May 30, 2015", ,"June 29, 2015",67,291590,1956114,17.68406362320,-88.96484318650, , ,No,Yes,NA,No,No,Along wide logging road,Mature forest
+505D,Moultrycam,"May 30, 2015", ,"June 29, 2015",24,290391,1956661,17.68888462730,-88.97619332630,Took only 22 useful pictures, ,No,Yes,NA,No,No,Along narrow logging trail,Mature forest
+506D,Bushnell,"May 30, 2015", ,"June 29, 2015",67,291532,1956956,17.69166463650,-88.96546519730, , ,No,Yes,NA,No,No,Along narrow logging trail,Mature forest
+507D,Bushnell,"May 30, 2015", ,"June 29, 2015",67,283856,1935164,17.49406925150,-89.03559795900, , ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+508D,Scoutguard,"May 30, 2015", ,"June 29, 2015",6,280218,1935038,17.49258023430,-89.06984037120,Took movies, ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+509D,Bushnell,"May 30, 2015", ,"June 29, 2015",67,280713,1934457,17.48737722680,-89.06511431180, , ,No,Yes,2015,Yes,No,Along narrow logging trail,Disturbed High forest
+510D,Moultrycam,"May 30, 2015", ,"June 29, 2015",67,282702,1935595,17.49785425380,-89.04650709230, , ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+511D,Moultrycam,"May 30, 2015", ,"June 29, 2015",28,283157,1935085,17.49329424730,-89.04217803800, , ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+512D,Scoutguard,"May 30, 2015", ,"June 29, 2015",0,281983,1935523,17.49713724970,-89.05327017350, , ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+501E,Bushnell,"June 29, 2015", ,"September 15, 2015",78,291363,1956977,17.69183763620,-88.96706321680, , ,No,Yes,NA,No,No,Along wide logging road,Mature forest
+502E,Moultrycam,"June 29, 2015", ,"September 15, 2015",78,290847,1955799,17.68114761530,-88.97181026980, , ,No,Yes,NA,No,No,Along wide logging road,Mature forest
+503E,Bushnell,"June 29, 2015", ,"September 15, 2015",78,291322,1957347,17.69516964200,-88.96748722340, , ,No,Yes,NA,No,No,At Pond,Mature forest
+504E,Scoutguard,"June 29, 2015", ,"September 15, 2015",78,290567,1955971,17.68267061690,-88.97447030270, , ,No,Yes,NA,No,No,Along wide logging road,Mature forest
+505E,Moultrycam,"June 29, 2015", ,"September 15, 2015",78,290522,1956892,17.69099063160,-88.97498131250, , ,No,Yes,NA,No,No,Along narrow logging trail,Mature forest
+506E,Bushnell,"June 29, 2015", ,"September 15, 2015",78,292491,1955895,17.68216862320,-88.95632908240, , ,No,Yes,NA,No,No,Along wide logging road,Mature forest
+507E,Bushnell,"June 29, 2015", ,"September 15, 2015",78,283482,1934992,17.49248524710,-89.03910800060, , ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+508E,Scoutguard,"June 29, 2015", ,"September 15, 2015",8,283447,1934597,17.48891324050,-89.03939200240, , ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+509E,Bushnell,"June 29, 2015", ,"September 15, 2015",78,281203,1934430,17.48718322840,-89.06050025610, , ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+510E,Moultrycam,"June 29, 2015", ,"September 15, 2015",78,281670,1934730,17.48994023530,-89.05613920480, , ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+511E,Moultrycam,"June 29, 2015", ,"September 15, 2015",0,282766,1934788,17.49057124080,-89.04582308070, , ,No,Yes,2015,Yes,No,Along narrow logging trail,Disturbed High forest
+512E,Scoutguard,"June 29, 2015", ,"September 15, 2015",78,282178,1935684,17.49860725310,-89.05144915220, , ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+501F,Bushnell,"September 15, 2015", ,"November 9, 2015",55,292314,1958107,17.70212965800,-88.95821511380, , ,No,Yes,NA,No,No,Along wide logging road,Mature forest
+502F,Moultrycam,"September 15, 2015", ,"November 9, 2015",55,289306,1957023,17.69205662890,-88.98645645220, , ,No,Yes,NA,No,No,Along narrow logging trail,Mature forest
+503F,Bushnell,"September 15, 2015", ,"November 9, 2015",45,291313,1957359,17.69528064210,-88.96757322450, , ,No,Yes,NA,No,No,At Pond,Mature forest
+504F,Scoutguard,"September 15, 2015", ,"November 9, 2015",25,289314,1956370,17.68615661840,-88.98631644800,Only movies, ,No,Yes,NA,No,No,Along wide logging road,Mature forest
+505F,Moultrycam,"September 15, 2015", ,"November 9, 2015",55,290310,1956304,17.68565262130,-88.97692133380, , ,No,Yes,NA,No,No,Along narrow logging trail,Mature forest
+506F,Bushnell,"September 15, 2015", ,"November 9, 2015",55,293760,1956528,17.68800563820,-88.94442694050, , ,No,Yes,NA,No,No,Along wide logging road,Mature forest
+507F,Bushnell,"September 15, 2015", ,"November 9, 2015",55,283119,1935211,17.49442524920,-89.04254604290, , ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+508F,Scoutguard,"September 15, 2015", ,"November 9, 2015",0,283678,1935452,17.49665825550,-89.03730998080, , ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+509F,Bushnell,"September 15, 2015", ,"November 9, 2015",55,283280,1934662,17.48948524080,-89.04097702180, , ,No,Yes,2015,Yes,No,Along narrow logging trail,Disturbed High forest
+510FG,Moultrycam,"September 15, 2015", ,"December 1, 2015",77,281361,1934328,17.48627922740,-89.05900323760, , ,No,Yes,2015,Yes,No,Along narrow logging trail,Disturbed High forest
+511FG,Moultrycam,"September 15, 2015", ,"December 1, 2015",77,282114,1934484,17.48776423310,-89.05193315310, , ,No,Yes,2015,Yes,No,Along narrow logging trail,Disturbed High forest
+512F,Scoutguard,"September 15, 2015", ,"November 9, 2015",55,281718,1935445,17.49640324730,-89.05575920320, , ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+501G,Bushnell,"November 9, 2015", ,"January 9, 2015",0,291641,1955665,17.68000761620,-88.96431117840, , ,No,Yes,NA,No,No,Along wide logging road,Mature forest
+502G,Moultrycam,"November 9, 2015", ,"January 9, 2015",52,289511,1956735,17.68946962510,-88.98449442730, , ,No,Yes,NA,No,No,Along narrow logging trail,Mature forest
+503G,Bushnell,"November 9, 2015", ,"January 9, 2015",61,291304,1957372,17.69539964230,-88.96766122560, , ,No,Yes,NA,No,No,At Pond,Mature forest
+504G,Scoutguard,"November 9, 2015", ,"January 9, 2015",0,290612,1956815,17.69029763070,-88.97412430180, , ,No,Yes,NA,No,No,Along narrow logging trail,Mature forest
+505G,Moultrycam,"November 9, 2015", ,"January 9, 2015",61,291021,1956145,17.68428262150,-88.97020125160, , ,No,Yes,NA,No,No,Along narrow logging trail,Mature forest
+506G,Bushnell,"November 9, 2015", ,"January 9, 2015",61,292534,1956194,17.68487162810,-88.95595007900, , ,No,Yes,NA,No,No,Along wide logging road,Mature forest
+507G,Bushnell,"November 9, 2015", ,"December 1, 2015",22,282985,1935446,17.49653825250,-89.04383505940, , ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+508G,Scoutguard,"November 9, 2015", ,"December 1, 2015",0,283831,1935208,17.49446625210,-89.03584096210, , ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+509G,Bushnell,"November 9, 2015", ,"December 1, 2015",53,283441,1934595,17.48889324040,-89.03945500320, , ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+512G,Scoutguard,"November 9, 2015", ,"December 1, 2015",22,282179,1935657,17.49836125270,-89.05144115200,Took only 10 useful pictures, ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+507H,Bushnell,"December 1, 2015", ,"February 29, 2016",90,283483,1934994,17.49249924710,-89.03909500050,Changed date, ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+508H,Scoutguard,"December 1, 2015", ,"February 29, 2016",17,288991,1929840,17.44646618390,-88.98674234940, , ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+509H,Bushnell,"December 1, 2015", ,"February 29, 2016",90,283730,1935382,17.49602925450,-89.03680697450, , ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+510H,Moultrycam,"December 1, 2015", ,"February 29, 2016",90,282719,1935523,17.49720225270,-89.04634609000, , ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+511H,Moultrycam,"December 1, 2015", ,"February 29, 2016",90,282087,1935457,17.49654424900,-89.05228316130, , ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+512H,Moultrycam,"December 1, 2015", ,"February 29, 2016",4,283335,1934691,17.48974724150,-89.04046201570, , ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
+513H,Bushnell,"December 1, 2015", ,"February 29, 2016",0,289027,1930241,17.45009319070,-88.98644434740,Camera appears to have failed completely, ,No,Yes,2015,Yes,No,Along wide logging road,Disturbed High forest
