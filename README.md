@@ -8,4 +8,4 @@ Kelly Bruno
 kelly.a.bruno@duke.edu
 MEM Student
 
-Space reference for data CRS = 26716
+Space reference for data CRS = 26716, (its in easting and northings aka meters)
