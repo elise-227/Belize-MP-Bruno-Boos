@@ -172,3 +172,29 @@ unique(errorinopdays2014$site)
 ```
 
 Only errors in 7 of the observations - can check back for typos 
+
+--------------------
+```{r cleaning 2016}
+records_2016_clean <- records_2016 %>%
+  mutate(site = paste0(Cam.nr,series)) %>%
+  drop_na(Cam.nr)
+
+unique(records_2016_clean$site)
+
+```
+
+```{r joining cam data}
+cameraops2016 <- read.csv("./2016/Cameras_2016.csv", header = T)
+
+unique(cameraops2016$Name)
+
+datafor2016 <- full_join(records_2016_clean, cameraops2016, by = c("site" = "Name"))
+
+#set as date 
+datafor2016$Date.Placement <- as.Date(datafor2016$Date.Placement, "%B %d, %Y")
+datafor2016$Date.Removed <- as.Date(datafor2016$Date.Removed, "%B %d, %Y")
+
+#calc end date for cam
+datafor2016_edit <- datafor2016 %>%
+  mutate(endday = Date_Place + Days)
+```
