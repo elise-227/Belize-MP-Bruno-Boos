@@ -196,5 +196,74 @@ datafor2016$Date.Removed <- as.Date(datafor2016$Date.Removed, "%B %d, %Y")
 
 #calc end date for cam
 datafor2016_edit <- datafor2016 %>%
-  mutate(endday = Date_Place + Days)
+  mutate(endday = Date.Placement + Days)
+
+#visit day
+datafor2016_visit <- datafor2016_edit %>%
+  mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
+  mutate(visit = as.numeric((obsdate - Date.Placement) + 1))
+
+#error finder 
+datafor2016_errors <- datafor2016_visit %>%
+  mutate(errors = ifelse(obsdate > endday, TRUE, FALSE)) 
+summary(datafor2016_errors$errors)
+
+#years incorrect some marked as 2015 instead of 2016
+#fixed in excel
 ```
+
+607A -> subsetted into Ab Ac Ad, not sure if this is just the location of 607A or what the reason for subsetting is. Accounts for all the NA's.
+
+Some january placement days were listed as 2015 instead of 2016 -> once that is fixed only 5 errors
+
+284 NA's = the 607A deviations
+
+Maybe check photo to see observation day. 
+
+----------------------
+
+```{r cleaning 2017}
+
+
+```
+
+```{r matching 2017 camera data}
+
+```
+
+
+
+----------------------
+
+```{r cleaning 2018}
+
+```
+
+```{r matching 2018 cam data}
+
+
+```
+
+--------------------
+
+```{r cleaning 2019}
+
+
+```
+
+```{r matching 2019 cam data}
+
+
+```
+
+----------------
+
+```{r cleaning 2020}
+
+
+```
+
+```{r matching 2020 cam data}
+
+```
+
