@@ -294,28 +294,78 @@ datafor2018_errors <- datafor2018_visit %>%
   mutate(errors = ifelse(obsdate > Last.record, TRUE, FALSE)) 
 summary(datafor2018_errors$errors)
 ```
+NOTE: remove non functions cameras maybe and also remove the days record
 
+CHECK BACK AT PHOTOS to see if obs date is right!
 --------------------
 
 ```{r cleaning 2019}
 
+unique(records_2019$Camera)
 
 ```
 
 
 ```{r matching 2019 cam data}
+cameraops2019 <- read.csv("./2019/Cameras_2019.csv", header = T)
 
+unique(cameraops2019$Name)
+
+datafor2019 <- full_join(records_2019, cameraops2019, by = c("Camera" = "Name"))
+
+#set as date 
+datafor2019$Date.Placement <- as.Date(as.character(datafor2019$Date.Placement), "%Y%m%d")
+datafor2019$Date.Removed <- as.Date(as.character(datafor2019$Date.Removed), "%Y%m%d")
+datafor2019$Last.record <- as.Date(as.character(datafor2019$Last.record), "%Y%m%d")
+
+#visit day
+datafor2019_visit <- datafor2019 %>%
+  mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
+  mutate(visit = as.numeric((obsdate - Date.Placement) + 1))
+
+#error finder 
+datafor2019_errors <- datafor2019_visit %>%
+  mutate(errors = ifelse(obsdate > Last.record, TRUE, FALSE)) 
+summary(datafor2019_errors$errors)
 
 ```
+909A month is wrong 
 
+series wrong for 905E (says F) - something wrong here, not sure if location is right maybe is F 
+
+only two cameras with issues 
+
+remove empty rows
 ----------------
 
 ```{r cleaning 2020}
 
+unique(records_2020$Name)
 
 ```
 
 ```{r matching 2020 cam data}
+cameraops2020 <- read.csv("./2020/Cameras_2020.csv", header = T)
+
+unique(cameraops2020$Name)
+
+datafor2020 <- full_join(records_2020, cameraops2020, by = "Name")
+
+#set as date 
+datafor2020$Date.Placement <- as.Date(as.character(datafor2020$Date.Placement), "%Y%m%d")
+datafor2020$Date.Removed <- as.Date(as.character(datafor2020$Date.Removed), "%Y%m%d")
+datafor2020$Last.record <- as.Date(as.character(datafor2020$Last.record), "%Y%m%d")
+
+#visit day
+datafor2020_visit <- datafor2020 %>%
+  mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
+  mutate(visit = as.numeric((obsdate - Date.Placement) + 1))
+
+#error finder 
+datafor2020_errors <- datafor2020_visit %>%
+  mutate(errors = ifelse(obsdate > Last.record, TRUE, FALSE)) %>%
+  mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE)) 
+summary(datafor2020_errors$opp_errors)
 
 ```
-
+werid stuff with 2020 some obs dates are before the camera was placed 
