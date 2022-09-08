@@ -223,12 +223,38 @@ Maybe check photo to see observation day.
 ----------------------
 
 ```{r cleaning 2017}
+records_2017_clean <- records_2017 %>%
+  mutate(site = paste0(Cam.nr,series)) %>%
+  drop_na(Cam.nr)
 
+unique(records_2017_clean$site)
 
 ```
 
 ```{r matching 2017 camera data}
+cameraops2017 <- read.csv("./2017/Cameras_2017.csv", header = T)
 
+unique(cameraops2017$Name)
+
+datafor2017 <- full_join(records_2017_clean, cameraops2017, by = c("site" = "Name"))
+
+#set as date 
+datafor2017$Date.Placement <- as.Date(datafor2017$Date.Placement, "%d-%b-%y")
+datafor2017$Date.Removed <- as.Date(datafor2017$Date.Removed, "%d-%b-%y")
+
+#calc end date for cam
+datafor2017_edit <- datafor2017 %>%
+  mutate(endday = Date.Placement + Days)
+
+#visit day
+datafor2017_visit <- datafor2017_edit %>%
+  mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
+  mutate(visit = as.numeric((obsdate - Date.Placement) + 1))
+
+#error finder 
+datafor2017_errors <- datafor2017_visit %>%
+  mutate(errors = ifelse(obsdate > endday, TRUE, FALSE)) 
+summary(datafor2017_errors$errors)
 ```
 
 
@@ -236,12 +262,37 @@ Maybe check photo to see observation day.
 ----------------------
 
 ```{r cleaning 2018}
+records_2018_clean <- records_2018 %>%
+  mutate(series_caps = toupper(series)) %>%
+  mutate(site = paste0(Cam.nr,series_caps)) %>%
+  drop_na(Cam.nr)
 
+records_2018_clean$Year <- 2018
+
+unique(records_2018_clean$site)
 ```
 
 ```{r matching 2018 cam data}
+cameraops2018 <- read.csv("./2018/Cameras_2018.csv", header = T)
 
+unique(cameraops2018$Name)
 
+datafor2018 <- full_join(records_2018_clean, cameraops2018, by = c("site" = "Name"))
+
+#set as date 
+datafor2018$Date.Placement <- as.Date(datafor2018$Date.Placement, "%d-%b-%y")
+datafor2018$Date.Removed <- as.Date(datafor2018$Date.Removed, "%d-%b-%y")
+datafor2018$Last.record <- as.Date(datafor2018$Last.record, "%d-%b-%y")
+
+#visit day
+datafor2018_visit <- datafor2018 %>%
+  mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
+  mutate(visit = as.numeric((obsdate - Date.Placement) + 1))
+
+#error finder 
+datafor2018_errors <- datafor2018_visit %>%
+  mutate(errors = ifelse(obsdate > Last.record, TRUE, FALSE)) 
+summary(datafor2018_errors$errors)
 ```
 
 --------------------
@@ -250,6 +301,7 @@ Maybe check photo to see observation day.
 
 
 ```
+
 
 ```{r matching 2019 cam data}
 
