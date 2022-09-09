@@ -10,7 +10,7 @@ library(stringr)
 
 spp_name <- "Puma"
 
-SPP <- read.table(paste("chist/chist_", spp_name ,".txt", sep = ""), sep = "\t", colClasses = c(rep("character", 163)), header=TRUE)
+SPP <- read.table(paste("chist_", spp_name ,".txt", sep = ""), sep = "\t", colClasses = c(rep("character", 163)), header=TRUE)
 WT <- SPP
 WT <- WT[, c(8:59)]
 for (i in 8:163) {
