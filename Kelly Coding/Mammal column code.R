@@ -29,6 +29,7 @@ print(b, quote=F)
 
 ##now I have to google all of these species lol
 ##then code as mammal Y or N
+#2014
 records_2014$Mammal <- ifelse(records_2014$Species %in% c("Agouti", "Central American Tapir", "Collared Peccary", "Common Opossum", 
                                                           "Deppe's Squirrel", "Four-eyed Oppossum", "Gray Fox", "Jaguar", "Jaguarundi", 
                                                           "Margay", "Mouse", "Nine-banded Armadillo", "Northern Tamandua", "Ocelot", "Paca", 
@@ -41,6 +42,9 @@ records_2014$Mammal <- ifelse(records_2014$Species %in% c("Agouti", "Central Ame
                                                  "Ocellated Turkey", "Ovenbird", "Plain Chachalaca", "Red-billed Pigeon", "Ruddy-quail Dove", 
                                                  "Slaty-breasted Tinamou", "Swainson's Trush", "Tinamou", "UNID", "White Hawk", "White-collard Seedeater", 
                                                  "Wood Thrush"), "No", NA))
+
+#2015 
+records_2015$Mammal <- 
 ##check if any NAs
 unique(records_2014$Mammal)
 
