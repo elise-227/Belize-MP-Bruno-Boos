@@ -398,6 +398,6 @@ cameras_all.sf <- cameras_all_clean %>%
          crs = 26716)
 mapview(cameras_all.sf)
 
-st_write(cameras_all.sf, "cams2014to2020.shp", driver = "ESRI Shapefile")
+st_write(cameras_all.sf, "cams2015to2020.shp", driver = "ESRI Shapefile")
 ```
 
