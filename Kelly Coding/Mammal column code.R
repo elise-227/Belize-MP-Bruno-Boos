@@ -1,3 +1,4 @@
+
 getwd()
 #packages
 require(tidyverse)
@@ -13,12 +14,18 @@ library(AICcmodavg)
 
 #load data
 records_2014 <- read.csv("./By_year/2014_Records_Yalbac_data.csv", stringsAsFactors = T)
+records_2015 <- read.csv("./By_year/2015_Records_Yalbac_data.csv", stringsAsFactors = T)
+
 
 #collect species names
-names <- unique(records_2014$Species)
+names2014 <- unique(records_2014$Species)
+names2015 <- unique(records_2015$Species)
+
 #save a string with ""
-s <- paste0('"', paste(names, collapse='", "'), '"')
-print(s, quote=F)
+a <- paste0('"', paste(names2014, collapse='", "'), '"')
+print(a, quote=F)
+b <- paste0('"', paste(names2015, collapse='", "'), '"')
+print(b, quote=F)
 
 ##now I have to google all of these species lol
 ##then code as mammal Y or N
