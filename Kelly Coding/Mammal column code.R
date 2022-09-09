@@ -38,3 +38,5 @@ records_2014$Mammal <- ifelse(records_2014$Species %in% c("Agouti", "Central Ame
 unique(records_2014$Mammal)
 
 ##check distribution of mammals
+mam <- records_2014 %>% group_by(Mammal) %>% summarise(n = n()) %>% mutate(Freq = n/sum(n))
+print(mam)
