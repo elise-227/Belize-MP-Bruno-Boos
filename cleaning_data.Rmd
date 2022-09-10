@@ -369,3 +369,35 @@ summary(datafor2020_errors$opp_errors)
 
 ```
 werid stuff with 2020 some obs dates are before the camera was placed 
+
+```{r combining cameras and locationas}
+camaeraops2014_name <- cameraops2014 %>%
+  select(site)
+#### DO 2014 LATER #####
+
+cameraops2015_edit<-cameraops2015 %>%
+  select(Name,Easting,Northing)
+cameraops2016_edit<-cameraops2016 %>%
+  select(Name,Easting,Northing)
+cameraops2017_edit<-cameraops2017 %>%
+  select(Name,Easting,Northing)
+cameraops2018_edit<-cameraops2018 %>%
+  select(Name,Easting,Northing)
+cameraops2019_edit<-cameraops2019 %>%
+  select(Name,Easting,Northing)
+cameraops2020_edit<-cameraops2020 %>%
+  select(Name,Easting,Northing)
+cameras_all<- rbind(cameraops2015_edit,cameraops2016_edit,cameraops2017_edit,cameraops2018_edit,cameraops2019_edit,cameraops2020_edit)
+cameras_all_clean <- drop_na(cameras_all)
+
+```
+
+```{r mapview}
+cameras_all.sf <- cameras_all_clean %>%
+  st_as_sf(coords = c('Easting', 'Northing'),
+         crs = 26716)
+mapview(cameras_all.sf)
+
+st_write(cameras_all.sf, "cams2015to2020.shp", driver = "ESRI Shapefile")
+```
+
