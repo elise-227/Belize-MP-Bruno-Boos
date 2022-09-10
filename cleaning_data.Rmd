@@ -80,28 +80,28 @@ length of all matrices for 2014 then should be 76 because there are than many si
 
 ```{r days op and ect}
 #load operational days
-cameraops2014 <- read.csv("./2014/OperationalDays2014_edits.csv", header = T)
+cameraops2014 <- read.csv("./2014/Cameras_2014.csv", header = T)
 
 #data frame for 2014 
-datafor2014 <- full_join(records_2014_clean, cameraops2014, by = "site")
+datafor2014 <- full_join(records_2014_clean, cameraops2014, by = c("site"="Name"))
 
 #set as date column
-datafor2014$startday <- as.Date(datafor2014$startday, "%Y-%m-%d")
-datafor2014$removeday <- as.Date(datafor2014$removeday, "%Y-%m-%d")
+datafor2014$Date.Placement <- as.Date(datafor2014$Date.Placement, "%B %d, %Y")
+datafor2014$Date.Removed <- as.Date(datafor2014$Date.Removed, "%Y-%m-%d")
 
 #calculate end date
 datafor2014_edit <- datafor2014 %>%
-  mutate(endday = startday + daysop)
+  mutate(Last.Record = Date.Placement + Days)
 #add one here?
 
 #find visit number
 datafor2014_visit <- datafor2014_edit %>%
   mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
-  mutate(visit = as.numeric(obsdate - startday + 1))
+  mutate(visit = as.numeric(obsdate - Date.Placement +1))
 
 #error finder 
 datafor2014_errors <- datafor2014_visit %>%
-  mutate(errors = ifelse(obsdate > endday, TRUE, FALSE)) 
+  mutate(errors = ifelse(obsdate > Last.Record, TRUE, FALSE)) 
 summary(datafor2014_errors$errors)
 
 #get list of cameras that need op days changed
@@ -122,6 +122,12 @@ Some points that are inconsistent going to need to just put 0s to the days the c
 
 39 or more like 47? cameras have incorrect operational days. for 2014 might just have to do the days the camera was out
 
+~~~~~~~~~
+New notes 
+
+record 475 for 401A i believe the month and day are flipped 
+
+still need to figure out where the error is in days cam out 
 ------------------------------
 ```{r 2015 cleaning}
 #clean all 2014 data
@@ -371,10 +377,8 @@ summary(datafor2020_errors$opp_errors)
 werid stuff with 2020 some obs dates are before the camera was placed 
 
 ```{r combining cameras and locationas}
-camaeraops2014_name <- cameraops2014 %>%
-  select(site)
-#### DO 2014 LATER #####
-
+cameraops2014_edit <- cameraops2014 %>%
+  select(Name,Easting,Northing)
 cameraops2015_edit<-cameraops2015 %>%
   select(Name,Easting,Northing)
 cameraops2016_edit<-cameraops2016 %>%
@@ -387,7 +391,7 @@ cameraops2019_edit<-cameraops2019 %>%
   select(Name,Easting,Northing)
 cameraops2020_edit<-cameraops2020 %>%
   select(Name,Easting,Northing)
-cameras_all<- rbind(cameraops2015_edit,cameraops2016_edit,cameraops2017_edit,cameraops2018_edit,cameraops2019_edit,cameraops2020_edit)
+cameras_all<- rbind(cameraops2014_edit,cameraops2015_edit,cameraops2016_edit,cameraops2017_edit,cameraops2018_edit,cameraops2019_edit,cameraops2020_edit)
 cameras_all_clean <- drop_na(cameras_all)
 
 ```
@@ -398,6 +402,6 @@ cameras_all.sf <- cameras_all_clean %>%
          crs = 26716)
 mapview(cameras_all.sf)
 
-st_write(cameras_all.sf, "cams2015to2020.shp", driver = "ESRI Shapefile")
+st_write(cameras_all.sf, "cams2014to2020.shp", driver = "ESRI Shapefile")
 ```
 
