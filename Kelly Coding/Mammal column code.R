@@ -43,7 +43,10 @@ records_2014$Mammal <- ifelse(records_2014$Species %in% c("Agouti", "Central Ame
                                                  "Slaty-breasted Tinamou", "Swainson's Trush", "Tinamou", "UNID", "White Hawk", "White-collard Seedeater", 
                                                  "Wood Thrush"), "No", NA))
 
-#2015 
+#2015
+#fix misspelled species
+records_2015$Species <- gsub("Collared Pecary", "Collared Peccary", records_2015$Species)
+
 records_2015$Mammal <- 
 ##check if any NAs
 unique(records_2014$Mammal)
