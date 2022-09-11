@@ -18,6 +18,7 @@ records_2015 <- read.csv("./By_year/2015_Records_Yalbac_data.csv", stringsAsFact
 records_2016 <- read.csv("./By_year/2016_Records_Yalbac_data.csv", stringsAsFactors = T)
 records_2017 <- read.csv("./By_year/2017_Records_Yalbac_data.csv", stringsAsFactors = T)
 records_2018 <- read.csv("./By_year/2018_Records_Yalbac_data.csv", stringsAsFactors = T)
+records_2019 <- read.csv("./By_year/2019_Records_Yalbac_data.csv", stringsAsFactors = T)
 
 
 #collect species names
@@ -26,7 +27,7 @@ names2015 <- unique(records_2015$Species)
 names2016 <- unique(records_2016$species.name)
 names2017 <- unique(records_2017$species.name)
 names2018 <- unique(records_2018$species.name)
-
+names2019 <- unique(records_2019$species.name)
 
 #save a string with ""
 a <- paste0('"', paste(names2014, collapse='", "'), '"') #2014
@@ -39,6 +40,8 @@ d <- paste0('"', paste(names2017, collapse='", "'), '"') #2017
 print(d, quote=F)
 e <- paste0('"', paste(names2018, collapse='", "'), '"') #2018
 print(e, quote=F)
+f <- paste0('"', paste(names2019, collapse='", "'), '"') #2019
+print(f, quote=F)
 
 ##now I have to google all of these species lol
 ##then code as mammal Y or N
@@ -208,6 +211,35 @@ records_2018$Mammal <- ifelse(records_2018$species.name %in% c("Agouti", "Baird'
                                                                       "Ruddy Ground-dove", "Summer Tanager", "Thicket Tinamou", "Unknown", "Unknown bird", 
                                                                       ""), "No", NA))
 
+################################################################################
+##2019##########################################################################
+################################################################################
+#fix errors
+records_2019$species.name <- gsub("Collared Pecary", "Collared Peccary", records_2019$species.name)
+records_2019$species.name <- gsub("Gray fox", "Gray Fox", records_2019$species.name)
+records_2019$species.name <- gsub("Virginia opossum", "Virginia Opossum", records_2019$species.name)
+records_2019$species.name <- gsub("Crested guan", "Crested Guan", records_2019$species.name)
+records_2019$species.name <- gsub("Ruddy Quail Dove ", "Ruddy Quail-dove", records_2019$species.name)
+records_2019$species.name <- gsub("Clay coloured Thrush", "Clay-coloured Thrush", records_2019$species.name)
+records_2019$species.name <- gsub("Blue Ground-Dove", "Blue Ground Dove", records_2019$species.name)
+records_2019$species.name <- gsub("Red-throated ant-tanager", "Red-throated Ant-tanager", records_2019$species.name)
+records_2019$species.name <- gsub("Bare-throated Tiger-heron", "Bare-throated Tiger Heron", records_2019$species.name)
+records_2019$species.name <- gsub("White-tipped dove", "White-tipped Dove", records_2019$species.name)
+
+#add mammal Y/N
+records_2019$Mammal <- ifelse(records_2019$species.name %in% c("Agouti", "White-tailed Deer", "Deppe's Squirrel", "Collared Peccary", 
+                                                               "Puma", "Striped Hog-nosed Skunk", "White-lipped Peccary", "Ocelot", 
+                                                               "Gray Fox", "Common Opossum", "Virginia Opossum", "White-nosed Coati", 
+                                                               "Brown Four-eyed Opossum", "Red Brocket Deer", "Baird's Tapir", 
+                                                               "Nine-banded Armadillo", "Jaguar", "Tayra", "Paca", "Racoon", "Margay", 
+                                                               "Northern Tamandua", "Bat", "Rodent", "Jaguarundi", "Coyote", "Unknown mammal"), "Yes",
+                              ifelse(records_2019$species.name %in% c("Great Curassow", "Ocellated Turkey", "Wood Thrush", "Gray-headed Dove", 
+                                                                      "Black-faced Antthrush", "Great Tinamou", "Crested Guan", "Ruddy Quail-dove", 
+                                                                      "Clay-coloured Thrush", "Slaty-breasted Tinamou", "Blue Ground Dove", 
+                                                                      "Plain Chachalaca", "Unknown bird", "Red-throated Ant-tanager", "Great Black Hawk", 
+                                                                      "Russet-naped Woodrail", "Bare-throated Tiger Heron", "Boat-billed Heron", 
+                                                                      "Swainson's Thrush", "Common Pauraque", "Northern Waterthrush", "White-tipped Dove", 
+                                                                      "Roadside Hawk", "Ornate Hawk-eagle", "Owl", "Blue Grosbeak",  "Green Heron"), "No", NA))
 
 ##check if any NAs
 unique(records_2014$Mammal)
@@ -215,6 +247,7 @@ unique(records_2015$Mammal)
 unique(records_2016$Mammal)
 unique(records_2017$Mammal)
 unique(records_2018$Mammal)
+unique(records_2019$Mammal)
 
 ##check distribution of mammals
 dist_2014 <- records_2014 %>% group_by(Mammal) %>% summarise(n = n()) %>% mutate(Freq = n/sum(n))
@@ -222,10 +255,11 @@ dist_2015 <- records_2015 %>% group_by(Mammal) %>% summarise(n = n()) %>% mutate
 dist_2016 <- records_2016 %>% group_by(Mammal) %>% summarise(n = n()) %>% mutate(Freq = n/sum(n))
 dist_2017 <- records_2017 %>% group_by(Mammal) %>% summarise(n = n()) %>% mutate(Freq = n/sum(n))
 dist_2018 <- records_2018 %>% group_by(Mammal) %>% summarise(n = n()) %>% mutate(Freq = n/sum(n))
-
+dist_2019 <- records_2019 %>% group_by(Mammal) %>% summarise(n = n()) %>% mutate(Freq = n/sum(n))
 
 print(dist_2014)
 print(dist_2015)
 print(dist_2016)
 print(dist_2017)
 print(dist_2018)
+print(dist_2019)
