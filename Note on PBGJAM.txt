@@ -1,0 +1,4 @@
+PBGJAM
+	- (Join) Distribution modeling
+	- Bayesian model
+	- Disparate data can be used
