@@ -1,5 +1,5 @@
 ---
-title: "Cleaning_2014_data"
+title: "Cleaning_data"
 author: "Elise Boos"
 date: '2022-08-15'
 output: pdf_document
@@ -38,6 +38,9 @@ records_2018 <- read.csv("./By_year/2018_Records_Yalbac_data.csv", stringsAsFact
 records_2019 <- read.csv("./By_year/2019_Records_Yalbac_data.csv", stringsAsFactors = T)
 records_2020 <- read.csv("./By_year/2020_Records_Yalbac_data.csv", stringsAsFactors = T)
 ```
+
+General notes:
+some years cam name is 'site', later years cam name is 'Name'
 
 
 ```{r species names}
@@ -374,8 +377,10 @@ datafor2020_errors <- datafor2020_visit %>%
 summary(datafor2020_errors$opp_errors)
 
 ```
-werid stuff with 2020 some obs dates are before the camera was placed 
+weird stuff with 2020 some obs dates are before the camera was placed.
 
+
+Create a spatial data frame for the camaeras for all the years:
 ```{r combining cameras and locationas}
 cameraops2014_edit <- cameraops2014 %>%
   select(Name,Easting,Northing)
