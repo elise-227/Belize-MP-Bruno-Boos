@@ -383,19 +383,26 @@ weird stuff with 2020 some obs dates are before the camera was placed.
 Create a spatial data frame for the camaeras for all the years:
 ```{r combining cameras and locationas}
 cameraops2014_edit <- cameraops2014 %>%
-  select(Name,Easting,Northing)
+  select(Name,Easting,Northing) %>%
+  mutate(Record_Year = 2014)
 cameraops2015_edit<-cameraops2015 %>%
-  select(Name,Easting,Northing)
+  select(Name,Easting,Northing) %>%
+  mutate(Record_Year = 2015) 
 cameraops2016_edit<-cameraops2016 %>%
-  select(Name,Easting,Northing)
+  select(Name,Easting,Northing) %>%
+  mutate(Record_Year = 2016) 
 cameraops2017_edit<-cameraops2017 %>%
-  select(Name,Easting,Northing)
+  select(Name,Easting,Northing) %>%
+  mutate(Record_Year = 2017)  
 cameraops2018_edit<-cameraops2018 %>%
-  select(Name,Easting,Northing)
+  select(Name,Easting,Northing) %>%
+  mutate(Record_Year = 2018) 
 cameraops2019_edit<-cameraops2019 %>%
-  select(Name,Easting,Northing)
+  select(Name,Easting,Northing) %>%
+  mutate(Record_Year = 2019) 
 cameraops2020_edit<-cameraops2020 %>%
-  select(Name,Easting,Northing)
+  select(Name,Easting,Northing) %>%
+  mutate(Record_Year = 2020) 
 cameras_all<- rbind(cameraops2014_edit,cameraops2015_edit,cameraops2016_edit,cameraops2017_edit,cameraops2018_edit,cameraops2019_edit,cameraops2020_edit)
 cameras_all_clean <- drop_na(cameras_all)
 
@@ -405,8 +412,10 @@ cameras_all_clean <- drop_na(cameras_all)
 cameras_all.sf <- cameras_all_clean %>%
   st_as_sf(coords = c('Easting', 'Northing'),
          crs = 26716)
-mapview(cameras_all.sf)
+mapview(cameras_all.sf, zcol = "Record_Year")
 
-st_write(cameras_all.sf, "cams2014to2020.shp", driver = "ESRI Shapefile")
+
+
+st_write(cameras_all.sf, "cams2014to2020_withyear.shp", driver = "ESRI Shapefile")
 ```
 
