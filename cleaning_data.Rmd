@@ -94,7 +94,7 @@ datafor2014$Date.Removed <- as.Date(datafor2014$Date.Removed, "%Y-%m-%d")
 
 #calculate end date
 datafor2014_edit <- datafor2014 %>%
-  mutate(Last.Record = Date.Placement + Days)
+  mutate(Last.Record = Date.Placement + Days +1)
 #add one here?
 
 #find visit number
@@ -104,13 +104,15 @@ datafor2014_visit <- datafor2014_edit %>%
 
 #error finder 
 datafor2014_errors <- datafor2014_visit %>%
-  mutate(errors = ifelse(obsdate > Last.Record, TRUE, FALSE)) 
+  mutate(errors = ifelse(obsdate > Last.Record, TRUE, FALSE)) %>%
+  mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE)) 
 summary(datafor2014_errors$errors)
+summary(datafor2014_errors$opp_errors)
 
 #get list of cameras that need op days changed
-errorinopdays2014 <- filter(datafor2014_errors, errors == TRUE)
+#errorinopdays2014 <- filter(datafor2014_errors, errors == TRUE)
 
-unique(errorinopdays2014$site)
+#unique(errorinopdays2014$site)
 ```
 Errors in data found that need to fix: 
 
@@ -174,8 +176,10 @@ datafor2015_visit <- datafor2015_errorsfixed %>%
   mutate(visit = as.numeric((obsdate - Date_Place) + 1))
 
 datafor2015_errors <- datafor2015_visit %>%
-  mutate(errors = ifelse(obsdate > endday, TRUE, FALSE)) 
+  mutate(errors = ifelse(obsdate > endday, TRUE, FALSE)) %>%
+  mutate(opp_errors = ifelse(obsdate < Date_Place, TRUE, FALSE)) 
 summary(datafor2015_errors$errors)
+summary(datafor2015_errors$opp_errors)
 
 ```
 
