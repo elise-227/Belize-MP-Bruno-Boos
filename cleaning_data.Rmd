@@ -213,8 +213,10 @@ datafor2016_visit <- datafor2016_edit %>%
 
 #error finder 
 datafor2016_errors <- datafor2016_visit %>%
-  mutate(errors = ifelse(obsdate > endday, TRUE, FALSE)) 
+  mutate(errors = ifelse(obsdate > endday, TRUE, FALSE)) %>%
+  mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE)) 
 summary(datafor2016_errors$errors)
+summary(datafor2016_errors$opp_errors)
 
 #years incorrect some marked as 2015 instead of 2016
 #fixed in excel
@@ -261,8 +263,10 @@ datafor2017_visit <- datafor2017_edit %>%
 
 #error finder 
 datafor2017_errors <- datafor2017_visit %>%
-  mutate(errors = ifelse(obsdate > endday, TRUE, FALSE)) 
+  mutate(errors = ifelse(obsdate > endday, TRUE, FALSE)) %>%
+  mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE)) 
 summary(datafor2017_errors$errors)
+summary(datafor2017_errors$opp_errors)
 ```
 
 
@@ -299,7 +303,8 @@ datafor2018_visit <- datafor2018 %>%
 
 #error finder 
 datafor2018_errors <- datafor2018_visit %>%
-  mutate(errors = ifelse(obsdate > Last.record, TRUE, FALSE)) 
+  mutate(errors = ifelse(obsdate > Last.record, TRUE, FALSE)) %>%
+  mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE)) 
 summary(datafor2018_errors$errors)
 ```
 NOTE: remove non functions cameras maybe and also remove the days record
@@ -335,6 +340,7 @@ datafor2019_visit <- datafor2019 %>%
 datafor2019_errors <- datafor2019_visit %>%
   mutate(errors = ifelse(obsdate > Last.record, TRUE, FALSE)) %>%
   mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE))
+summary(datafor2019_errors$errors)
 summary(datafor2019_errors$opp_errors)
 
 ```
@@ -374,6 +380,7 @@ datafor2020_visit <- datafor2020 %>%
 datafor2020_errors <- datafor2020_visit %>%
   mutate(errors = ifelse(obsdate > Last.record, TRUE, FALSE)) %>%
   mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE)) 
+summary(datafor2020_errors$errors)
 summary(datafor2020_errors$opp_errors)
 
 ```
