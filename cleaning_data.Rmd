@@ -151,7 +151,7 @@ datafor2015$Date_Place <- as.Date(datafor2015$Date_Place, "%B %d, %Y")
 datafor2015$Date_Remov <- as.Date(datafor2015$Date_Remov, "%B %d, %Y")
 
 datafor2015_edit <- datafor2015 %>%
-  mutate(endday = Date_Place + Days)
+  mutate(endday = Date_Place + Days +1)
 #add one here?
 
 #find visit number
@@ -177,7 +177,6 @@ datafor2015_errors <- datafor2015_visit %>%
   mutate(errors = ifelse(obsdate > endday, TRUE, FALSE)) 
 summary(datafor2015_errors$errors)
 
-unique(errorinopdays2014$site)
 ```
 
 Only errors in 7 of the observations - can check back for typos 
@@ -253,7 +252,7 @@ datafor2017$Date.Removed <- as.Date(datafor2017$Date.Removed, "%d-%b-%y")
 
 #calc end date for cam
 datafor2017_edit <- datafor2017 %>%
-  mutate(endday = Date.Placement + Days)
+  mutate(endday = Date.Placement + Days +1)
 
 #visit day
 datafor2017_visit <- datafor2017_edit %>%
