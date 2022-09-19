@@ -333,8 +333,9 @@ datafor2019_visit <- datafor2019 %>%
 
 #error finder 
 datafor2019_errors <- datafor2019_visit %>%
-  mutate(errors = ifelse(obsdate > Last.record, TRUE, FALSE)) 
-summary(datafor2019_errors$errors)
+  mutate(errors = ifelse(obsdate > Last.record, TRUE, FALSE)) %>%
+  mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE))
+summary(datafor2019_errors$opp_errors)
 
 ```
 909A month is wrong 
