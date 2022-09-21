@@ -212,7 +212,7 @@ datafor2016$Date.Removed <- as.Date(datafor2016$Date.Removed, "%B %d, %Y")
 
 #calc end date for cam
 datafor2016_edit <- datafor2016 %>%
-  mutate(endday = Date.Placement + Days)
+  mutate(endday = Date.Placement + Days + 1)
 
 #visit day
 datafor2016_visit <- datafor2016_edit %>%
@@ -265,7 +265,7 @@ datafor2017$Date.Removed <- as.Date(datafor2017$Date.Removed, "%d-%b-%y")
 
 #calc end date for cam
 datafor2017_edit <- datafor2017 %>%
-  mutate(endday = Date.Placement + Days +1)
+  mutate(endday = Date.Placement + Days + 1)
 
 #visit day
 datafor2017_visit <- datafor2017_edit %>%
