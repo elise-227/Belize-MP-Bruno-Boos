@@ -110,7 +110,7 @@ summary(datafor2014_errors$errors)
 summary(datafor2014_errors$opp_errors)
 
 #get list of cameras that need op days changed
-#errorinopdays2014 <- filter(datafor2014_errors, errors == TRUE)
+errorinopdays2014 <- filter(datafor2014_errors, errors == TRUE)
 
 #unique(errorinopdays2014$site)
 ```
