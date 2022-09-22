@@ -215,7 +215,7 @@ unique(records_2016_clean$site)
 cameraops2016 <- read.csv("./2016/Cameras_2016.csv", header = T)
 
 #issue with colname import for kelly
-colnames(cameraops2016)[colnames(cameraops2016)=="ï..Name"] <- "Name"
+#colnames(cameraops2016)[colnames(cameraops2016)=="ï..Name"] <- "Name"
 
 unique(cameraops2016$Name)
 
@@ -269,7 +269,7 @@ unique(records_2017_clean$site)
 cameraops2017 <- read.csv("./2017/Cameras_2017.csv", header = T)
 
 #issue with colname import
-colnames(cameraops2017)[colnames(cameraops2017)=="ï..Name"] <- "Name"
+#colnames(cameraops2017)[colnames(cameraops2017)=="ï..Name"] <- "Name"
 
 unique(cameraops2017$Name)
 
