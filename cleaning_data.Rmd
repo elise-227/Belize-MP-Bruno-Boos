@@ -83,6 +83,7 @@ length of all matrices for 2014 then should be 76 because there are than many si
 
 ```{r days op and ect}
 #load operational days
+#LOAD IN OTHER VARIABLES FOR 2014 LIKE LOGGING ETC
 cameraops2014 <- read.csv("./2014/Cameras_2014.csv", header = T)
 
 #data frame for 2014 
@@ -283,6 +284,9 @@ datafor2017$Date.Removed <- as.Date(datafor2017$Date.Removed, "%d-%b-%y")
 datafor2017_edit <- datafor2017 %>%
   mutate(Last.Record = Date.Placement + Days + 1)
 
+#fix obs date for 10260313 in 710E
+datafor2017_edit[1248, ]$Day <- 26
+
 #visit day
 datafor2017_visit <- datafor2017_edit %>%
   mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
@@ -316,6 +320,10 @@ datafor2017_final <- full_join(datafor2017_int, fixerrors_2017_cont, by = "site"
 datafor2017_check <- datafor2017_final %>%
   mutate(errors_final = ifelse(obsdate > Last.Record_clean, TRUE, FALSE)) %>%
   mutate(errors_final2 = ifelse(obsdate < First_Obs, TRUE, FALSE))
+
+data2017_final <- datafor2017_final  %>%
+  mutate(visit = as.numeric((obsdate - First_Obs + 1))) %>%
+  select(site, 1:14, 17,18,34,19:21,25:33)
 ```
 
 Errors with cam 710E (maybe other cams too) Have to do with "Last.Record". This date is different than the date removed. Date removed would not result in these errors.
