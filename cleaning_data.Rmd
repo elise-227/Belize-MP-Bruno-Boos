@@ -280,6 +280,7 @@ summary(datafor2017_errors$errors)
 summary(datafor2017_errors$opp_errors)
 ```
 
+Errors with cam 710E (maybe other cams too) Have to do with "endday". This date is different than the date removed. Date removed would not result in these errors.
 
 
 ----------------------
