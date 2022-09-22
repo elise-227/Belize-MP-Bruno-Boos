@@ -97,6 +97,10 @@ datafor2014_edit <- datafor2014 %>%
   mutate(Last.Record = Date.Placement + Days +1)
 #add one here?
 
+#fix error for 401A picture 28 
+datafor2014_edit[475, ]$Month <- 3
+datafor2014_edit[475, ]$Day <- 24
+
 #find visit number
 datafor2014_visit <- datafor2014_edit %>%
   mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
@@ -105,14 +109,26 @@ datafor2014_visit <- datafor2014_edit %>%
 #error finder 
 datafor2014_errors <- datafor2014_visit %>%
   mutate(errors = ifelse(obsdate > Last.Record, TRUE, FALSE)) %>%
-  mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE)) 
+  mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE))
+#error summary
 summary(datafor2014_errors$errors)
 summary(datafor2014_errors$opp_errors)
 
-#get list of cameras that need op days changed
-errorinopdays2014 <- filter(datafor2014_errors, errors == TRUE)
+#last record update for after typos fixed
+fixerrors_2014 <- datafor2014_errors %>%
+  mutate(max.date = if_else(as.Date(obsdate) > as.Date(Last.Record), obsdate, Last.Record)) %>%
+  group_by(site) %>%
+  summarize(Last.Record_clean = max(max.date))
 
-#unique(errorinopdays2014$site)
+datafor2014_final <- full_join(datafor2014_errors, fixerrors_2014, by = "site")
+
+#check final
+datafor2014_check <- datafor2014_final %>%
+   mutate(errors_final = ifelse(obsdate > Last.Record_clean, TRUE, FALSE))
+
+#clean up for final dataframe
+data2014_final <- datafor2014_final %>%
+  select(site, 1:15,27, obsdate, Last.Record_clean, Date.Removed, Functioning., visit)
 ```
 Errors in data found that need to fix: 
 
@@ -199,7 +215,7 @@ unique(records_2016_clean$site)
 cameraops2016 <- read.csv("./2016/Cameras_2016.csv", header = T)
 
 #issue with colname import for kelly
-colnames(cameraops2016)[colnames(cameraops2016)=="ï..Name"] <- "Name"
+#colnames(cameraops2016)[colnames(cameraops2016)=="ï..Name"] <- "Name"
 
 unique(cameraops2016$Name)
 
@@ -253,7 +269,7 @@ unique(records_2017_clean$site)
 cameraops2017 <- read.csv("./2017/Cameras_2017.csv", header = T)
 
 #issue with colname import
-colnames(cameraops2017)[colnames(cameraops2017)=="ï..Name"] <- "Name"
+#colnames(cameraops2017)[colnames(cameraops2017)=="ï..Name"] <- "Name"
 
 unique(cameraops2017$Name)
 
