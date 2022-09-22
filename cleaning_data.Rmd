@@ -214,7 +214,11 @@ unique(records_2016_clean$site)
 ```{r joining cam data}
 cameraops2016 <- read.csv("./2016/Cameras_2016.csv", header = T)
 
+#issue with colname import for kelly
+colnames(cameraops2016)[colnames(cameraops2016)=="ï..Name"] <- "Name"
+
 unique(cameraops2016$Name)
+
 
 datafor2016 <- full_join(records_2016_clean, cameraops2016, by = c("site" = "Name"))
 
@@ -224,7 +228,7 @@ datafor2016$Date.Removed <- as.Date(datafor2016$Date.Removed, "%B %d, %Y")
 
 #calc end date for cam
 datafor2016_edit <- datafor2016 %>%
-  mutate(endday = Date.Placement + Days)
+  mutate(endday = Date.Placement + Days + 1)
 
 #visit day
 datafor2016_visit <- datafor2016_edit %>%
@@ -264,6 +268,9 @@ unique(records_2017_clean$site)
 ```{r matching 2017 camera data}
 cameraops2017 <- read.csv("./2017/Cameras_2017.csv", header = T)
 
+#issue with colname import
+colnames(cameraops2017)[colnames(cameraops2017)=="ï..Name"] <- "Name"
+
 unique(cameraops2017$Name)
 
 datafor2017 <- full_join(records_2017_clean, cameraops2017, by = c("site" = "Name"))
@@ -274,7 +281,7 @@ datafor2017$Date.Removed <- as.Date(datafor2017$Date.Removed, "%d-%b-%y")
 
 #calc end date for cam
 datafor2017_edit <- datafor2017 %>%
-  mutate(endday = Date.Placement + Days +1)
+  mutate(endday = Date.Placement + Days + 1)
 
 #visit day
 datafor2017_visit <- datafor2017_edit %>%
@@ -289,6 +296,7 @@ summary(datafor2017_errors$errors)
 summary(datafor2017_errors$opp_errors)
 ```
 
+Errors with cam 710E (maybe other cams too) Have to do with "endday". This date is different than the date removed. Date removed would not result in these errors.
 
 
 ----------------------
