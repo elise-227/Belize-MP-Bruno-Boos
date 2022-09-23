@@ -12,18 +12,58 @@ knitr::opts_chunk$set(echo = TRUE)
 flocker is an R package for fitting occupacy models
 
 ```{r}
+##only run this chunk once#
 
 # install.packages("remotes")
 remotes::install_github("jsocolar/flocker")
 
-install.packages("cmdstanr", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
-
-cmdstanr::install_cmdstan()
+# Uncomment the next line if you have previously installed rstan
+#remove.packages(c("StanHeaders", "rstan"))
+install.packages("StanHeaders", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
+install.packages("rstan", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
 
 ```
 
+closure-unit: The groupings of observations over which closure is assumed. In single-species models, a closure-unit corresponds to a “site” or “point”.
+
+Z: The (unobserved) true occupancy state of each closure-unit. We can represent Z as a vector of ones and zeros with one element for each closure-unit: a one if occupied; a zero if unoccupied.
+
+ψ, θ: The occupancy (ψ) and detection (θ) probabilities. In many models, both ψ and θ will vary across closure-units. In some models θ will additionally vary across repeated sampling events within a closure-unit.
+
+Q The (observed) detection/nondetection state of each closure-unit (i.e. does the unit have at least one detection in the data or not). As for Z, we represent Q as a vector of ones and zeros.
+
+rep-constant, rep-varying: We refer to models where θ is constant across repeated sampling events within closure-units as rep-constant models, as contrasted with rep-varying models that incorporate event-specific detection covariates.
+
+unit covariates, event covariates: We refer to any covariate that does not vary across sampling events within closure-units as a “unit covariate”. This includes covariates that are intrinsically properties of single closure-units (e.g. the elevations of sites in a single-species model), covariates that are intrinsically properties of groups of closure units (e.g. elevations of sites in a multispecies model), and covariates that are intrinsically properties of sampling events but happen to be constant within all closure-units (e.g. observer in a sampling design where every site is visited by exactly one observer). We refer to any covariate that varies across sampling events within covariates as an “event covariate”. Note that while unit covariates may appear in either the occupancy or the detection formula, event covariates are restricted to the detection formula. Models that incorporate event covariates are rep-varying (see above); those that do not are rep-constant
+
+```{r}
+library(flocker)
+
+ex_data <- example_flocker_data()
+
+#get data names
+names(ex_data)
+
+head(ex_data$obs) #observation matrix
+
+head(ex_data$unit_covs) #unit covariate matrix
+
+head(ex_data$event_covs$ec1)
+
+flocker_data <- make_flocker_data(obs = ex_data$obs, unit_covs = ex_data$unit_covs, event_covs = ex_data$event_covs)
+```
+
+Modeling
+
+```{r}
+
+#simple model with occupancy covariate unc1 ?? and det constant
+flock(f_occ = ~ uc1,
+      f_det = ~ 1,
+      flocker_data = flocker_data)
 
 
+```
 
 
 
