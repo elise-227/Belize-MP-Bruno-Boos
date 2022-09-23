@@ -83,6 +83,7 @@ length of all matrices for 2014 then should be 76 because there are than many si
 
 ```{r days op and ect}
 #load operational days
+#LOAD IN OTHER VARIABLES FOR 2014 LIKE LOGGING ETC
 cameraops2014 <- read.csv("./2014/Cameras_2014.csv", header = T)
 
 #data frame for 2014 
@@ -169,7 +170,7 @@ datafor2015$Date_Place <- as.Date(datafor2015$Date_Place, "%B %d, %Y")
 datafor2015$Date_Remov <- as.Date(datafor2015$Date_Remov, "%B %d, %Y")
 
 datafor2015_edit <- datafor2015 %>%
-  mutate(endday = Date_Place + Days +1)
+  mutate(Last.Record = Date_Place + Days +1)
 #add one here?
 
 #find visit number
@@ -179,7 +180,7 @@ datafor2015_visit <- datafor2015_edit %>%
 
 #error finder 
 datafor2015_errors <- datafor2015_visit %>%
-  mutate(errors = ifelse(obsdate > endday, TRUE, FALSE)) 
+  mutate(errors = ifelse(obsdate > Last.Record, TRUE, FALSE)) 
 summary(datafor2015_errors$errors)
 #507H has typo 2016 instead of 2015 
 
@@ -192,7 +193,7 @@ datafor2015_visit <- datafor2015_errorsfixed %>%
   mutate(visit = as.numeric((obsdate - Date_Place) + 1))
 
 datafor2015_errors <- datafor2015_visit %>%
-  mutate(errors = ifelse(obsdate > endday, TRUE, FALSE)) %>%
+  mutate(errors = ifelse(obsdate > Last.Record, TRUE, FALSE)) %>%
   mutate(opp_errors = ifelse(obsdate < Date_Place, TRUE, FALSE)) 
 summary(datafor2015_errors$errors)
 summary(datafor2015_errors$opp_errors)
@@ -228,7 +229,7 @@ datafor2016$Date.Removed <- as.Date(datafor2016$Date.Removed, "%B %d, %Y")
 
 #calc end date for cam
 datafor2016_edit <- datafor2016 %>%
-  mutate(endday = Date.Placement + Days + 1)
+  mutate(Last.Record = Date.Placement + Days + 1)
 
 #visit day
 datafor2016_visit <- datafor2016_edit %>%
@@ -237,7 +238,7 @@ datafor2016_visit <- datafor2016_edit %>%
 
 #error finder 
 datafor2016_errors <- datafor2016_visit %>%
-  mutate(errors = ifelse(obsdate > endday, TRUE, FALSE)) %>%
+  mutate(errors = ifelse(obsdate > Last.Record, TRUE, FALSE)) %>%
   mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE)) 
 summary(datafor2016_errors$errors)
 summary(datafor2016_errors$opp_errors)
@@ -281,7 +282,10 @@ datafor2017$Date.Removed <- as.Date(datafor2017$Date.Removed, "%d-%b-%y")
 
 #calc end date for cam
 datafor2017_edit <- datafor2017 %>%
-  mutate(endday = Date.Placement + Days + 1)
+  mutate(Last.Record = Date.Placement + Days + 1)
+
+#fix obs date for 10260313 in 710E
+datafor2017_edit[1248, ]$Day <- 26
 
 #visit day
 datafor2017_visit <- datafor2017_edit %>%
@@ -290,13 +294,39 @@ datafor2017_visit <- datafor2017_edit %>%
 
 #error finder 
 datafor2017_errors <- datafor2017_visit %>%
-  mutate(errors = ifelse(obsdate > endday, TRUE, FALSE)) %>%
+  mutate(errors = ifelse(obsdate > Last.Record, TRUE, FALSE)) %>%
   mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE)) 
 summary(datafor2017_errors$errors)
 summary(datafor2017_errors$opp_errors)
+
+#fix errors 
+
+#last record update for after typos fixed
+fixerrors_2017 <- datafor2017_errors %>%
+  mutate(max.date = if_else(as.Date(obsdate) > as.Date(Last.Record), obsdate, Last.Record)) %>%
+  group_by(site) %>%
+  summarize(Last.Record_clean = max(max.date)) 
+  
+datafor2017_int <- full_join(datafor2017_errors, fixerrors_2017, by = "site")
+
+fixerrors_2017_cont <- datafor2017_int %>%
+  mutate(min.date = if_else(as.Date(obsdate) < as.Date(Date.Placement), obsdate, Date.Placement)) %>%
+  group_by(site) %>%
+  summarize(First_Obs = min(min.date))
+
+datafor2017_final <- full_join(datafor2017_int, fixerrors_2017_cont, by = "site")
+
+#check final
+datafor2017_check <- datafor2017_final %>%
+  mutate(errors_final = ifelse(obsdate > Last.Record_clean, TRUE, FALSE)) %>%
+  mutate(errors_final2 = ifelse(obsdate < First_Obs, TRUE, FALSE))
+
+data2017_final <- datafor2017_final  %>%
+  mutate(visit = as.numeric((obsdate - First_Obs + 1))) %>%
+  select(site, 1:14, 17,18,34,19:21,25:33)
 ```
 
-Errors with cam 710E (maybe other cams too) Have to do with "endday". This date is different than the date removed. Date removed would not result in these errors.
+Errors with cam 710E (maybe other cams too) Have to do with "Last.Record". This date is different than the date removed. Date removed would not result in these errors.
 
 
 ----------------------
