@@ -182,10 +182,14 @@ datafor2015_visit <- datafor2015_edit %>%
 datafor2015_errors <- datafor2015_visit %>%
   mutate(errors = ifelse(obsdate > Last.Record, TRUE, FALSE)) 
 summary(datafor2015_errors$errors)
-#507H has typo 2016 instead of 2015 
 
+#picture 251 510E 9 for month instead of 10
+datafor2015_errors[2043, ]$Month <- 9
+datafor2015_errors 
+#507H has typo 2016 instead of 2015 
 datafor2015_errorsfixed <- datafor2015_errors %>%
-  mutate(year_clean = ifelse(site == "507H" & errors == TRUE, paste(2015), Year))
+  mutate(year_clean = ifelse(site == "507H" & errors == TRUE, paste(2015), Year)) %>%
+ 
 
 #redo visit and errors 
 datafor2015_visit <- datafor2015_errorsfixed %>%
