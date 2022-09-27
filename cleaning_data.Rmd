@@ -156,6 +156,7 @@ still need to figure out where the error is in days cam out
 records_2015_clean <- records_2015 %>%
   mutate(site = paste0(Cam.nr,Series)) %>%
   drop_na(Cam.nr)
+records_2015_clean[records_2015_clean$site == "511G",]$site <- "511FG"
 
 unique(records_2015_clean$site)
 ```
@@ -168,6 +169,13 @@ datafor2015 <- full_join(records_2015_clean, cameraops2015, by = c("site" = "Nam
 #set as date 
 datafor2015$Date_Place <- as.Date(datafor2015$Date_Place, "%B %d, %Y")
 datafor2015$Date_Remov <- as.Date(datafor2015$Date_Remov, "%B %d, %Y")
+
+#picture 251 510E 9 for month instead of 10
+#wrong placement day for 508E
+datafor2015[2043, ]$Month <- 9
+datafor2015[datafor2015$site == "508E",]$Date_Place <- as.Date("7/29/2015", "%m/%d/%Y") 
+datafor2015[2066, ]$Month <- 12
+datafor2015[2066, ]$Day <- 11
 
 datafor2015_edit <- datafor2015 %>%
   mutate(Last.Record = Date_Place + Days +1)
@@ -183,13 +191,10 @@ datafor2015_errors <- datafor2015_visit %>%
   mutate(errors = ifelse(obsdate > Last.Record, TRUE, FALSE)) 
 summary(datafor2015_errors$errors)
 
-#picture 251 510E 9 for month instead of 10
-datafor2015_errors[2043, ]$Month <- 9
-datafor2015_errors 
 #507H has typo 2016 instead of 2015 
 datafor2015_errorsfixed <- datafor2015_errors %>%
-  mutate(year_clean = ifelse(site == "507H" & errors == TRUE, paste(2015), Year)) %>%
- 
+  mutate(year_clean = ifelse(site == "507H" & errors == TRUE, paste(2015), Year))
+
 
 #redo visit and errors 
 datafor2015_visit <- datafor2015_errorsfixed %>%
