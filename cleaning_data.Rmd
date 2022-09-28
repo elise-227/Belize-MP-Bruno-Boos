@@ -382,13 +382,29 @@ dataframe_det$rn <- row.names(dataframe_det)
 join <- left_join(dataframe_det,cams700, by = c("rn" = "CameraID"))
 cams700_clean <- select(join, 116:215)
 
-flock_data <- make_flocker_data(obs = detectionhist, unit_covs = cams700_clean)
+unmarkedFrame <- unmarkedFrameOccu(detectionhist, siteCovs = cams700_clean)
+summary(unmarkedFrame)
+
+#flock_data <- make_flocker_data(obs = detectionhist, unit_covs = cams700_clean)
 ```
 
 ```{r ooo model}
-flock(f_occ = ~ rn)
+#flock(f_occ = ~ 1, f_det = ~ 1, flocker_data = flock_data)
 
+fm <- occu(formula = ~1
+                     ~1,
+           data = unmarkedFrame)
+summary(fm)
 
+backTransform(fm, type = "state")
+backTransform(fm, type = "det")
+
+#try a covariate
+
+fm2 <- occu(formula = ~1
+                     ~ Avg_pr_2017,
+           data = unmarkedFrame)
+summary(fm2)
 ```
 
 ----------------------
