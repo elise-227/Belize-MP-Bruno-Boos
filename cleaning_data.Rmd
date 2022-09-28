@@ -346,16 +346,27 @@ datafor2017_check <- datafor2017_final %>%
 
 data2017_final <- datafor2017_final  %>%
   mutate(visit = as.numeric((obsdate - First_Obs + 1))) %>%
-  select(site, 1:14, 17,18,34,19:21,25:33)
+  select(site, 1:14, 17,18,34,19:21,25:33, First_Obs, Last.Record_clean) %>%
+  mutate(date_time_obs = paste(obsdate, sprintf("%.2f", round(Hour.Exact, 2)))) %>%
+  drop_na(Hour.Exact)
 ```
 
 Errors with cam 710E (maybe other cams too) Have to do with "Last.Record". This date is different than the date removed. Date removed would not result in these errors.
 
 ```{r making occupancy dataframe 2017}
+camdataprep_2017 <- data2017_final %>%
+  select(site, First_Obs, Days, Last.Record_clean, Northing, Easting)
+camopdataframe2017 <- camdataprep_2017[!duplicated(camdataprep_2017$site), ]
+
+camop2017 <- cameraOperation(camopdataframe2017, stationCol = "site", setupCol = "First_Obs", retrievalCol = "Last.Record_clean", dateFormat = "%Y-%m-%d", writecsv = FALSE)
 
 
+detect_hist_2017_grayfox <- detectionHistory(recordTable = data2017_final, species = "Gray fox", camOp= camop2017, output = "count", stationCol = "site", speciesCol = "species.name", day1 ="survey", recordDateTimeCol = "date_time_obs", recordDateTimeFormat =  "%Y-%m-%d %H.%M", timeZone = "UTC", occasionLength = 113, includeEffort = TRUE, scaleEffort = TRUE, writecsv = FALSE)
+
+detectionhist <- detect_hist_2017_grayfox$detection_history
 ```
-
+In making the prep data frames need to make sure using correct date placements ie the calculated ones. 
+need to make the recordTable!!!
 
 ----------------------
 
