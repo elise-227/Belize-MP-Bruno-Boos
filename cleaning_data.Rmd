@@ -366,7 +366,6 @@ detect_hist_2017_grayfox <- detectionHistory(recordTable = data2017_final, speci
 detectionhist <- detect_hist_2017_grayfox$detection_history
 ```
 In making the prep data frames need to make sure using correct date placements ie the calculated ones. 
-need to make the recordTable!!!
 
 ----------------------
 
