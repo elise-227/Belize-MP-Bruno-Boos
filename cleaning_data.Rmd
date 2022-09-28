@@ -358,10 +358,10 @@ camdataprep_2017 <- data2017_final %>%
   select(site, First_Obs, Days, Last.Record_clean, Northing, Easting)
 camopdataframe2017 <- camdataprep_2017[!duplicated(camdataprep_2017$site), ]
 
-camop2017 <- cameraOperation(camopdataframe2017, stationCol = "site", setupCol = "First_Obs", retrievalCol = "Last.Record_clean", dateFormat = "%Y-%m-%d", writecsv = FALSE)
+camop2017 <- cameraOperation(camopdataframe2017, stationCol = "site", setupCol = "First_Obs", retrievalCol = "Last.Record_clean", occasionStartTime = 0 , dateFormat = "%Y-%m-%d", writecsv = FALSE)
 
 
-detect_hist_2017_grayfox <- detectionHistory(recordTable = data2017_final, species = "Gray fox", camOp= camop2017, output = "count", stationCol = "site", speciesCol = "species.name", day1 ="survey", recordDateTimeCol = "date_time_obs", recordDateTimeFormat =  "%Y-%m-%d %H.%M", timeZone = "UTC", occasionLength = 113, includeEffort = TRUE, scaleEffort = TRUE, writecsv = FALSE)
+detect_hist_2017_grayfox <- detectionHistory(recordTable = data2017_final, species = "Gray fox", camOp= camop2017, output = "count", stationCol = "site", speciesCol = "species.name", day1 ="station", recordDateTimeCol = "date_time_obs", recordDateTimeFormat =  "%Y-%m-%d %H.%M", timeZone = "UTC", occasionLength = 113, includeEffort = TRUE, scaleEffort = FALSE, writecsv = FALSE)
 
 detectionhist <- detect_hist_2017_grayfox$detection_history
 ```
