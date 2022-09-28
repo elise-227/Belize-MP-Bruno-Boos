@@ -1,0 +1,564 @@
+---
+title: "Cleaning_data"
+author: "Elise Boos"
+date: '2022-08-15'
+output: pdf_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r load packages etc}
+getwd()
+#packages
+require(tidyverse)
+require(dplyr)
+require(sf)
+require(leaflet)
+require(mapview)
+require(readxl)
+require(lubridate)
+require(readxl)
+
+library(unmarked)
+library(AICcmodavg)
+#make mapview work on a mac
+mapviewOptions(fgb = FALSE)
+
+#install flocker
+#install.packages("remotes")
+#remotes::install_github("jsocolar/flocker")
+
+#remove.packages(c("StanHeaders", "rstan"))
+#install.packages("StanHeaders", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
+#install.packages("rstan", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
+
+library(flocker)
+
+#install.packages("camtrapR")
+library(camtrapR)
+
+```
+
+```{r load data}
+#load data
+records_2014 <- read.csv("./By_year/2014_Records_Yalbac_data.csv", stringsAsFactors = T)
+records_2015 <- read.csv("./By_year/2015_Records_Yalbac_data.csv", stringsAsFactors = T)
+records_2016 <- read.csv("./By_year/2016_Records_Yalbac_data.csv", stringsAsFactors = T)
+records_2017 <- read.csv("./By_year/2017_Records_Yalbac_data.csv", stringsAsFactors = T)
+records_2018 <- read.csv("./By_year/2018_Records_Yalbac_data.csv", stringsAsFactors = T)
+records_2019 <- read.csv("./By_year/2019_Records_Yalbac_data.csv", stringsAsFactors = T)
+records_2020 <- read.csv("./By_year/2020_Records_Yalbac_data.csv", stringsAsFactors = T)
+```
+
+General notes:
+some years cam name is 'site', later years cam name is 'Name'
+
+
+```{r species names}
+#figure out what each species name is 
+unique(records_2014$Species)
+unique(records_2015$Species)
+unique(records_2016$species.name)
+unique(records_2017$species.name)
+unique(records_2018$species.name)
+unique(records_2019$species.name)
+unique(records_2020$species.name)
+```
+
+Ultimately need to make this:
+
+unmarkedMultFrame(y, siteCovs, obsCovs, numPrimary, yearlySiteCovs)
+
+y	- A matrix of the observed data.
+
+siteCovs - Data frame of covariates that vary at the site level.
+
+obsCovs	- Data frame of covariates that vary within site-year-observation level.
+
+numPrimary - Number of primary time periods (seasons in the multiseason model).
+
+yearlySiteCovs - Data frame containing covariates at the site-year level.
+
+```{r 2014 cleaning}
+#clean all 2014 data
+records_2014_clean <- records_2014 %>%
+  mutate(site = paste0(Cam.nr,Series))
+
+unique(records_2014_clean$site)
+```
+71 cameras have observations for 2014. 79 cameras are listed with 3 not placed or stolen. Allegedly 76 should have been recording so logically 5 sites had 0 observations of any animal
+
+These cameras that observed nothing or didn't work (hypothetically) are 402A, 402C, 406F, 408F and 412C2.
+
+length of all matrices for 2014 then should be 76 because there are than many sites.
+
+```{r days op and ect}
+#load operational days
+#LOAD IN OTHER VARIABLES FOR 2014 LIKE LOGGING ETC
+cameraops2014 <- read.csv("./2014/Cameras_2014.csv", header = T)
+
+#data frame for 2014 
+datafor2014 <- full_join(records_2014_clean, cameraops2014, by = c("site"="Name"))
+
+#set as date column
+datafor2014$Date.Placement <- as.Date(datafor2014$Date.Placement, "%B %d, %Y")
+datafor2014$Date.Removed <- as.Date(datafor2014$Date.Removed, "%Y-%m-%d")
+
+#calculate end date
+datafor2014_edit <- datafor2014 %>%
+  mutate(Last.Record = Date.Placement + Days +1)
+#add one here?
+
+#fix error for 401A picture 28 
+datafor2014_edit[475, ]$Month <- 3
+datafor2014_edit[475, ]$Day <- 24
+
+#find visit number
+datafor2014_visit <- datafor2014_edit %>%
+  mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
+  mutate(visit = as.numeric(obsdate - Date.Placement +1))
+
+#error finder 
+datafor2014_errors <- datafor2014_visit %>%
+  mutate(errors = ifelse(obsdate > Last.Record, TRUE, FALSE)) %>%
+  mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE))
+#error summary
+summary(datafor2014_errors$errors)
+summary(datafor2014_errors$opp_errors)
+
+#last record update for after typos fixed
+fixerrors_2014 <- datafor2014_errors %>%
+  mutate(max.date = if_else(as.Date(obsdate) > as.Date(Last.Record), obsdate, Last.Record)) %>%
+  group_by(site) %>%
+  summarize(Last.Record_clean = max(max.date))
+
+datafor2014_final <- full_join(datafor2014_errors, fixerrors_2014, by = "site")
+
+#check final
+datafor2014_check <- datafor2014_final %>%
+   mutate(errors_final = ifelse(obsdate > Last.Record_clean, TRUE, FALSE))
+
+#clean up for final dataframe
+data2014_final <- datafor2014_final %>%
+  select(site, 1:15,27, obsdate, Last.Record_clean, Date.Removed, Functioning., visit)
+```
+Errors in data found that need to fix: 
+
+410C2 is repeated 410C needed to be fixed in the days operational in the original excel file.
+
+Record 2234 is an obs after the camera was removed so need to removed probably. A couple data points are like this need to look into!!!! 241 observations are after end date!
+ERROR SEEMS TO BE IN C2 and C points - repeated in data of days operational (more than this tho)
+
+are days operational including day 1? From looking at data day 1 is included as one operational day. Actually idk
+
+Some points that are inconsistent going to need to just put 0s to the days the camera was out there.
+
+39 or more like 47? cameras have incorrect operational days. for 2014 might just have to do the days the camera was out
+
+~~~~~~~~~
+New notes 
+
+record 475 for 401A i believe the month and day are flipped 
+
+still need to figure out where the error is in days cam out 
+------------------------------
+```{r 2015 cleaning}
+#clean all 2014 data
+records_2015_clean <- records_2015 %>%
+  mutate(site = paste0(Cam.nr,Series)) %>%
+  drop_na(Cam.nr)
+records_2015_clean[records_2015_clean$site == "511G",]$site <- "511FG"
+
+unique(records_2015_clean$site)
+```
+
+```{r joining cams}
+cameraops2015 <- read.csv("./2015/Cameras_2015.csv", header = T)
+
+datafor2015 <- full_join(records_2015_clean, cameraops2015, by = c("site" = "Name"))
+
+#set as date 
+datafor2015$Date_Place <- as.Date(datafor2015$Date_Place, "%B %d, %Y")
+datafor2015$Date_Remov <- as.Date(datafor2015$Date_Remov, "%B %d, %Y")
+
+#picture 251 510E 9 for month instead of 10
+#wrong placement day for 508E
+datafor2015[2043, ]$Month <- 9
+datafor2015[datafor2015$site == "508E",]$Date_Place <- as.Date("7/29/2015", "%m/%d/%Y") 
+datafor2015[2066, ]$Month <- 12
+datafor2015[2066, ]$Day <- 11
+
+datafor2015_edit <- datafor2015 %>%
+  mutate(Last.Record = Date_Place + Days +1)
+#add one here?
+
+#find visit number
+datafor2015_visit <- datafor2015_edit %>%
+  mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
+  mutate(visit = as.numeric((obsdate - Date_Place) + 1))
+
+#error finder 
+datafor2015_errors <- datafor2015_visit %>%
+  mutate(errors = ifelse(obsdate > Last.Record, TRUE, FALSE)) 
+summary(datafor2015_errors$errors)
+
+#507H has typo 2016 instead of 2015 
+datafor2015_errorsfixed <- datafor2015_errors %>%
+  mutate(year_clean = ifelse(site == "507H" & errors == TRUE, paste(2015), Year))
+
+
+#redo visit and errors 
+datafor2015_visit <- datafor2015_errorsfixed %>%
+  mutate(obsdate = as.Date(paste0(year_clean,"-",Month,"-",Day), "%Y-%m-%d")) %>%
+  mutate(visit = as.numeric((obsdate - Date_Place) + 1))
+
+datafor2015_errors <- datafor2015_visit %>%
+  mutate(errors = ifelse(obsdate > Last.Record, TRUE, FALSE)) %>%
+  mutate(opp_errors = ifelse(obsdate < Date_Place, TRUE, FALSE)) 
+summary(datafor2015_errors$errors)
+summary(datafor2015_errors$opp_errors)
+
+```
+
+Only errors in 7 of the observations - can check back for typos 
+
+--------------------
+```{r cleaning 2016}
+records_2016_clean <- records_2016 %>%
+  mutate(site = paste0(Cam.nr,series)) %>%
+  drop_na(Cam.nr)
+
+unique(records_2016_clean$site)
+
+```
+
+```{r joining cam data}
+cameraops2016 <- read.csv("./2016/Cameras_2016.csv", header = T)
+
+#issue with colname import for kelly
+#colnames(cameraops2016)[colnames(cameraops2016)=="ï..Name"] <- "Name"
+
+unique(cameraops2016$Name)
+
+
+datafor2016 <- full_join(records_2016_clean, cameraops2016, by = c("site" = "Name"))
+
+#set as date 
+datafor2016$Date.Placement <- as.Date(datafor2016$Date.Placement, "%B %d, %Y")
+datafor2016$Date.Removed <- as.Date(datafor2016$Date.Removed, "%B %d, %Y")
+
+#calc end date for cam
+datafor2016_edit <- datafor2016 %>%
+  mutate(Last.Record = Date.Placement + Days + 1)
+
+#visit day
+datafor2016_visit <- datafor2016_edit %>%
+  mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
+  mutate(visit = as.numeric((obsdate - Date.Placement) + 1))
+
+#error finder 
+datafor2016_errors <- datafor2016_visit %>%
+  mutate(errors = ifelse(obsdate > Last.Record, TRUE, FALSE)) %>%
+  mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE)) 
+summary(datafor2016_errors$errors)
+summary(datafor2016_errors$opp_errors)
+
+#years incorrect some marked as 2015 instead of 2016
+#fixed in excel
+```
+
+607A -> subsetted into Ab Ac Ad, not sure if this is just the location of 607A or what the reason for subsetting is. Accounts for all the NA's.
+
+Some january placement days were listed as 2015 instead of 2016 -> once that is fixed only 5 errors
+
+284 NA's = the 607A deviations
+
+Maybe check photo to see observation day. 
+
+----------------------
+
+```{r cleaning 2017}
+records_2017_clean <- records_2017 %>%
+  mutate(site = paste0(Cam.nr,series)) %>%
+  drop_na(Cam.nr)
+
+unique(records_2017_clean$site)
+
+```
+
+```{r matching 2017 camera data}
+cameraops2017 <- read.csv("./2017/Cameras_2017.csv", header = T)
+
+#issue with colname import
+#colnames(cameraops2017)[colnames(cameraops2017)=="ï..Name"] <- "Name"
+
+unique(cameraops2017$Name)
+
+datafor2017 <- full_join(records_2017_clean, cameraops2017, by = c("site" = "Name"))
+
+#set as date 
+datafor2017$Date.Placement <- as.Date(datafor2017$Date.Placement, "%d-%b-%y")
+datafor2017$Date.Removed <- as.Date(datafor2017$Date.Removed, "%d-%b-%y")
+
+#calc end date for cam
+datafor2017_edit <- datafor2017 %>%
+  mutate(Last.Record = Date.Placement + Days + 1)
+
+#fix obs date for 10260313 in 710E
+datafor2017_edit[1248, ]$Day <- 26
+
+#visit day
+datafor2017_visit <- datafor2017_edit %>%
+  mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
+  mutate(visit = as.numeric((obsdate - Date.Placement) + 1))
+
+#error finder 
+datafor2017_errors <- datafor2017_visit %>%
+  mutate(errors = ifelse(obsdate > Last.Record, TRUE, FALSE)) %>%
+  mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE)) 
+summary(datafor2017_errors$errors)
+summary(datafor2017_errors$opp_errors)
+
+#fix errors 
+
+#last record update for after typos fixed
+fixerrors_2017 <- datafor2017_errors %>%
+  mutate(max.date = if_else(as.Date(obsdate) > as.Date(Last.Record), obsdate, Last.Record)) %>%
+  group_by(site) %>%
+  summarize(Last.Record_clean = max(max.date)) 
+  
+datafor2017_int <- full_join(datafor2017_errors, fixerrors_2017, by = "site")
+
+fixerrors_2017_cont <- datafor2017_int %>%
+  mutate(min.date = if_else(as.Date(obsdate) < as.Date(Date.Placement), obsdate, Date.Placement)) %>%
+  group_by(site) %>%
+  summarize(First_Obs = min(min.date))
+
+datafor2017_final <- full_join(datafor2017_int, fixerrors_2017_cont, by = "site")
+
+#check final
+datafor2017_check <- datafor2017_final %>%
+  mutate(errors_final = ifelse(obsdate > Last.Record_clean, TRUE, FALSE)) %>%
+  mutate(errors_final2 = ifelse(obsdate < First_Obs, TRUE, FALSE))
+
+data2017_final <- datafor2017_final  %>%
+  mutate(visit = as.numeric((obsdate - First_Obs + 1))) %>%
+  select(site, 1:14, 17,18,34,19:21,25:33, First_Obs, Last.Record_clean) %>%
+  mutate(date_time_obs = paste(obsdate, sprintf("%.2f", round(Hour.Exact, 2)))) %>%
+  drop_na(Hour.Exact)
+```
+
+Errors with cam 710E (maybe other cams too) Have to do with "Last.Record". This date is different than the date removed. Date removed would not result in these errors.
+
+Edit clean data frame to have first_obs and last.record_clean to be date.placement and last.record
+
+```{r making occupancy dataframe 2017}
+camdataprep_2017 <- data2017_final %>%
+  select(site, First_Obs, Days, Last.Record_clean, Northing, Easting)
+camopdataframe2017 <- camdataprep_2017[!duplicated(camdataprep_2017$site), ]
+
+camop2017 <- cameraOperation(camopdataframe2017, stationCol = "site", setupCol = "First_Obs", retrievalCol = "Last.Record_clean", occasionStartTime = 0 , dateFormat = "%Y-%m-%d", writecsv = FALSE)
+
+
+detect_hist_2017_grayfox <- detectionHistory(recordTable = data2017_final, species = "Gray fox", camOp= camop2017, output = "binary", stationCol = "site", speciesCol = "species.name", day1 ="station", recordDateTimeCol = "date_time_obs", recordDateTimeFormat =  "%Y-%m-%d %H.%M", timeZone = "UTC", occasionLength = 1, includeEffort = TRUE, scaleEffort = FALSE, writecsv = FALSE)
+
+detectionhist <- detect_hist_2017_grayfox$detection_history
+```
+In making the prep data frames need to make sure using correct date placements ie the calculated ones. 
+
+```{r model test}
+covariates <- read_xlsx("Covariates_cams.xlsx")
+
+cams700 <- covariates[188:263,]
+
+dataframe_det <- as.data.frame(detectionhist)
+dataframe_det$rn <- row.names(dataframe_det)
+
+
+join <- left_join(dataframe_det,cams700, by = c("rn" = "CameraID"))
+cams700_clean <- select(join, 116:215)
+
+unmarkedFrame <- unmarkedFrameOccu(detectionhist, siteCovs = cams700_clean)
+summary(unmarkedFrame)
+
+#flock_data <- make_flocker_data(obs = detectionhist, unit_covs = cams700_clean)
+```
+
+```{r ooo model}
+#flock(f_occ = ~ 1, f_det = ~ 1, flocker_data = flock_data)
+
+fm <- occu(formula = ~1
+                     ~1,
+           data = unmarkedFrame)
+summary(fm)
+
+backTransform(fm, type = "state")
+backTransform(fm, type = "det")
+
+#try a covariate
+
+fm2 <- occu(formula = ~1
+                     ~ Avg_pr_2017,
+           data = unmarkedFrame)
+summary(fm2)
+```
+
+----------------------
+
+```{r cleaning 2018}
+records_2018_clean <- records_2018 %>%
+  mutate(series_caps = toupper(series)) %>%
+  mutate(site = paste0(Cam.nr,series_caps)) %>%
+  drop_na(Cam.nr)
+
+records_2018_clean$Year <- 2018
+
+unique(records_2018_clean$site)
+```
+
+```{r matching 2018 cam data}
+cameraops2018 <- read.csv("./2018/Cameras_2018.csv", header = T)
+
+unique(cameraops2018$Name)
+
+datafor2018 <- full_join(records_2018_clean, cameraops2018, by = c("site" = "Name"))
+
+#set as date 
+datafor2018$Date.Placement <- as.Date(datafor2018$Date.Placement, "%d-%b-%y")
+datafor2018$Date.Removed <- as.Date(datafor2018$Date.Removed, "%d-%b-%y")
+datafor2018$Last.record <- as.Date(datafor2018$Last.record, "%d-%b-%y")
+
+#visit day
+datafor2018_visit <- datafor2018 %>%
+  mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
+  mutate(visit = as.numeric((obsdate - Date.Placement) + 1))
+
+#error finder 
+datafor2018_errors <- datafor2018_visit %>%
+  mutate(errors = ifelse(obsdate > Last.record, TRUE, FALSE)) %>%
+  mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE)) 
+summary(datafor2018_errors$errors)
+```
+NOTE: remove non functions cameras maybe and also remove the days record
+
+CHECK BACK AT PHOTOS to see if obs date is right!
+--------------------
+
+```{r cleaning 2019}
+
+unique(records_2019$Camera)
+
+```
+
+
+```{r matching 2019 cam data}
+cameraops2019 <- read.csv("./2019/Cameras_2019.csv", header = T)
+
+unique(cameraops2019$Name)
+
+datafor2019 <- full_join(records_2019, cameraops2019, by = c("Camera" = "Name"))
+
+#set as date 
+datafor2019$Date.Placement <- as.Date(as.character(datafor2019$Date.Placement), "%Y%m%d")
+datafor2019$Date.Removed <- as.Date(as.character(datafor2019$Date.Removed), "%Y%m%d")
+datafor2019$Last.record <- as.Date(as.character(datafor2019$Last.record), "%Y%m%d")
+
+#visit day
+datafor2019_visit <- datafor2019 %>%
+  mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
+  mutate(visit = as.numeric((obsdate - Date.Placement) + 1))
+
+#error finder 
+datafor2019_errors <- datafor2019_visit %>%
+  mutate(errors = ifelse(obsdate > Last.record, TRUE, FALSE)) %>%
+  mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE))
+summary(datafor2019_errors$errors)
+summary(datafor2019_errors$opp_errors)
+
+```
+909A month is wrong 
+
+series wrong for 905E (says F) - something wrong here, not sure if location is right maybe is F 
+
+only two cameras with issues 
+
+remove empty rows
+----------------
+
+```{r cleaning 2020}
+
+unique(records_2020$Name)
+
+```
+
+```{r matching 2020 cam data}
+cameraops2020 <- read.csv("./2020/Cameras_2020.csv", header = T)
+
+unique(cameraops2020$Name)
+
+datafor2020 <- full_join(records_2020, cameraops2020, by = "Name")
+
+#set as date 
+datafor2020$Date.Placement <- as.Date(as.character(datafor2020$Date.Placement), "%Y%m%d")
+datafor2020$Date.Removed <- as.Date(as.character(datafor2020$Date.Removed), "%Y%m%d")
+datafor2020$Last.record <- as.Date(as.character(datafor2020$Last.record), "%Y%m%d")
+
+#visit day
+datafor2020_visit <- datafor2020 %>%
+  mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
+  mutate(visit = as.numeric((obsdate - Date.Placement) + 1))
+
+#error finder 
+datafor2020_errors <- datafor2020_visit %>%
+  mutate(errors = ifelse(obsdate > Last.record, TRUE, FALSE)) %>%
+  mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE)) 
+summary(datafor2020_errors$errors)
+summary(datafor2020_errors$opp_errors)
+
+```
+weird stuff with 2020 some obs dates are before the camera was placed.
+
+
+Create a spatial data frame for the camaeras for all the years:
+```{r combining cameras and locationas}
+cameraops2014_edit <- cameraops2014 %>%
+  select(Name,Easting,Northing) %>%
+  mutate(Record_Year = 2014)
+cameraops2015_edit<-cameraops2015 %>%
+  select(Name,Easting,Northing) %>%
+  mutate(Record_Year = 2015) 
+cameraops2016_edit<-cameraops2016 %>%
+  select(Name,Easting,Northing) %>%
+  mutate(Record_Year = 2016) 
+cameraops2017_edit<-cameraops2017 %>%
+  select(Name,Easting,Northing) %>%
+  mutate(Record_Year = 2017)  
+cameraops2018_edit<-cameraops2018 %>%
+  select(Name,Easting,Northing) %>%
+  mutate(Record_Year = 2018) 
+cameraops2019_edit<-cameraops2019 %>%
+  select(Name,Easting,Northing) %>%
+  mutate(Record_Year = 2019) 
+cameraops2020_edit<-cameraops2020 %>%
+  select(Name,Easting,Northing) %>%
+  mutate(Record_Year = 2020) 
+cameras_all<- rbind(cameraops2014_edit,cameraops2015_edit,cameraops2016_edit,cameraops2017_edit,cameraops2018_edit,cameraops2019_edit,cameraops2020_edit)
+cameras_all_clean <- drop_na(cameras_all)
+
+```
+
+```{r mapview}
+cameras_all.sf <- cameras_all_clean %>%
+  st_as_sf(coords = c('Easting', 'Northing'),
+         crs = 26716)
+mapview(cameras_all.sf, zcol = "Record_Year")
+
+
+
+st_write(cameras_all.sf, "cams2014to2020_withyear.shp", driver = "ESRI Shapefile")
+```
+
