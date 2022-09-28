@@ -21,6 +21,7 @@ require(leaflet)
 require(mapview)
 require(readxl)
 require(lubridate)
+require(readxl)
 
 library(unmarked)
 library(AICcmodavg)
@@ -363,11 +364,32 @@ camopdataframe2017 <- camdataprep_2017[!duplicated(camdataprep_2017$site), ]
 camop2017 <- cameraOperation(camopdataframe2017, stationCol = "site", setupCol = "First_Obs", retrievalCol = "Last.Record_clean", occasionStartTime = 0 , dateFormat = "%Y-%m-%d", writecsv = FALSE)
 
 
-detect_hist_2017_grayfox <- detectionHistory(recordTable = data2017_final, species = "Gray fox", camOp= camop2017, output = "count", stationCol = "site", speciesCol = "species.name", day1 ="station", recordDateTimeCol = "date_time_obs", recordDateTimeFormat =  "%Y-%m-%d %H.%M", timeZone = "UTC", occasionLength = 1, includeEffort = TRUE, scaleEffort = FALSE, writecsv = FALSE)
+detect_hist_2017_grayfox <- detectionHistory(recordTable = data2017_final, species = "Gray fox", camOp= camop2017, output = "binary", stationCol = "site", speciesCol = "species.name", day1 ="station", recordDateTimeCol = "date_time_obs", recordDateTimeFormat =  "%Y-%m-%d %H.%M", timeZone = "UTC", occasionLength = 1, includeEffort = TRUE, scaleEffort = FALSE, writecsv = FALSE)
 
 detectionhist <- detect_hist_2017_grayfox$detection_history
 ```
 In making the prep data frames need to make sure using correct date placements ie the calculated ones. 
+
+```{r model test}
+covariates <- read_xlsx("Covariates_cams.xlsx")
+
+cams700 <- covariates[188:263,]
+
+dataframe_det <- as.data.frame(detectionhist)
+dataframe_det$rn <- row.names(dataframe_det)
+
+
+join <- left_join(dataframe_det,cams700, by = c("rn" = "CameraID"))
+cams700_clean <- select(join, 116:215)
+
+flock_data <- make_flocker_data(obs = detectionhist, unit_covs = cams700_clean)
+```
+
+```{r ooo model}
+flock(f_occ = ~ rn)
+
+
+```
 
 ----------------------
 
