@@ -353,6 +353,8 @@ data2017_final <- datafor2017_final  %>%
 
 Errors with cam 710E (maybe other cams too) Have to do with "Last.Record". This date is different than the date removed. Date removed would not result in these errors.
 
+Edit clean data frame to have first_obs and last.record_clean to be date.placement and last.record
+
 ```{r making occupancy dataframe 2017}
 camdataprep_2017 <- data2017_final %>%
   select(site, First_Obs, Days, Last.Record_clean, Northing, Easting)
