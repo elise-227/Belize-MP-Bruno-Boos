@@ -22,10 +22,19 @@ require(mapview)
 require(readxl)
 require(lubridate)
 
+require(flocker)
 library(unmarked)
 library(AICcmodavg)
 #make mapview work on a mac
 mapviewOptions(fgb = FALSE)
+
+#install flocker
+#install.packages("remotes")
+#remotes::install_github("jsocolar/flocker")
+
+#remove.packages(c("StanHeaders", "rstan"))
+#install.packages("StanHeaders", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
+#install.packages("rstan", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
 ```
 
 ```{r load data}
