@@ -36,6 +36,10 @@ mapviewOptions(fgb = FALSE)
 #install.packages("rstan", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
 
 library(flocker)
+
+install.packages("camtrapR")
+library(camtrapR)
+
 ```
 
 ```{r load data}
@@ -346,6 +350,11 @@ data2017_final <- datafor2017_final  %>%
 ```
 
 Errors with cam 710E (maybe other cams too) Have to do with "Last.Record". This date is different than the date removed. Date removed would not result in these errors.
+
+```{r making occupancy dataframe 2017}
+
+
+```
 
 
 ----------------------
