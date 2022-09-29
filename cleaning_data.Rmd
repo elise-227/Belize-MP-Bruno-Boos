@@ -36,7 +36,7 @@ mapviewOptions(fgb = FALSE)
 #install.packages("StanHeaders", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
 #install.packages("rstan", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
 
-library(flocker)
+#library(flocker)
 
 #install.packages("camtrapR")
 library(camtrapR)
@@ -57,17 +57,133 @@ records_2020 <- read.csv("./By_year/2020_Records_Yalbac_data.csv", stringsAsFact
 General notes:
 some years cam name is 'site', later years cam name is 'Name'
 
+```{r kelly species spelling cleaning}
+#collect species names
+names2014 <- unique(records_2014$Species)
+names2015 <- unique(records_2015$Species)
+names2016 <- unique(records_2016$species.name)
+names2017 <- unique(records_2017$species.name)
+names2018 <- unique(records_2018$species.name)
+names2019 <- unique(records_2019$species.name)
+names2020 <- unique(records_2020$species.name)
 
-```{r species names}
-#figure out what each species name is 
-unique(records_2014$Species)
-unique(records_2015$Species)
-unique(records_2016$species.name)
-unique(records_2017$species.name)
-unique(records_2018$species.name)
-unique(records_2019$species.name)
-unique(records_2020$species.name)
+
+#save a string with ""
+a <- paste0('"', paste(names2014, collapse='", "'), '"') #2014
+print(a, quote=F)
+b <- paste0('"', paste(names2015, collapse='", "'), '"') #2015
+print(b, quote=F)
+c <- paste0('"', paste(names2016, collapse='", "'), '"') #2016
+print(c, quote=F)
+d <- paste0('"', paste(names2017, collapse='", "'), '"') #2017
+print(d, quote=F)
+e <- paste0('"', paste(names2018, collapse='", "'), '"') #2018
+print(e, quote=F)
+f <- paste0('"', paste(names2019, collapse='", "'), '"') #2019
+print(f, quote=F)
+g <- paste0('"', paste(names2020, collapse='", "'), '"') #2020
+print(g, quote=F)
+
+##2014##########################################################################
+################################################################################
+#fix errors
+records_2014$Species <- gsub("Squirel", "Squirrel", records_2014$Species)
+records_2014$Species <- gsub("Black-faced Anthrush", "Black-faced Antthrush", records_2014$Species)
+records_2014$Species <- gsub("Clay coloured Thrush", "Clay-coloured Thrush", records_2014$Species)
+records_2014$Species <- gsub("Four-eyed Oppossum", "Four-eyed Opossum", records_2014$Species)
+records_2014$Species <- gsub("Ruddy-quail Dove", "Ruddy Quail-dove", records_2014$Species)
+records_2014$Species <- gsub("Stripe-nosed Skunk", "Striped Hog-nosed Skunk", records_2014$Species)
+
+#fix misspelled species
+records_2015$Species <- gsub("Collared Pecary", "Collared Peccary", records_2015$Species)
+records_2015$Species <- gsub("Gray-necked woodrail ", "Gray-necked Woodrail", records_2015$Species)
+records_2015$Species <- gsub("Great Black-Hawk", "Great Black Hawk", records_2015$Species)
+records_2015$Species <- gsub("Louisiana waterthrush", "Louisiana Waterthrush", records_2015$Species)
+records_2015$Species <- gsub("Ruddy-Quaildove", "Ruddy Quail-dove", records_2015$Species)
+records_2015$Species <- gsub("Squirrel Cucko", "Squirrel Cuckoo", records_2015$Species)
+records_2015$Species <- gsub("Squirrel Cuckooo", "Squirrel Cuckoo", records_2015$Species)
+records_2015$Species <- gsub("Yucatan Squirel", "Yucatan Squirrel", records_2015$Species)
+records_2015$Species <- gsub("Ornate Hawk-Eagle", "Ornate Hawk-eagle", records_2015$Species)
+
+##2016##########################################################################
+################################################################################
+#fix misspelled species
+records_2016$species.name <- gsub("Gray fox", "Gray Fox", records_2016$species.name)
+records_2016$species.name <- gsub("Collared Pecary", "Collared Peccary", records_2016$species.name)
+records_2016$species.name <- gsub("Crested guan", "Crested Guan", records_2016$species.name)
+records_2016$species.name <- gsub("Clay coloured Thrush", "Clay-coloured Thrush", records_2016$species.name)
+records_2016$species.name <- gsub("Commn Opossum", "Common Opossum", records_2016$species.name)
+records_2016$species.name <- gsub("Gray hawk", "Gray Hawk", records_2016$species.name)
+records_2016$species.name <- gsub("Rat and dragon fly", "Rat", records_2016$species.name)
+records_2016$species.name <- gsub("Ruddy Quail Dove ", "Ruddy Quail-dove", records_2016$species.name)
+records_2016$species.name <- gsub("Black hawk eagle", "Black Hawk-eagle", records_2016$species.name)
+records_2016$species.name <- gsub("Roadside hawk", "Roadside Hawk", records_2016$species.name)
+records_2016$species.name <- gsub("Eastern/Tropical pewee", "Pewee", records_2016$species.name)
+records_2016$species.name <- gsub("agouti", "Agouti", records_2016$species.name)
+records_2016$species.name <- gsub("agouti ", "Agouti", records_2016$species.name)
+records_2016$species.name <- gsub("Agouti ", "Agouti", records_2016$species.name)
+records_2016$species.name <- gsub("ocelot", "Ocelot", records_2016$species.name)
+
+#fix errors
+records_2017$species.name <- gsub("Gray fox", "Gray Fox", records_2017$species.name)
+records_2017$species.name <- gsub("Ruddy Quail Dove ", "Ruddy Quail-dove", records_2017$species.name)
+records_2017$species.name <- gsub("Collared Pecary", "Collared Peccary", records_2017$species.name)
+records_2017$species.name <- gsub("Crested guan", "Crested Guan", records_2017$species.name)
+records_2017$species.name <- gsub("Lesson's motmot", "Lesson's Motmot", records_2017$species.name)
+records_2017$species.name <- gsub("Bare-throated Tiger-heron", "Bare-throated Tiger Heron", records_2017$species.name)
+records_2017$species.name <- gsub("Black-crowned Night-Heron", "Black-crowned Night Heron", records_2017$species.name)
+records_2017$species.name <- gsub("Great Blue-heron", "Great Blue Heron", records_2017$species.name)
+records_2017$species.name <- gsub("Clay coloured Thrush", "Clay-coloured Thrush", records_2017$species.name)
+records_2017$species.name <- gsub("Yellow-crowned Night-Heron", "Yellow-crowned Night Heron", records_2017$species.name)
+records_2017$species.name <- gsub("Blue Ground-Dove", "Blue Ground Dove", records_2017$species.name)
+records_2017$species.name <- gsub("Gray catbird", "Gray Catbird", records_2017$species.name)
+
+##2018##########################################################################
+################################################################################
+#fix errors
+records_2018$species.name <- gsub("Clay-colored Thrush", "Clay-coloured Thrush", records_2018$species.name)
+records_2018$species.name <- gsub("Collared Pecary", "Collared Peccary", records_2018$species.name)
+records_2018$species.name <- gsub("Crested guan", "Crested Guan", records_2018$species.name)
+records_2018$species.name <- gsub("Gray fox", "Gray Fox", records_2018$species.name)
+records_2018$species.name <- gsub("jaguar", "Jaguar", records_2018$species.name)
+records_2018$species.name <- gsub("margay", "Margay", records_2018$species.name)
+records_2018$species.name <- gsub("Ocellated turkey", "Ocellated Turkey", records_2018$species.name)
+records_2018$species.name <- gsub("puma", "Puma", records_2018$species.name)
+records_2018$species.name <- gsub("Ruddy Quail Dove ", "Ruddy Quail-dove", records_2018$species.name)
+records_2018$species.name <- gsub("Striped hog-nosed skunk", "Striped Hog-nosed Skunk", records_2018$species.name)
+records_2018$species.name <- gsub("tapir", "Tapir", records_2018$species.name)
+records_2018$species.name <- gsub("tayra", "Tayra", records_2018$species.name)
+records_2018$species.name <- gsub("Virginia opossum", "Virginia Opossum", records_2018$species.name)
+records_2018$species.name <- gsub("Yellow-crowned Night-heron", "Yellow-crowned Night Heron", records_2018$species.name)
+records_2018$species.name <- gsub("Bare-throated Tiger-heron", "Bare-throated Tiger Heron", records_2018$species.name)
+records_2018$species.name <- gsub("Hooded warbler", "Hooded Warbler", records_2018$species.name)
+
+##2019##########################################################################
+################################################################################
+#fix errors
+records_2019$species.name <- gsub("Collared Pecary", "Collared Peccary", records_2019$species.name)
+records_2019$species.name <- gsub("Gray fox", "Gray Fox", records_2019$species.name)
+records_2019$species.name <- gsub("Virginia opossum", "Virginia Opossum", records_2019$species.name)
+records_2019$species.name <- gsub("Crested guan", "Crested Guan", records_2019$species.name)
+records_2019$species.name <- gsub("Ruddy Quail Dove ", "Ruddy Quail-dove", records_2019$species.name)
+records_2019$species.name <- gsub("Clay coloured Thrush", "Clay-coloured Thrush", records_2019$species.name)
+records_2019$species.name <- gsub("Blue Ground-Dove", "Blue Ground Dove", records_2019$species.name)
+records_2019$species.name <- gsub("Red-throated ant-tanager", "Red-throated Ant-tanager", records_2019$species.name)
+records_2019$species.name <- gsub("Bare-throated Tiger-heron", "Bare-throated Tiger Heron", records_2019$species.name)
+records_2019$species.name <- gsub("White-tipped dove", "White-tipped Dove", records_2019$species.name)
+
+##2020##########################################################################
+################################################################################
+#fix errors
+records_2020$species.name <- gsub("Collared Pecary", "Collared Peccary", records_2020$species.name)
+records_2020$species.name <- gsub("Blue Ground-Dove", "Blue Ground Dove", records_2020$species.name)
+records_2020$species.name <- gsub("Gray fox", "Gray Fox", records_2020$species.name)
+records_2020$species.name <- gsub("Ruddy Quail Dove ", "Ruddy Quail-dove", records_2020$species.name)
+records_2020$species.name <- gsub("Clay coloured Thrush", "Clay-coloured Thrush", records_2020$species.name)
+records_2020$species.name <- gsub("Crested guan", "Crested Guan", records_2020$species.name)
+
 ```
+
 
 Ultimately need to make this:
 
@@ -364,7 +480,7 @@ camopdataframe2017 <- camdataprep_2017[!duplicated(camdataprep_2017$site), ]
 camop2017 <- cameraOperation(camopdataframe2017, stationCol = "site", setupCol = "First_Obs", retrievalCol = "Last.Record_clean", occasionStartTime = 0 , dateFormat = "%Y-%m-%d", writecsv = FALSE)
 
 
-detect_hist_2017_grayfox <- detectionHistory(recordTable = data2017_final, species = "Gray fox", camOp= camop2017, output = "binary", stationCol = "site", speciesCol = "species.name", day1 ="station", recordDateTimeCol = "date_time_obs", recordDateTimeFormat =  "%Y-%m-%d %H.%M", timeZone = "UTC", occasionLength = 1, includeEffort = TRUE, scaleEffort = FALSE, writecsv = FALSE)
+detect_hist_2017_grayfox <- detectionHistory(recordTable = data2017_final, species = "Gray Fox", camOp= camop2017, output = "binary", stationCol = "site", speciesCol = "species.name", day1 ="station", recordDateTimeCol = "date_time_obs", recordDateTimeFormat =  "%Y-%m-%d %H.%M", timeZone = "UTC", occasionLength = 1, includeEffort = TRUE, scaleEffort = FALSE, writecsv = FALSE)
 
 detectionhist <- detect_hist_2017_grayfox$detection_history
 ```
