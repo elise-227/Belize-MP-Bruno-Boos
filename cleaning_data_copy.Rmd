@@ -36,7 +36,7 @@ mapviewOptions(fgb = FALSE)
 #install.packages("StanHeaders", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
 #install.packages("rstan", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
 
-library(flocker)
+#library(flocker)
 
 #install.packages("camtrapR")
 library(camtrapR)
@@ -390,6 +390,10 @@ cams700_clean <- select(join, 116:215)
 cams700_clean$Avg_pr_2017 <- as.numeric(cams700_clean$Avg_pr_2017) #for this test I am only fixing avg. precip 2017 but will fix other errors later
 
 unmarkedFrame <- unmarkedFrameOccu(detectionhist, siteCovs = cams700_clean)
+
+#standardizing variables - need to do others but this is a test
+unmarkedFrame@siteCovs$Avg_pr_2017 <- scale(unmarkedFrame@siteCovs$Avg_pr_2017)
+
 summary(unmarkedFrame)
 
 #flock_data <- make_flocker_data(obs = detectionhist, unit_covs = cams700_clean)
@@ -413,10 +417,16 @@ backTransform(fm, type = "det")
 modlist[["precip"]] <- fm2 <- occu(formula = ~1
                      ~ Avg_pr_2017,
            data = unmarkedFrame)
-summary(fm2) #still something wrong here - no se, z or p-values
+summary(fm2) #got this to work after scaling the covariate
+
+backTransform(fm2, type = "state") #issue here
+backTransform(fm2, type = "det")
+
 
 #compare aics
 aictab(modlist)
+#good news! Precip. model explains data more
+
 ```
 
 ----------------------
