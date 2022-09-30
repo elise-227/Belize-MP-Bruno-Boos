@@ -357,6 +357,7 @@ Errors with cam 710E (maybe other cams too) Have to do with "Last.Record". This 
 Edit clean data frame to have first_obs and last.record_clean to be date.placement and last.record
 
 ```{r making occupancy dataframe 2017}
+require(camtrapR)
 camdataprep_2017 <- data2017_final %>%
   select(site, First_Obs, Days, Last.Record_clean, Northing, Easting)
 camopdataframe2017 <- camdataprep_2017[!duplicated(camdataprep_2017$site), ]
@@ -382,6 +383,12 @@ dataframe_det$rn <- row.names(dataframe_det)
 join <- left_join(dataframe_det,cams700, by = c("rn" = "CameraID"))
 cams700_clean <- select(join, 116:215)
 
+#cov_list <- as.list(cams700_clean) #convert covariate frame into list
+#df_cov <- lapply(cov_list, as.data.frame) #convert to list of dfs
+
+#check all covs - for some reason some have been converted to factors?
+cams700_clean$Avg_pr_2017 <- as.numeric(cams700_clean$Avg_pr_2017) #for this test I am only fixing avg. precip 2017 but will fix other errors later
+
 unmarkedFrame <- unmarkedFrameOccu(detectionhist, siteCovs = cams700_clean)
 summary(unmarkedFrame)
 
@@ -391,7 +398,9 @@ summary(unmarkedFrame)
 ```{r ooo model}
 #flock(f_occ = ~ 1, f_det = ~ 1, flocker_data = flock_data)
 
-fm <- occu(formula = ~1
+modlist <- list()
+
+modlist[["null"]] <- fm <- occu(formula = ~1
                      ~1,
            data = unmarkedFrame)
 summary(fm)
@@ -401,10 +410,13 @@ backTransform(fm, type = "det")
 
 #try a covariate
 
-fm2 <- occu(formula = ~1
+modlist[["precip"]] <- fm2 <- occu(formula = ~1
                      ~ Avg_pr_2017,
            data = unmarkedFrame)
-summary(fm2)
+summary(fm2) #still something wrong here - no se, z or p-values
+
+#compare aics
+aictab(modlist)
 ```
 
 ----------------------
