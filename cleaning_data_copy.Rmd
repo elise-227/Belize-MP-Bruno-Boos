@@ -419,8 +419,10 @@ modlist[["precip"]] <- fm2 <- occu(formula = ~1
            data = unmarkedFrame)
 summary(fm2) #got this to work after scaling the covariate
 
-backTransform(fm2, type = "state") #issue here
-backTransform(fm2, type = "det")
+lc <- linearComb(fm2, c(1,0), type = "state") #estimate abundance on the log scale when precip = 0
+backTransform(lc) #abundance on the original scale
+#est ~ .60 when precip = 0
+backTransform(fm2, type = "det") #this works because no detection covariates present
 
 
 #compare aics
