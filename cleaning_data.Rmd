@@ -589,8 +589,11 @@ CHECK BACK AT PHOTOS to see if obs date is right!
 --------------------
 
 ```{r cleaning 2019}
-
 unique(records_2019$Camera)
+
+records_2019_clean <- records_2019 %>%
+  mutate(site = paste0(Cam.nr,series)) %>%
+  drop_na(Cam.nr)
 
 ```
 
@@ -600,13 +603,14 @@ cameraops2019 <- read.csv("./2019/Cameras_2019.csv", header = T)
 
 unique(cameraops2019$Name)
 
-datafor2019 <- full_join(records_2019, cameraops2019, by = c("Camera" = "Name"))
+datafor2019 <- full_join(records_2019_clean, cameraops2019, by = c("site" = "Name"))
 
 #set as date 
 datafor2019$Date.Placement <- as.Date(as.character(datafor2019$Date.Placement), "%Y%m%d")
 datafor2019$Date.Removed <- as.Date(as.character(datafor2019$Date.Removed), "%Y%m%d")
 datafor2019$Last.record <- as.Date(as.character(datafor2019$Last.record), "%Y%m%d")
 
+datafor2019[datafor2019$site == "907E",]$Last.record <- as.Date("2019-08-24","%Y-%m-%d")
 #visit day
 datafor2019_visit <- datafor2019 %>%
   mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
@@ -624,7 +628,7 @@ summary(datafor2019_errors$opp_errors)
 
 series wrong for 905E (says F) - something wrong here, not sure if location is right maybe is F 
 
-only two cameras with issues 
+only two cameras with issues XXXX
 
 remove empty rows
 ----------------
