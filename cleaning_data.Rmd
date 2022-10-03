@@ -184,6 +184,100 @@ records_2020$species.name <- gsub("Crested guan", "Crested Guan", records_2020$s
 
 ```
 
+```{r mammal code - kelly}
+records_2014$Mammal <- ifelse(records_2014$Species %in% c("Agouti", "Central American Tapir", "Collared Peccary", "Common Opossum", 
+                                                          "Deppe's Squirrel", "Four-eyed Opossum", "Gray Fox", "Jaguar", "Jaguarundi", 
+                                                          "Margay", "Mouse", "Nine-banded Armadillo", "Northern Tamandua", "Ocelot", "Paca", 
+                                                          "Puma", "Racoon", "Rat", "Red Brocket Deer", "Rodent", "Squirrel", "Striped Hog-nosed Skunk", 
+                                                          "Tayra", "White-lipped Peccary", "White-nosed Coati", "White-tailed Deer"), "Yes",
+                       ifelse(records_2014$Species %in% c("0", "Ameiva undata", "Bare-throated Tiger Heron", "Black-faced Antthrush", "Blue-crowned Mot-mot", 
+                                                 "Clay-coloured Thrush", "Collared Forest Falcon", "Common Pauraque", 
+                                                 "Crested Guan", "White-tipped Dove", "Gray-headed Dove", "Gray-necked Woodrail", "Great Black Hawk", 
+                                                 "Great Curassow", "Great Tinamou", "INDENT Dove", "INDENT Mammal", "INDENT Owl", "INDENT Pigeon", 
+                                                 "Ocellated Turkey", "Ovenbird", "Plain Chachalaca", "Red-billed Pigeon", "Ruddy Quail-dove", 
+                                                 "Slaty-breasted Tinamou", "Swainson's Trush", "Tinamou", "UNID", "White Hawk", "White-collard Seedeater", 
+                                                 "Wood Thrush"), "No", NA))
+
+#add mammal Y/N
+records_2015$Mammal <- ifelse(records_2015$Species %in% c("Agouti", "Collared Peccary", "Deppe's Squirrel", "Gray Fox", 
+                                                          "Jaguar", "Margay", "Mouse", "Nine-banded Armadillo", 
+                                                          "Northern Tamandua", "Ocelot", "Opossum", "Paca", 
+                                                          "Puma", "Racoon", "Red Brocket Deer", "Striped Hog-nosed Skunk",
+                                                          "Stripe-throated Hermit", "Swainson's Thrush", "Tapir", "Tayra", 
+                                                          "White-lipped Peccary", "White-nosed Coati", "White-tailed Deer", 
+                                                          "Yucatan Squirrel"), "Yes",
+                              ifelse(records_2015$Species %in% c("Bare-throated Tiger Heron", "Birds", "Black-faced Ant Thrush", 
+                                                                                        "Clay coloured Thrush", "Blue Ground Dove", "Crested Guan", 
+                                                                                        "Gray-headed Dove", "Gray-headed Kite", "Gray-necked Woodrail",
+                                                                                        "Great Black Hawk", "Great Curassow", "Great Tinamou", "Green-backed Sparrow", 
+                                                                                        "Hawk", "Louisiana Waterthrush", "Northern Waterthrush", "Ocellated Turkey", 
+                                                                                        "Ornate Hawk-eagle", "Pauraque", "Plain Chachalaca", "Ruddy Quail-dove",  
+                                                                                        "Slaty-breasted Tinamou", "Squirrel Cuckoo", "Thicket Tinamou", "UNID Tinamou", 
+                                                                                        "White-tipped Dove", "Wood Thrush", ""), "No", NA))
+
+#add mammal Y/N
+records_2016$Mammal <- ifelse(records_2016$species.name %in% c("Agouti", "Gray Fox", "Margay", "Ocelot", "Puma", "Spider Monkey", 
+                                                          "Tayra", "White-nosed Coati", "White-tailed Deer", "Collared Peccary", 
+                                                          "Paca", "Red Brocket Deer", "Jaguar", "Common Opossum", "Rat", 
+                                                          "Baird's Tapir", "White-lipped Peccary", "Striped Hog-nosed Skunk", "Racoon", 
+                                                          "Brown Four-eyed Opossum", "Nine-banded Armadillo", "Tamandua", 
+                                                          "Ocelot", "Rodent"), "Yes",
+                              ifelse(records_2016$species.name %in% c("Great Curassow", "unknown", "Ocellated Turkey", "Crested Guan", 
+                                                                 "Chachalaka", "Clay-coloured Thrush", "Dragon fly", "Flycatcher", 
+                                                                 "Gray Hawk", "Gray-headed Dove", "Great Tinamou", "lizard", 
+                                                                 "Ruddy Quail-dove", "Scaled Pigeon", "White-tipped Dove", 
+                                                                 "Slaty-breasted Tinamou", "Wood Thrush", "Great Black Hawk", 
+                                                                 "Limpkin", "Northern Waterthrush", "Black Hawk-eagle",
+                                                                 "Blue Ground Dove", "Roadside Hawk", "Pewee", "Boat-billed Heron", 
+                                                                 "Little Tinamou", ""), "No", NA))
+
+#add mammal Y/N
+records_2018$Mammal <- ifelse(records_2018$species.name %in% c("Agouti", "Baird's Tapir", "Collared Peccary", "Common Opossum", 
+                                                               "Gray Four-eyed Opossum", "Gray Fox", "Jaguar", "Jaguarundi", 
+                                                               "Margay", "Nine-banded Armadillo", "Northern Raccoon", "Ocelot", "Paca", 
+                                                               "Puma", "Red Brocket Deer", "Striped Hog-nosed Skunk", "Tamandua", 
+                                                               "Tapir", "Tayra", "Unidentified Mammal", "Unknown Rodent", "Virginia Opossum",
+                                                               "White-nosed Coati", "White-tailed Deer", "Yucatan Squirrel", "Unidentified mammal", 
+                                                               "White-lipped Peccary"), "Yes",
+                              ifelse(records_2018$species.name %in% c("Chachalaca", "Clay-coloured Thrush", "Crested Guan", "Gray-headed Dove", 
+                                                                      "Great Black Hawk", "Great Curassow", "Great Tinamou", "Lineated Woodpecker", 
+                                                                      "Mottled Owl", "Ocellated Turkey", "Pauraque", "Ruddy Quail-dove", 
+                                                                      "Russet-naped Woodrail", "Slaty-breasted Tinamou", "Tinamou sp.", "Unidentified ", 
+                                                                      "Wood Thrush", "Yellow-crowned Night Heron", "Bare-throated Tiger Heron", 
+                                                                      "Hooded Warbler", "Nothern Waterthrush", "Red-throated Ant-tanager", 
+                                                                      "Ruddy Ground-dove", "Summer Tanager", "Thicket Tinamou", "Unknown", "Unknown bird", 
+                                                                      ""), "No", NA))
+
+records_2019$Mammal <- ifelse(records_2019$species.name %in% c("Agouti", "White-tailed Deer", "Deppe's Squirrel", "Collared Peccary", 
+                                                               "Puma", "Striped Hog-nosed Skunk", "White-lipped Peccary", "Ocelot", 
+                                                               "Gray Fox", "Common Opossum", "Virginia Opossum", "White-nosed Coati", 
+                                                               "Brown Four-eyed Opossum", "Red Brocket Deer", "Baird's Tapir", 
+                                                               "Nine-banded Armadillo", "Jaguar", "Tayra", "Paca", "Racoon", "Margay", 
+                                                               "Northern Tamandua", "Bat", "Rodent", "Jaguarundi", "Coyote", "Unknown mammal"), "Yes",
+                              ifelse(records_2019$species.name %in% c("Great Curassow", "Ocellated Turkey", "Wood Thrush", "Gray-headed Dove", 
+                                                                      "Black-faced Antthrush", "Great Tinamou", "Crested Guan", "Ruddy Quail-dove", 
+                                                                      "Clay-coloured Thrush", "Slaty-breasted Tinamou", "Blue Ground Dove", 
+                                                                      "Plain Chachalaca", "Unknown bird", "Red-throated Ant-tanager", "Great Black Hawk", 
+                                                                      "Russet-naped Woodrail", "Bare-throated Tiger Heron", "Boat-billed Heron", 
+                                                                      "Swainson's Thrush", "Common Pauraque", "Northern Waterthrush", "White-tipped Dove", 
+                                                                      "Roadside Hawk", "Ornate Hawk-eagle", "Owl", "Blue Grosbeak",  "Green Heron"), "No", NA))
+
+################################################################################
+
+#add mammal Y/N
+records_2020$Mammal <- ifelse(records_2020$species.name %in% c("White-lipped Peccary", "White-nosed Coati", "Collared Peccary", "Baird's Tapir", 
+                                                               "Paca", "Red Brocket Deer", "White-tailed Deer", "Jaguar", "Gray Fox", 
+                                                               "Racoon", "Agouti", "Puma", "Squirrel", "Rodent", "Mammal", "Virginia Opossum", 
+                                                               "Ocelot", "Tayra", "Common Opossum", "Margay", "Northern Tamandua", "Striped Hog-nosed Skunk", 
+                                                               "Nine-banded Armadillo"), "Yes",
+                              ifelse(records_2020$species.name %in% c("Great Curassow", "Ocellated Turkey", "Blue Ground Dove", "Gray-headed Dove", 
+                                                                      "Great Tinamou", "Slaty-breasted Tinamou", "Little Tinamou", "Plain Chachalaca", 
+                                                                      "Ruddy Quail-dove", "Swainson's Thrush", "Toad", "Clay-coloured Thrush", "Green-backed Sparrow", 
+                                                                      "Hooded Warbler", "Brown-headed Flycatcher", "Ameiva", "Crested Guan", 
+                                                                      "Common Pauraque", "Wood Thrush", "Bird", ""), "No", NA))
+
+
+```
 
 Ultimately need to make this:
 
@@ -260,7 +354,7 @@ datafor2014_check <- datafor2014_final %>%
 
 #clean up for final dataframe
 data2014_final <- datafor2014_final %>%
-  select(site, 1:15,27, obsdate, Last.Record_clean, Date.Removed, Functioning., visit)
+  select(site, 1:15,27, obsdate, Last.Record_clean, Date.Removed, Functioning., visit, Mammal)
 ```
 Errors in data found that need to fix: 
 
