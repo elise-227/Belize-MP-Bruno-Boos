@@ -558,6 +558,30 @@ datafor2018_errors <- datafor2018_visit %>%
   mutate(errors = ifelse(obsdate > Last.record, TRUE, FALSE)) %>%
   mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE)) 
 summary(datafor2018_errors$errors)
+
+
+#fix errors 
+#last record update for after typos fixed
+fixerrors_2018 <- datafor2018_errors %>%
+  mutate(max.date = if_else(as.Date(obsdate) > as.Date(Last.record), obsdate, Last.record)) %>%
+  group_by(site) %>%
+  summarize(Last.Record_clean = max(max.date)) 
+  
+datafor2018_int <- full_join(datafor2018_errors, fixerrors_2018, by = "site")
+
+fixerrors_2018_cont <- datafor2018_int %>%
+  mutate(min.date = if_else(as.Date(obsdate) < as.Date(Date.Placement), obsdate, Date.Placement)) %>%
+  group_by(site) %>%
+  summarize(First_Obs = min(min.date))
+
+datafor2018_final <- full_join(datafor2018_int, fixerrors_2018_cont, by = "site")
+
+#check final
+datafor2018_check <- datafor2018_final %>%
+  mutate(errors_final = ifelse(obsdate > Last.Record_clean, TRUE, FALSE)) %>%
+  mutate(errors_final2 = ifelse(obsdate < First_Obs, TRUE, FALSE))
+summary(datafor2018_check$errors_final)
+summary(datafor2018_check$errors_final2)
 ```
 NOTE: remove non functions cameras maybe and also remove the days record
 
