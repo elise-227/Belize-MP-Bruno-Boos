@@ -1,0 +1,49 @@
+---
+title: "Unmarked tutorial"
+author: "Kelly Bruno"
+date: '2022-10-03'
+output: html_document
+---
+
+Occupancy models estimate where species occur (a biological process) while accounting for imperfect detection (an observation process). This is important because the probability of detecting a species during any survey is almost always substantially below 1. Without accounting for imperfect detection, estimates of species distribution are considerably biased.
+
+A basic occupancy model estimates two parameters:
+
+detection probability (pi,t, the probability of finding a species at time t if it is present at site i)
+occupancy (Ψi, the probability that a species occurs at site i).
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+setwd("~/Belize-MP-Bruno-Boos/occupancyworkshop-master/occupancyworkshop-master")
+
+
+#load detection history (100 sites with 10 visits each)
+detection_history <- read.csv("detection_history.csv", 
+                              # First variable ("X") has row.names but not data
+                              row.names = "X") 
+
+# Examine data
+head(detection_history)
+
+```
+
+The basic single-season form assumes that occupancy status (presence or absence) does not change during the study.
+
+```{r data}
+library(unmarked)
+
+sample.unmarkedFrame_simple <- unmarkedFrameOccu( # y is a matrix with observed detection history 
+                                          # (0's and 1's, one row per site, one column per survey)
+                                      y = as.matrix(detection_history)) 
+
+# S4 class for occupancy model data
+summary(sample.unmarkedFrame_simple)
+
+```
+
+
+
+
+
+
