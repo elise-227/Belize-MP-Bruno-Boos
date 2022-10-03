@@ -1,0 +1,55 @@
+---
+title: "Analysis"
+author: "Elise Boos"
+date: "2022-10-03"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load packages etc}
+getwd()
+#packages
+require(tidyverse)
+require(dplyr)
+require(sf)
+require(leaflet)
+require(mapview)
+require(readxl)
+require(lubridate)
+require(readxl)
+
+library(unmarked)
+library(AICcmodavg)
+#make mapview work on a mac
+mapviewOptions(fgb = FALSE)
+
+#install flocker
+#install.packages("remotes")
+#remotes::install_github("jsocolar/flocker")
+
+#remove.packages(c("StanHeaders", "rstan"))
+#install.packages("StanHeaders", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
+#install.packages("rstan", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
+
+#library(flocker)
+
+#install.packages("camtrapR")
+library(camtrapR)
+
+```
+
+```{r making occupancy dataframe 2017}
+camdataprep_2017 <- data2017_final %>%
+  select(site, First_Obs, Days, Last.Record_clean, Northing, Easting)
+camopdataframe2017 <- camdataprep_2017[!duplicated(camdataprep_2017$site), ]
+
+camop2017 <- cameraOperation(camopdataframe2017, stationCol = "site", setupCol = "First_Obs", retrievalCol = "Last.Record_clean", occasionStartTime = 0 , dateFormat = "%Y-%m-%d", writecsv = FALSE)
+
+
+detect_hist_2017_grayfox <- detectionHistory(recordTable = data2017_final, species = "Gray Fox", camOp= camop2017, output = "binary", stationCol = "site", speciesCol = "species.name", day1 ="station", recordDateTimeCol = "date_time_obs", recordDateTimeFormat =  "%Y-%m-%d %H.%M", timeZone = "UTC", occasionLength = 1, includeEffort = TRUE, scaleEffort = FALSE, writecsv = FALSE)
+
+detectionhist <- detect_hist_2017_grayfox$detection_history
+```
