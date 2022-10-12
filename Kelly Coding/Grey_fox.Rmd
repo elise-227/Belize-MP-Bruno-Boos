@@ -1,0 +1,468 @@
+---
+title: "Grey Fox Test Model"
+author: "Kelly Bruno"
+date: '2022-10-12'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require("knitr")
+opts_knit$set(root.dir = "~/Belize-MP-Bruno-Boos")
+getwd()
+```
+
+
+```{r load packages etc}
+getwd()
+#packages
+require(tidyverse)
+require(dplyr)
+require(sf)
+require(leaflet)
+require(mapview)
+require(readxl)
+require(lubridate)
+require(readxl)
+
+library(unmarked)
+library(AICcmodavg)
+#make mapview work on a mac
+mapviewOptions(fgb = FALSE)
+
+library(camtrapR)
+
+```
+
+
+```{r load data}
+setwd("~/Belize-MP-Bruno-Boos")
+#load data
+records_2014 <- read.csv("./By_year/2014_Records_Yalbac_data.csv", stringsAsFactors = T)
+records_2015 <- read.csv("./By_year/2015_Records_Yalbac_data.csv", stringsAsFactors = T)
+records_2016 <- read.csv("./By_year/2016_Records_Yalbac_data.csv", stringsAsFactors = T)
+records_2017 <- read.csv("./By_year/2017_Records_Yalbac_data.csv", stringsAsFactors = T)
+records_2018 <- read.csv("./By_year/2018_Records_Yalbac_data.csv", stringsAsFactors = T)
+records_2019 <- read.csv("./By_year/2019_Records_Yalbac_data.csv", stringsAsFactors = T)
+records_2020 <- read.csv("./By_year/2020_Records_Yalbac_data.csv", stringsAsFactors = T)
+```
+
+CLEANING
+
+2014
+
+```{r 2014 cleaning}
+
+#clean all 2014 data
+records_2014_clean <- records_2014 %>%
+  mutate(site = paste0(Cam.nr,Series))
+
+unique(records_2014_clean$site)
+
+#load operational days
+#LOAD IN OTHER VARIABLES FOR 2014 LIKE LOGGING ETC
+cameraops2014 <- read.csv("./2014/Cameras_2014.csv", header = T)
+
+#data frame for 2014 
+datafor2014 <- full_join(records_2014_clean, cameraops2014, by = c("site"="Name"))
+
+#set as date column
+datafor2014$Date.Placement <- as.Date(datafor2014$Date.Placement, "%B %d, %Y")
+datafor2014$Date.Removed <- as.Date(datafor2014$Date.Removed, "%Y-%m-%d")
+
+#calculate end date
+datafor2014_edit <- datafor2014 %>%
+  mutate(Last.Record = Date.Placement + Days +1)
+#add one here?
+
+#fix error for 401A picture 28 
+datafor2014_edit[475, ]$Month <- 3
+datafor2014_edit[475, ]$Day <- 24
+
+#find visit number
+datafor2014_visit <- datafor2014_edit %>%
+  mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
+  mutate(visit = as.numeric(obsdate - Date.Placement +1))
+
+#error finder 
+datafor2014_errors <- datafor2014_visit %>%
+  mutate(errors = ifelse(obsdate > Last.Record, TRUE, FALSE)) %>%
+  mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE))
+#error summary
+summary(datafor2014_errors$errors)
+summary(datafor2014_errors$opp_errors)
+
+#last record update for after typos fixed
+fixerrors_2014 <- datafor2014_errors %>%
+  mutate(max.date = if_else(as.Date(obsdate) > as.Date(Last.Record), obsdate, Last.Record)) %>%
+  group_by(site) %>%
+  summarize(Last.Record_clean = max(max.date))
+
+#add first_obs
+fixerrors_2014_2 <- datafor2014_errors %>%
+  mutate(min.date = if_else(as.Date(obsdate) < as.Date(Date.Placement), obsdate, Date.Placement)) %>%
+  group_by(site) %>%
+  summarize(First_Obs = min(min.date))
+
+#join 3 dfs into 1
+datafor2014_final <- print(list(datafor2014_errors, fixerrors_2014, fixerrors_2014_2) %>% reduce(full_join, by='site'))
+
+#check final
+datafor2014_check <- datafor2014_final %>%
+   mutate(errors_final = ifelse(obsdate > Last.Record_clean, TRUE, FALSE)) %>%
+  mutate(errors_final2 = ifelse(obsdate < First_Obs, TRUE, FALSE))
+# no errors
+
+#clean up for final dataframe
+data2014_final <- datafor2014_final %>%
+  mutate(visit = as.numeric((obsdate - First_Obs + 1))) %>%
+  select(site, 1:15,27, First_Obs, Last.Record_clean, obsdate, Hour_exact, Days, Northing.x, Easting.x) %>%
+  mutate(date_time_obs = paste(obsdate, sprintf("%.2f", round(Hour_exact, 2)))) %>%
+  drop_na(Hour_exact)
+
+```
+
+2014 Occupancy Frame
+
+```{r making occupancy dataframe 2014}
+
+require(camtrapR)
+camdataprep_2014 <- data2014_final %>%
+  select(site, First_Obs, Days, Last.Record_clean, Northing.x, Easting.x)
+
+camopdataframe2014 <- camdataprep_2014[!duplicated(camdataprep_2014$site), ]
+#remove NAs
+camopdataframe2014 <- na.omit(camopdataframe2014)
+
+#create camera trap station operability matrix
+camop2014 <- cameraOperation(camopdataframe2014, stationCol = "site", setupCol = "First_Obs", retrievalCol = "Last.Record_clean", occasionStartTime = 0 , dateFormat = "%Y-%m-%d", writecsv = FALSE)
+
+#make species a character
+data2014_final$Species <- as.character(data2014_final$Species)
+
+#create species detection history
+detect_hist_2014_grayfox <- detectionHistory(recordTable = data2014_final, "Gray Fox", camOp= camop2014, output = "binary", stationCol = "site", speciesCol = "Species", day1 ="station", recordDateTimeCol = "date_time_obs", recordDateTimeFormat =  "%Y-%m-%d %H.%M", timeZone = "UTC", occasionLength = 1, includeEffort = TRUE, scaleEffort = FALSE, writecsv = FALSE)
+
+detectionhist2014 <- detect_hist_2014_grayfox$detection_history
+
+```
+
+IGNORE THESE YEARS FOR NOW!
+
+2015
+
+```{r 2015 cleaning}
+#clean all 2015 data
+records_2015_clean <- records_2015 %>%
+  mutate(site = paste0(Cam.nr,Series)) %>%
+  drop_na(Cam.nr)
+records_2015_clean[records_2015_clean$site == "511G",]$site <- "511FG"
+
+unique(records_2015_clean$site)
+
+cameraops2015 <- read.csv("./2015/Cameras_2015.csv", header = T)
+
+datafor2015 <- full_join(records_2015_clean, cameraops2015, by = c("site" = "Name"))
+
+#set as date 
+datafor2015$Date_Place <- as.Date(datafor2015$Date_Place, "%B %d, %Y")
+datafor2015$Date_Remov <- as.Date(datafor2015$Date_Remov, "%B %d, %Y")
+
+#picture 251 510E 9 for month instead of 10
+#wrong placement day for 508E
+datafor2015[2043, ]$Month <- 9
+datafor2015[datafor2015$site == "508E",]$Date_Place <- as.Date("7/29/2015", "%m/%d/%Y") 
+datafor2015[2066, ]$Month <- 12
+datafor2015[2066, ]$Day <- 11
+
+datafor2015_edit <- datafor2015 %>%
+  mutate(Last.Record = Date_Place + Days +1)
+#add one here?
+
+#find visit number
+datafor2015_visit <- datafor2015_edit %>%
+  mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
+  mutate(visit = as.numeric((obsdate - Date_Place) + 1))
+
+#error finder
+datafor2015_errors <- datafor2015_visit %>%
+  mutate(errors = ifelse(obsdate > Last.Record, TRUE, FALSE)) 
+summary(datafor2015_errors$errors)
+
+#507H has typo 2016 instead of 2015 
+datafor2015_errorsfixed <- datafor2015_errors %>%
+  mutate(year_clean = ifelse(site == "507H" & errors == TRUE, paste(2015), Year))
+
+
+#redo visit and errors 
+datafor2015_visit <- datafor2015_errorsfixed %>%
+  mutate(obsdate = as.Date(paste0(year_clean,"-",Month,"-",Day), "%Y-%m-%d")) %>%
+  mutate(visit = as.numeric((obsdate - Date_Place) + 1))
+
+datafor2015_errors <- datafor2015_visit %>%
+  mutate(errors = ifelse(obsdate > Last.Record, TRUE, FALSE)) %>%
+  mutate(opp_errors = ifelse(obsdate < Date_Place, TRUE, FALSE)) 
+summary(datafor2015_errors$errors)
+summary(datafor2015_errors$opp_errors)
+
+```
+
+2016
+
+```{r cleaning 2016}
+records_2016_clean <- records_2016 %>%
+  mutate(site = paste0(Cam.nr,series)) %>%
+  drop_na(Cam.nr)
+
+unique(records_2016_clean$site)
+
+cameraops2016 <- read.csv("./2016/Cameras_2016.csv", header = T)
+
+#issue with colname import for kelly
+colnames(cameraops2016)[colnames(cameraops2016)=="ï..Name"] <- "Name"
+
+unique(cameraops2016$Name)
+
+
+datafor2016 <- full_join(records_2016_clean, cameraops2016, by = c("site" = "Name"))
+
+#set as date 
+datafor2016$Date.Placement <- as.Date(datafor2016$Date.Placement, "%B %d, %Y")
+datafor2016$Date.Removed <- as.Date(datafor2016$Date.Removed, "%B %d, %Y")
+
+#calc end date for cam
+datafor2016_edit <- datafor2016 %>%
+  mutate(Last.Record = Date.Placement + Days + 1)
+
+#visit day
+datafor2016_visit <- datafor2016_edit %>%
+  mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
+  mutate(visit = as.numeric((obsdate - Date.Placement) + 1))
+
+#error finder 
+datafor2016_errors <- datafor2016_visit %>%
+  mutate(errors = ifelse(obsdate > Last.Record, TRUE, FALSE)) %>%
+  mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE)) 
+summary(datafor2016_errors$errors)
+summary(datafor2016_errors$opp_errors)
+
+#years incorrect some marked as 2015 instead of 2016
+#fixed in excel
+```
+
+#OKAY THIS YEAR IS GOOD
+
+2017
+
+```{r cleaning 2017}
+records_2017_clean <- records_2017 %>%
+  mutate(site = paste0(Cam.nr,series)) %>%
+  drop_na(Cam.nr)
+
+unique(records_2017_clean$site)
+
+cameraops2017 <- read.csv("./2017/Cameras_2017.csv", header = T)
+
+#issue with colname import
+colnames(cameraops2017)[colnames(cameraops2017)=="ï..Name"] <- "Name"
+
+unique(cameraops2017$Name)
+
+datafor2017 <- full_join(records_2017_clean, cameraops2017, by = c("site" = "Name"))
+
+#set as date 
+datafor2017$Date.Placement <- as.Date(datafor2017$Date.Placement, "%d-%b-%y")
+datafor2017$Date.Removed <- as.Date(datafor2017$Date.Removed, "%d-%b-%y")
+
+#calc end date for cam
+datafor2017_edit <- datafor2017 %>%
+  mutate(Last.Record = Date.Placement + Days + 1)
+
+#fix obs date for 10260313 in 710E
+datafor2017_edit[1248, ]$Day <- 26
+
+#visit day
+datafor2017_visit <- datafor2017_edit %>%
+  mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
+  mutate(visit = as.numeric((obsdate - Date.Placement) + 1))
+
+#error finder 
+datafor2017_errors <- datafor2017_visit %>%
+  mutate(errors = ifelse(obsdate > Last.Record, TRUE, FALSE)) %>%
+  mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE)) 
+summary(datafor2017_errors$errors)
+summary(datafor2017_errors$opp_errors)
+
+#fix errors 
+
+#last record update for after typos fixed
+fixerrors_2017 <- datafor2017_errors %>%
+  mutate(max.date = if_else(as.Date(obsdate) > as.Date(Last.Record), obsdate, Last.Record)) %>%
+  group_by(site) %>%
+  summarize(Last.Record_clean = max(max.date)) 
+  
+datafor2017_int <- full_join(datafor2017_errors, fixerrors_2017, by = "site")
+
+fixerrors_2017_cont <- datafor2017_int %>%
+  mutate(min.date = if_else(as.Date(obsdate) < as.Date(Date.Placement), obsdate, Date.Placement)) %>%
+  group_by(site) %>%
+  summarize(First_Obs = min(min.date))
+
+datafor2017_final <- full_join(datafor2017_int, fixerrors_2017_cont, by = "site")
+
+#check final
+datafor2017_check <- datafor2017_final %>%
+  mutate(errors_final = ifelse(obsdate > Last.Record_clean, TRUE, FALSE)) %>%
+  mutate(errors_final2 = ifelse(obsdate < First_Obs, TRUE, FALSE))
+
+data2017_final <- datafor2017_final  %>%
+  mutate(visit = as.numeric((obsdate - First_Obs + 1))) %>%
+  select(site, 1:14, 17,18,34,19:21,25:33, First_Obs, Last.Record_clean) %>%
+  mutate(date_time_obs = paste(obsdate, sprintf("%.2f", round(Hour.Exact, 2)))) %>%
+  drop_na(Hour.Exact)
+```
+
+2017 Occupany Frame
+
+```{r making occupancy dataframe 2017}
+require(camtrapR)
+camdataprep_2017 <- data2017_final %>%
+  select(site, First_Obs, Days, Last.Record_clean, Northing, Easting)
+camopdataframe2017 <- camdataprep_2017[!duplicated(camdataprep_2017$site), ]
+
+camop2017 <- cameraOperation(camopdataframe2017, stationCol = "site", setupCol = "First_Obs", retrievalCol = "Last.Record_clean", occasionStartTime = 0 , dateFormat = "%Y-%m-%d", writecsv = FALSE)
+
+
+detect_hist_2017_grayfox <- detectionHistory(recordTable = data2017_final, species = "Gray fox", camOp= camop2017, output = "binary", stationCol = "site", speciesCol = "species.name", day1 ="station", recordDateTimeCol = "date_time_obs", recordDateTimeFormat =  "%Y-%m-%d %H.%M", timeZone = "UTC", occasionLength = 1, includeEffort = TRUE, scaleEffort = FALSE, writecsv = FALSE)
+
+detectionhist2017 <- detect_hist_2017_grayfox$detection_history
+
+```
+
+Models for 2014 and 2017
+
+2014
+
+```{r model test}
+covariates <- read_xlsx("Covariates_cams.xlsx")
+
+cams400 <- covariates[1:75,]
+
+dataframe_det_2014 <- as.data.frame(detectionhist2014)
+dataframe_det_2014$rn <- row.names(dataframe_det_2014)
+
+join <- left_join(dataframe_det_2014, cams400, by = c("rn" = "CameraID"))
+
+#cov_list <- as.list(cams700_clean) #convert covariate frame into list
+#df_cov <- lapply(cov_list, as.data.frame) #convert to list of dfs
+
+#check all covs - for some reason some have been converted to factors?
+cams400_clean$Avg_pr_2014 <- as.numeric(cams400_clean$Avg_pr_2014) #for this test I am only fixing avg. precip 2017 but will fix other errors later
+
+#idk what i did here??????????? cam 400 clean was correct but i need to backcheck things
+unmarkedFrame <- unmarkedFrameOccu(detectionhist2014, siteCovs = cams400_clean)
+
+#standardizing variables - need to do others but this is a test
+unmarkedFrame@siteCovs$Avg_pr_2014 <- scale(unmarkedFrame@siteCovs$Avg_pr_2014)
+
+summary(unmarkedFrame)
+```
+
+```{r model 2014}
+
+modlist <- list()
+
+modlist[["null"]] <- fm <- occu(formula = ~1
+                     ~1,
+           data = unmarkedFrame)
+summary(fm)
+
+backTransform(fm, type = "state")
+backTransform(fm, type = "det")
+
+#try a covariate
+
+modlist[["precip"]] <- fm2 <- occu(formula = ~1
+                     ~ Avg_pr_2014,
+           data = unmarkedFrame)
+summary(fm2) #got this to work after scaling the covariate
+
+lc <- linearComb(fm2, c(1,0), type = "state") #estimate abundance on the log scale when precip = 0
+backTransform(lc) #abundance on the original scale
+
+backTransform(fm2, type = "det") #this works because no detection covariates present
+
+```
+
+2017
+```{r model test}
+covariates <- read_xlsx("Covariates_cams.xlsx")
+
+cams700 <- covariates[188:263,]
+
+dataframe_det <- as.data.frame(detectionhist)
+dataframe_det$rn <- row.names(dataframe_det)
+
+
+join <- left_join(dataframe_det,cams700, by = c("rn" = "CameraID"))
+cams700_clean <- select(join, 116:215)
+
+#cov_list <- as.list(cams700_clean) #convert covariate frame into list
+#df_cov <- lapply(cov_list, as.data.frame) #convert to list of dfs
+
+#check all covs - for some reason some have been converted to factors?
+cams700_clean$Avg_pr_2017 <- as.numeric(cams700_clean$Avg_pr_2017) #for this test I am only fixing avg. precip 2017 but will fix other errors later
+
+unmarkedFrame <- unmarkedFrameOccu(detectionhist, siteCovs = cams700_clean)
+
+#standardizing variables - need to do others but this is a test
+unmarkedFrame@siteCovs$Avg_pr_2017 <- scale(unmarkedFrame@siteCovs$Avg_pr_2017)
+
+summary(unmarkedFrame)
+
+```
+
+```{r ooo model}
+
+modlist <- list()
+
+modlist[["null"]] <- fm <- occu(formula = ~1
+                     ~1,
+           data = unmarkedFrame)
+summary(fm)
+
+backTransform(fm, type = "state")
+backTransform(fm, type = "det")
+
+#try a covariate
+
+modlist[["precip"]] <- fm2 <- occu(formula = ~1
+                     ~ Avg_pr_2017,
+           data = unmarkedFrame)
+summary(fm2) #got this to work after scaling the covariate
+
+lc <- linearComb(fm2, c(1,0), type = "state") #estimate abundance on the log scale when precip = 0
+backTransform(lc) #abundance on the original scale
+#est ~ .60 when precip = 0
+backTransform(fm2, type = "det") #this works because no detection covariates present
+
+
+#compare aics
+aictab(modlist)
+#good news! Precip. model explains data more
+
+#graph for comparison of precip models
+data <- data.frame(
+  year = c("2014","2017") ,  
+  estimate = c(0.43, 0.41),
+  SE = c(0.06, 0.298)
+  )
+
+# Barplot
+ggplot(data, aes(x = year, y = estimate, full = as.factor(year))) + 
+  geom_bar(stat = "identity", color = "black") +
+  geom_errorbar(aes(ymin = estimate - SE, ymax = estimate + SE), width=.2,
+                 position = position_dodge(.9)) 
+
+```
+
