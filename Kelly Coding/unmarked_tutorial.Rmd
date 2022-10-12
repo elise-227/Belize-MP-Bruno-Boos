@@ -1,0 +1,135 @@
+---
+title: "Unmarked tutorial"
+author: "Kelly Bruno"
+date: '2022-10-03'
+output: html_document
+---
+
+Occupancy models estimate where species occur (a biological process) while accounting for imperfect detection (an observation process). This is important because the probability of detecting a species during any survey is almost always substantially below 1. Without accounting for imperfect detection, estimates of species distribution are considerably biased.
+
+A basic occupancy model estimates two parameters:
+
+detection probability (pi,t, the probability of finding a species at time t if it is present at site i)
+occupancy (Ψi, the probability that a species occurs at site i).
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+rm(list = ls())
+
+setwd("~/Belize-MP-Bruno-Boos/occupancyworkshop-master/occupancyworkshop-master")
+
+#load detection history (100 sites with 10 visits each)
+detection_history <- read.csv("detection_history.csv", 
+                              # First variable ("X") has row.names but not data
+                              row.names = "X") 
+
+# Examine data
+head(detection_history)
+
+```
+
+The basic single-season form assumes that occupancy status (presence or absence) does not change during the study.
+
+```{r data}
+library(unmarked)
+
+sample.unmarkedFrame_simple <- unmarkedFrameOccu( # y is a matrix with observed detection history 
+                                          # (0's and 1's, one row per site, one column per survey)
+                                      y = as.matrix(detection_history)) 
+
+# S4 class for occupancy model data
+summary(sample.unmarkedFrame_simple)
+
+```
+
+Remember there are two parameters (detection and occupancy). Each parameter is estimated using a linear model on the logit scale, which bounds the real estimates to be between 0 and 1. We need to bound the estimates because probabilities need to fall between 0 and 1.
+
+In the call to build our occupancy model, we will start with an intercept-only model where there is only one estimate for detection probability and one estimate for occupancy probability. An intercept-only model in this case is saying the probability of a species being present is the same at each site, and the probability of detecting a species is the same during each survey.
+
+```{r intercept only model}
+
+# Build basic single-season occupancy model with intercepts only (one estimate for detection, one for occupancy)
+occu.m1 <- occu(formula = ~1 # detection formula first
+                          ~1, # occupancy formula second, 
+                  data = sample.unmarkedFrame_simple)
+
+summary(occu.m1) # Show AIC, estimates (on logit scale), SE, z-scores
+
+```
+
+
+```{r inverse logit}
+# To get real estimate of occupancy (with 95% CI)
+predict(occu.m1, 
+        newdata = data.frame(site = 1),
+        type = "state")
+
+# Equivalent to inverse logit
+boot::inv.logit(coef(occu.m1)[1]) # Real estimate of occupancy
+
+# To get real estimate of detection (with 95% CI)
+predict(occu.m1, 
+        newdata = data.frame(site = 1),
+        type = "det")
+
+boot::inv.logit(coef(occu.m1)[2]) # Real estimate of detection
+
+```
+
+So, we have built a very simple single season occupancy model, and extracted the real parameters predicting occupancy probability (~0.62) and detection probability (~0.48). In other words, we predict the species to occur in about 62% of sites, and to detect the species (when present) about 48% of the time.
+
+However, it is reasonable that some sites are more likely to have the target species than others. And, it is reasonable that some surveys are more likely to detect the target species than others
+
+There are two types of covariates:
+
+Observation-level covariates, which are different for every combination of site and survey (e.g. search effort per visit per site). Each one of these variables should be included as an element of a list, and each element of the list should have a row for every site and a column for every survey. In our example, that would be 100 rows and 10 columns.
+
+Site-level covariates do not change through time, but differ between each site. For example, measures of habitat type or other landscape metrics like the straight-line distance to a road. Site covariates should be included in a dataframe with a row for every site and a column for each site variable.
+
+
+```{r prepare covariate model}
+
+setwd("~/Belize-MP-Bruno-Boos/occupancyworkshop-master/occupancyworkshop-master")
+
+# Load covariate data
+effort <- read.csv("effort.csv",
+                   # First variable ("X") has row.names but not data
+                   row.names = "X") 
+observers <- read.csv("observers.csv",
+                      # First variable ("X") has row.names but not data
+                      row.names = "X") 
+site_cov <- read.csv("site_cov.csv",
+                     # First variable ("X") has row.names but not data
+                     row.names = "X") 
+
+# Build a new unmarkedFramOccu
+sample.unmarkedFrame_cov <- unmarkedFrameOccu( # y is a matrix with observed detection history 
+                                          # (0's and 1's, one row per site, one column per survey)
+                                      y = as.matrix(detection_history),
+                                      # obsCovs = observation covariates in a list, 
+                                      # each variable has site rows x survey columns
+                                      obsCovs = list(effort = effort,
+                                                     observers = observers),
+                                      # siteCovs = dataframe with site rows x column variables
+                                      siteCovs = site_cov) 
+
+# S4 class for occupancy model data
+summary(sample.unmarkedFrame_cov)
+
+```
+
+Now that the data are organized, we can build a model using occu() that includes covariates.
+
+The names in our formulae must be exactly the same as the names in sample.unmarkedFrame_cov. The formulae work like other linear model building tools in R (e.g. + for additive effects, : for an interaction, and * for main effects plus an interaction).
+
+```{r cov model}
+
+occu.m2 <- occu(formula = ~effort + observers # detection formula first
+                          ~forest + agri, # occupancy formula second,
+                data = sample.unmarkedFrame_cov)
+
+# Summarize
+summary(occu.m2)
+
+```
