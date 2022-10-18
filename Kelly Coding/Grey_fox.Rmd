@@ -346,12 +346,19 @@ Models for 2014 and 2017
 ```{r model test}
 covariates <- read_xlsx("Covariates_cams.xlsx")
 
-cams400 <- covariates[1:75,]
+cams400_clean <- covariates[1:75,]
 
 dataframe_det_2014 <- as.data.frame(detectionhist2014)
 dataframe_det_2014$rn <- row.names(dataframe_det_2014)
 
-join <- left_join(dataframe_det_2014, cams400, by = c("rn" = "CameraID"))
+#fix cameras
+cams1 <- unique(cams400_clean$CameraID)
+cams2 <- unique(dataframe_det_2014$rn)
+
+
+join <- left_join(dataframe_det_2014, cams400_clean, by = c("rn" = "CameraID"))
+
+
 
 #cov_list <- as.list(cams700_clean) #convert covariate frame into list
 #df_cov <- lapply(cov_list, as.data.frame) #convert to list of dfs
