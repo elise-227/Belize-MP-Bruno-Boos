@@ -41,15 +41,39 @@ library(camtrapR)
 
 ```
 
-```{r making occupancy dataframe 2017}
-camdataprep_2017 <- data2017_final %>%
-  select(site, First_Obs, Days, Last.Record_clean, Northing, Easting)
-camopdataframe2017 <- camdataprep_2017[!duplicated(camdataprep_2017$site), ]
+```{r making occupancy dataframe 2015}
 
-camop2017 <- cameraOperation(camopdataframe2017, stationCol = "site", setupCol = "First_Obs", retrievalCol = "Last.Record_clean", occasionStartTime = 0 , dateFormat = "%Y-%m-%d", writecsv = FALSE)
+camop2015 <- read.csv("camop_2015.csv", stringsAsFactors = TRUE)
+data2015 <- read.csv("data2015_final.csv", stringsAsFactors =  TRUE)
+
+camop2015 <- cameraOperation(camop2015, stationCol = "site", setupCol = "Date_Place", retrievalCol = "Last.Record", occasionStartTime = 0 , dateFormat = "%Y-%m-%d", writecsv = FALSE)
+
+detect_hist_2015_grayfox <- detectionHistory(recordTable = data2015, species = "Gray Fox", camOp= camop2015, output = "binary", stationCol = "site", speciesCol = "Species", day1 ="station", recordDateTimeCol = "date_time_obs", recordDateTimeFormat =  "%Y-%m-%d %H.%M", timeZone = "UTC", occasionLength = 1, includeEffort = TRUE, scaleEffort = FALSE, writecsv = FALSE)
+
+detectionhist <- detect_hist_2015_grayfox$detection_history
+```
+
+```{r model 2015}
+unmarkedFrame <- unmarkedFrameOccu(y = detectionhist, siteCovs = NULL, obsCovs = NULL)
+summary(unmarkedFrame)
+
+fm <- occu(formula = ~1
+                     ~1,
+           data = unmarkedFrame)
+summary(fm)
+
+backTransform(fm, type = "state")
+backTransform(fm, type = "det")
 
 
-detect_hist_2017_grayfox <- detectionHistory(recordTable = data2017_final, species = "Gray Fox", camOp= camop2017, output = "binary", stationCol = "site", speciesCol = "species.name", day1 ="station", recordDateTimeCol = "date_time_obs", recordDateTimeFormat =  "%Y-%m-%d %H.%M", timeZone = "UTC", occasionLength = 1, includeEffort = TRUE, scaleEffort = FALSE, writecsv = FALSE)
+#covariates <- read_xlsx("Covariates_cams.xlsx")
 
-detectionhist <- detect_hist_2017_grayfox$detection_history
+#cams700 <- covariates[188:263,]
+
+#dataframe_det <- as.data.frame(detectionhist)
+#dataframe_det$rn <- row.names(dataframe_det)
+
+
+#join <- left_join(dataframe_det,cams700, by = c("rn" = "CameraID"))
+#cams700_clean <- select(join, 116:215)
 ```

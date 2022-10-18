@@ -451,11 +451,16 @@ camdataprep_2015 <- data2015_final %>%
   select(site, Date_Place, Days, Last.Record, Northing.1, Easting.1)
 camopdataframe2015 <- camdataprep_2015[!duplicated(camdataprep_2015$site), ]
 
+data2015_final <- data2015_final %>%
+  drop_na(obsdate)
+
 #make the 3 dataframes 
 
-camop2015 <- cameraOperation(camopdataframe2017, stationCol = "site", setupCol = "Date_Place", retrievalCol = "Last.Record", occasionStartTime = 0 , dateFormat = "%Y-%m-%d", writecsv = FALSE)
+write.csv(camopdataframe2015, "camop_2015.csv", row.names = FALSE)
+write.csv(data2015_final, "data2015_final.csv", row.names = FALSE)
 
-write.csv(data2015_final, "data2015_clean.csv", row.names = FALSE)
+#camop2015 <- cameraOperation(camopdataframe2017, stationCol = "site", setupCol = "Date_Place", retrievalCol = "Last.Record", occasionStartTime = 0 , dateFormat = "%Y-%m-%d", writecsv = FALSE)
+
 
 ```
 
