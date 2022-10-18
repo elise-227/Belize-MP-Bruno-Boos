@@ -1,0 +1,203 @@
+---
+title: "Code example 2017"
+author: "Kelly Bruno"
+date: '2022-10-18'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require("knitr")
+opts_knit$set(root.dir = "~/Belize-MP-Bruno-Boos")
+getwd()
+```
+
+```{r load packages etc}
+getwd()
+#packages
+require(tidyverse)
+require(dplyr)
+require(sf)
+require(leaflet)
+require(mapview)
+require(readxl)
+require(lubridate)
+require(readxl)
+
+library(unmarked)
+library(AICcmodavg)
+#make mapview work on a mac
+mapviewOptions(fgb = FALSE)
+
+library(camtrapR)
+
+```
+
+```{r load data}
+
+#load data
+records_2017 <- read.csv("./By_year/2017_Records_Yalbac_data.csv", stringsAsFactors = T)
+```
+
+CLEANING
+
+```{r cleaning 2017}
+records_2017_clean <- records_2017 %>%
+  mutate(site = paste0(Cam.nr,series)) %>%
+  drop_na(Cam.nr)
+
+unique(records_2017_clean$site)
+
+cameraops2017 <- read.csv("./2017/Cameras_2017.csv", header = T)
+
+#issue with colname import
+colnames(cameraops2017)[colnames(cameraops2017)=="ï..Name"] <- "Name"
+
+unique(cameraops2017$Name)
+
+datafor2017 <- full_join(records_2017_clean, cameraops2017, by = c("site" = "Name"))
+
+#set as date 
+datafor2017$Date.Placement <- as.Date(datafor2017$Date.Placement, "%d-%b-%y")
+datafor2017$Date.Removed <- as.Date(datafor2017$Date.Removed, "%d-%b-%y")
+
+#calc end date for cam
+datafor2017_edit <- datafor2017 %>%
+  mutate(Last.Record = Date.Placement + Days + 1)
+
+#fix obs date for 10260313 in 710E
+datafor2017_edit[1248, ]$Day <- 26
+
+#visit day
+datafor2017_visit <- datafor2017_edit %>%
+  mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
+  mutate(visit = as.numeric((obsdate - Date.Placement) + 1))
+
+#error finder 
+datafor2017_errors <- datafor2017_visit %>%
+  mutate(errors = ifelse(obsdate > Last.Record, TRUE, FALSE)) %>%
+  mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE)) 
+summary(datafor2017_errors$errors)
+summary(datafor2017_errors$opp_errors)
+
+#fix errors 
+
+#last record update for after typos fixed
+fixerrors_2017 <- datafor2017_errors %>%
+  mutate(max.date = if_else(as.Date(obsdate) > as.Date(Last.Record), obsdate, Last.Record)) %>%
+  group_by(site) %>%
+  summarize(Last.Record_clean = max(max.date)) 
+  
+datafor2017_int <- full_join(datafor2017_errors, fixerrors_2017, by = "site")
+
+fixerrors_2017_cont <- datafor2017_int %>%
+  mutate(min.date = if_else(as.Date(obsdate) < as.Date(Date.Placement), obsdate, Date.Placement)) %>%
+  group_by(site) %>%
+  summarize(First_Obs = min(min.date))
+
+datafor2017_final <- full_join(datafor2017_int, fixerrors_2017_cont, by = "site")
+
+#check final
+datafor2017_check <- datafor2017_final %>%
+  mutate(errors_final = ifelse(obsdate > Last.Record_clean, TRUE, FALSE)) %>%
+  mutate(errors_final2 = ifelse(obsdate < First_Obs, TRUE, FALSE))
+
+data2017_final <- datafor2017_final  %>%
+  mutate(visit = as.numeric((obsdate - First_Obs + 1))) %>%
+  select(site, 1:14, 17,18,34,19:21,25:33, First_Obs, Last.Record_clean) %>%
+  mutate(date_time_obs = paste(obsdate, sprintf("%.2f", round(Hour.Exact, 2)))) %>%
+  drop_na(Hour.Exact)
+```
+
+2017 Occupancy Frame
+
+```{r making occupancy dataframe 2017}
+
+require(camtrapR)
+camdataprep_2017 <- data2017_final %>%
+  select(site, First_Obs, Days, Last.Record_clean, Northing, Easting)
+camopdataframe2017 <- camdataprep_2017[!duplicated(camdataprep_2017$site), ]
+
+camop2017 <- cameraOperation(camopdataframe2017, stationCol = "site", setupCol = "First_Obs", retrievalCol = "Last.Record_clean", occasionStartTime = 0 , dateFormat = "%Y-%m-%d", writecsv = FALSE)
+
+
+detect_hist_2017_grayfox <- detectionHistory(recordTable = data2017_final, species = "Gray fox", camOp= camop2017, output = "binary", stationCol = "site", speciesCol = "species.name", day1 ="station", recordDateTimeCol = "date_time_obs", recordDateTimeFormat =  "%Y-%m-%d %H.%M", timeZone = "UTC", occasionLength = 1, includeEffort = TRUE, scaleEffort = FALSE, writecsv = FALSE)
+
+detectionhist2017 <- detect_hist_2017_grayfox$detection_history
+
+```
+
+Start modeling
+
+```{r model test}
+covariates <- read_xlsx("Covariates_cams.xlsx")
+
+cams700 <- covariates[188:263,]
+
+dataframe_det <- as.data.frame(detectionhist2017)
+dataframe_det$rn <- row.names(dataframe_det)
+
+
+join <- left_join(dataframe_det,cams700, by = c("rn" = "CameraID"))
+cams700_clean <- select(join, 116:215)
+
+#cov_list <- as.list(cams700_clean) #convert covariate frame into list
+#df_cov <- lapply(cov_list, as.data.frame) #convert to list of dfs
+
+#check all covs - for some reason some have been converted to factors?
+cams700_clean$Avg_pr_2017 <- as.numeric(cams700_clean$Avg_pr_2017) #for this test I am only fixing avg. precip 2017 but will fix other errors later
+
+unmarkedFrame <- unmarkedFrameOccu(detectionhist2017, siteCovs = cams700_clean)
+
+#standardizing variables - need to do others but this is a test
+unmarkedFrame@siteCovs$Avg_pr_2017 <- scale(unmarkedFrame@siteCovs$Avg_pr_2017)
+
+unmarkedFrame@siteCovs$Canopy_Height_m <- scale(unmarkedFrame@siteCovs$Canopy_Height_m)
+
+summary(unmarkedFrame)
+
+```
+
+Model Time
+
+```{r ooo model}
+
+modlist <- list()
+
+modlist[["intercept"]] <- fm1 <- occu(formula = ~1 # detection formula first
+                     ~1,# occupancy formula second,
+           data = unmarkedFrame)
+
+##############################################
+###To get real estimate of occupancy (with 95% CI)
+predict(fm, 
+        newdata = data.frame(site = 1),
+        type = "state")
+# ~0.59
+
+# To get real estimate of detection (with 95% CI)
+predict(fm, 
+        newdata = data.frame(site = 1),
+        type = "det")
+# ~0.13
+##############################################
+
+modlist[["precip"]] <- fm2 <- occu(formula = ~1
+                     ~Avg_pr_2017,
+           data = unmarkedFrame)
+
+modlist[["canopy"]] <- fm3 <- occu(formula = ~1
+                                   ~Canopy_Height_m,
+                                   data = unmarkedFrame)
+
+##add one with both covs
+
+aictab(modlist)
+
+```
+
+Reminder: There are two types of covariates:
+
+    Observation-level covariates, which are different for every combination of site and survey (e.g. search effort per visit per site). Each one of these variables should be included as an element of a list, and each element of the list should have a row for every site and a column for every survey. In our example, that would be 100 rows and 10 columns.
+
+    Site-level covariates do not change through time, but differ between each site. For example, measures of habitat type or other landscape metrics like the straight-line distance to a road. Site covariates should be included in a dataframe with a row for every site and a column for each site variable.
