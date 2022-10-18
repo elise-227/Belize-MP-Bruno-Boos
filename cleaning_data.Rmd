@@ -447,8 +447,16 @@ nonfunc2015 <- data2015_final[data2015_final$Days == 0,]
 rows <- rownames(nonfunc2015)
 data2015_final <- data2015_final[-as.numeric(rows),]
 
+#first obs needed
+data2015_add <- data2015_final %>%
+  mutate(min.date = if_else(as.Date(obsdate) < as.Date(Date_Place), obsdate, Date_Place)) %>%
+  group_by(site) %>%
+  summarize(First_Obs = min(min.date))
+
+data2015_final <- full_join(data2015_final, data2015_add, by = "site")
+
 camdataprep_2015 <- data2015_final %>%
-  select(site, Date_Place, Days, Last.Record, Northing.1, Easting.1)
+  select(site, First_Obs, Date_Place, Days, Last.Record, Northing.1, Easting.1)
 camopdataframe2015 <- camdataprep_2015[!duplicated(camdataprep_2015$site), ]
 
 data2015_final <- data2015_final %>%
