@@ -714,6 +714,23 @@ datafor2018_check <- datafor2018_final %>%
   mutate(errors_final2 = ifelse(obsdate < First_Obs, TRUE, FALSE))
 summary(datafor2018_check$errors_final)
 summary(datafor2018_check$errors_final2)
+
+data2018_final <- datafor2018_final  %>%
+  mutate(visit = as.numeric((obsdate - First_Obs + 1))) %>%
+  select(site, obsdate, First_Obs, Last.Record_clean) %>%
+  mutate(date_time_obs = paste(obsdate, sprintf("%.2f", round(Hour.Exact, 2))))
+#in this case all had 0 days 
+data2018_final <- data2018_final %>%
+  drop_na(Hour.Exact)
+
+camdataprep_2018 <- data2018_final %>%
+  select(2,site, First_Obs, Days, Last.Record_clean, Northing, Easting)
+camopdataframe2018 <- camdataprep_2018[!duplicated(camdataprep_2018$site), ]
+
+
+
+write.csv(camopdataframe2017, "camop_2017.csv", row.names = FALSE)
+write.csv(data2017_final, "data2017_final.csv", row.names = FALSE)
 ```
 NOTE: remove non functions cameras maybe and also remove the days record
 
