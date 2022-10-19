@@ -55,7 +55,7 @@ covs500$rn <- factor(covs500$rn)
 covs500[,c(28,41,54,67,80,93)] <- lapply(covs500[,c(28,41,54,67,80,93)], as.numeric)
 
 #make unmarked frame
-unmarkedFrame <- unmarkedFrameOccu(detectionhist, siteCovs = covs500)
+unmarkedFrame <- unmarkedFrameOccu(detect_hist_2015_grayfox$detection_history, siteCovs = covs500)
 
 #standardizing variables - need to do others but this is a test
 unmarkedFrame@siteCovs$Avg_pr_2015 <- scale(unmarkedFrame@siteCovs$Avg_pr_2015)
