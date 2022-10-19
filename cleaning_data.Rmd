@@ -589,13 +589,15 @@ data2017_final <- datafor2017_final  %>%
   mutate(visit = as.numeric((obsdate - First_Obs + 1))) %>%
   select(site, 1:14, 17,18,34,19:21,25:33, First_Obs, Last.Record_clean) %>%
   mutate(date_time_obs = paste(obsdate, sprintf("%.2f", round(Hour.Exact, 2))))
+#in this case all had 0 days 
+data2017_final <- data2017_final %>%
+  drop_na(Hour.Exact)
 
 camdataprep_2017 <- data2017_final %>%
   select(site, First_Obs, Days, Last.Record_clean, Northing, Easting)
 camopdataframe2017 <- camdataprep_2017[!duplicated(camdataprep_2017$site), ]
 
-data2017_final <- data2017_final %>%
-  drop_na(Hour.Exact)
+
 
 write.csv(camopdataframe2017, "camop_2017.csv", row.names = FALSE)
 write.csv(data2017_final, "data2017_final.csv", row.names = FALSE)
