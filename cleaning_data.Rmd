@@ -447,16 +447,8 @@ nonfunc2015 <- data2015_final[data2015_final$Days == 0,]
 rows <- rownames(nonfunc2015)
 data2015_final <- data2015_final[-as.numeric(rows),]
 
-#first obs needed
-data2015_add <- data2015_final %>%
-  mutate(min.date = if_else(as.Date(obsdate) < as.Date(Date_Place), obsdate, Date_Place)) %>%
-  group_by(site) %>%
-  summarize(First_Obs = min(min.date))
-
-data2015_final <- full_join(data2015_final, data2015_add, by = "site")
-
 camdataprep_2015 <- data2015_final %>%
-  select(site, First_Obs, Date_Place, Days, Last.Record, Northing.1, Easting.1)
+  select(site, Date_Place, Days, Last.Record, Northing.1, Easting.1)
 camopdataframe2015 <- camdataprep_2015[!duplicated(camdataprep_2015$site), ]
 
 data2015_final <- data2015_final %>%
@@ -467,7 +459,7 @@ data2015_final <- data2015_final %>%
 write.csv(camopdataframe2015, "camop_2015.csv", row.names = FALSE)
 write.csv(data2015_final, "data2015_final.csv", row.names = FALSE)
 
-#camop2015 <- cameraOperation(camopdataframe2017, stationCol = "site", setupCol = "Date_Place", retrievalCol = "Last.Record", occasionStartTime = 0 , dateFormat = "%Y-%m-%d", writecsv = FALSE)
+#camop2015 <- cameraOperation(camopdataframe2015, stationCol = "site", setupCol = "Date_Place", retrievalCol = "Last.Record", occasionStartTime = 0 , dateFormat = "%Y-%m-%d", writecsv = FALSE)
 
 
 ```
@@ -596,8 +588,19 @@ datafor2017_check <- datafor2017_final %>%
 data2017_final <- datafor2017_final  %>%
   mutate(visit = as.numeric((obsdate - First_Obs + 1))) %>%
   select(site, 1:14, 17,18,34,19:21,25:33, First_Obs, Last.Record_clean) %>%
-  mutate(date_time_obs = paste(obsdate, sprintf("%.2f", round(Hour.Exact, 2)))) %>%
+  mutate(date_time_obs = paste(obsdate, sprintf("%.2f", round(Hour.Exact, 2))))
+#in this case all had 0 days 
+data2017_final <- data2017_final %>%
   drop_na(Hour.Exact)
+
+camdataprep_2017 <- data2017_final %>%
+  select(site, First_Obs, Days, Last.Record_clean, Northing, Easting)
+camopdataframe2017 <- camdataprep_2017[!duplicated(camdataprep_2017$site), ]
+
+
+
+write.csv(camopdataframe2017, "camop_2017.csv", row.names = FALSE)
+write.csv(data2017_final, "data2017_final.csv", row.names = FALSE)
 ```
 
 Errors with cam 710E (maybe other cams too) Have to do with "Last.Record". This date is different than the date removed. Date removed would not result in these errors.
@@ -605,9 +608,6 @@ Errors with cam 710E (maybe other cams too) Have to do with "Last.Record". This 
 Edit clean data frame to have first_obs and last.record_clean to be date.placement and last.record
 
 ```{r making occupancy dataframe 2017}
-camdataprep_2017 <- data2017_final %>%
-  select(site, First_Obs, Days, Last.Record_clean, Northing, Easting)
-camopdataframe2017 <- camdataprep_2017[!duplicated(camdataprep_2017$site), ]
 
 camop2017 <- cameraOperation(camopdataframe2017, stationCol = "site", setupCol = "First_Obs", retrievalCol = "Last.Record_clean", occasionStartTime = 0 , dateFormat = "%Y-%m-%d", writecsv = FALSE)
 
@@ -714,6 +714,23 @@ datafor2018_check <- datafor2018_final %>%
   mutate(errors_final2 = ifelse(obsdate < First_Obs, TRUE, FALSE))
 summary(datafor2018_check$errors_final)
 summary(datafor2018_check$errors_final2)
+
+data2018_final <- datafor2018_final  %>%
+  mutate(visit = as.numeric((obsdate - First_Obs + 1))) %>%
+  select(site,2,7:15,17:18,21,23,Easting.y,Northing.y,34,35, obsdate, First_Obs, Last.Record_clean, Days) %>%
+  mutate(date_time_obs = paste(obsdate, sprintf("%.2f", round(Hour.Exact, 2))))
+#in this case all had 0 days 
+data2018_final <- data2018_final %>%
+  drop_na(Hour.Exact)
+
+camdataprep_2018 <- data2018_final %>%
+  select(site, First_Obs, Days, Last.Record_clean, Northing.y, Easting.y)
+camopdataframe2018 <- camdataprep_2018[!duplicated(camdataprep_2018$site), ]
+
+
+
+write.csv(camopdataframe2018, "camop_2018.csv", row.names = FALSE)
+write.csv(data2018_final, "data2018_final.csv", row.names = FALSE)
 ```
 NOTE: remove non functions cameras maybe and also remove the days record
 
