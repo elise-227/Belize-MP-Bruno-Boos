@@ -39,12 +39,15 @@ mapviewOptions(fgb = FALSE)
 #install.packages("camtrapR")
 library(camtrapR)
 
+#install.packages("ubms")
+require(ubms)
 ```
 
 ```{r making occupancy dataframe 2015}
 
 camop2015 <- read.csv("camop_2015.csv", stringsAsFactors = TRUE)
 data2015 <- read.csv("data2015_final.csv", stringsAsFactors =  TRUE)
+
 
 camop2015 <- cameraOperation(camop2015, stationCol = "site", setupCol = "Date_Place", retrievalCol = "Last.Record", occasionStartTime = 0 , dateFormat = "%Y-%m-%d", writecsv = FALSE)
 
@@ -54,7 +57,11 @@ detectionhist <- detect_hist_2015_grayfox$detection_history
 ```
 
 ```{r model 2015}
+#sitecovs2017 <- data2015 %>%
+ # select(site,Camera.Brand,Easting.1,Northing.1,Conservati,Active_Log,Hurricane,Fire_Damag,Landscape)
+
 unmarkedFrame <- unmarkedFrameOccu(y = detectionhist, siteCovs = NULL, obsCovs = NULL)
+
 summary(unmarkedFrame)
 
 fm <- occu(formula = ~1
@@ -64,6 +71,9 @@ summary(fm)
 
 backTransform(fm, type = "state")
 backTransform(fm, type = "det")
+
+
+##     (1 | site),)
 
 
 #covariates <- read_xlsx("Covariates_cams.xlsx")
@@ -95,7 +105,12 @@ detectionhist <- detect_hist_2017_grayfox$detection_history
 ```
 
 ```{r model 2015}
-unmarkedFrame <- unmarkedFrameOccu(y = detectionhist, siteCovs = NULL, obsCovs = NULL)
+
+sitecovs2017 <- data2017 %>%
+  select(site,camera.brand,Logging, Easting,Northing,Conservati,Hurricane,Fire_Damag,Landscape)
+sitecovs2017 <- sitecovs2017[!duplicated(sitecovs2017$site), ]
+
+unmarkedFrame <- unmarkedFrameOccu(y = detectionhist, siteCovs = sitecovs2017, obsCovs = NULL)
 summary(unmarkedFrame)
 
 fm <- occu(formula = ~1
@@ -106,7 +121,38 @@ summary(fm)
 backTransform(fm, type = "state")
 backTransform(fm, type = "det")
 
+###Random effect
+
+model <- stan_occu(data = unmarkedFrame, formula = ~1 ~1)
+model
+
+output <- summary(model, "state")
+logit<-output$mean[1]
+  odds <- exp(logit)
+  prob <- odds / (1 + odds)
+prob
+
+model_log <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging)
+model_log
+output <- summary(model_log, "state")
+logit <- output$mean[2]
+  odds <- exp(logit)
+  prob2 <- odds / (1 + odds)
+prob2
+
+model_rand <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging + (1|site))
+model_rand
+
+output <- summary(model_rand, "state")
+logit <- output$mean[2]
+  odds <- exp(logit)
+  prob <- odds / (1 + odds)
+prob
+
+prob;prob2
 ```
+
+
 ```{r 2018 analysis}
 camop2018 <- read.csv("camop_2018.csv", stringsAsFactors = TRUE)
 data2018 <- read.csv("data2018_final.csv", stringsAsFactors =  TRUE)
