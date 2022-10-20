@@ -354,13 +354,18 @@ datafor2014_check <- datafor2014_final %>%
 
 #clean up for final dataframe
 data2014_final <- datafor2014_final %>%
-  select(site, 1:15,27, obsdate, Last.Record_clean, Date.Removed, Functioning., visit, Mammal)
+  select(site, 1:15,27, obsdate, Last.Record_clean,Date.Placement, Date.Removed, Functioning., visit, Mammal,Days)
 
 data2014_final <- data2014_final  %>%
   mutate(date_time_obs = paste(obsdate, sprintf("%.2f", round(Hour_exact, 2)))) %>%
   drop_na(obsdate) 
 
-write.csv(data2014_final, "data2014_clean.csv", row.names = FALSE)
+camdataprep_2014 <- data2014_final %>%
+  select(site, Date.Placement, Days, Last.Record_clean, Northing.x, Easting.x)
+camopdataframe2014 <- camdataprep_2014[!duplicated(camdataprep_2014$site), ]
+
+write.csv(data2014_final, "data2014_final.csv", row.names = FALSE)
+write.csv(camopdataframe2014, "camop_2014.csv", row.names = FALSE)
 ```
 Errors in data found that need to fix: 
 
