@@ -515,6 +515,8 @@ datafor2016_edit[1225, ]$Day <- 10
 #604 K <- day and night for hour!!!!!
 
 datafor2016_edit <- datafor2016_edit[-c(1312,1313,1319,102,928), ]
+datafor2016_edit <- datafor2016_edit[-c(435:458),]
+
 
 
 #visit day
@@ -528,6 +530,9 @@ datafor2016_errors <- datafor2016_visit %>%
   mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE)) 
 summary(datafor2016_errors$errors)
 summary(datafor2016_errors$opp_errors)
+
+data2016_final <- datafor2016_errors  %>%
+  mutate(date_time_obs = paste(obsdate, sprintf("%.2f", round(as.numeric(Hour.Exact), 2))))
 
 #years incorrect some marked as 2015 instead of 2016
 #fixed in excel
@@ -619,6 +624,7 @@ camdataprep_2017 <- data2017_final %>%
   select(site, First_Obs, Days, Last.Record_clean, Northing, Easting)
 camopdataframe2017 <- camdataprep_2017[!duplicated(camdataprep_2017$site), ]
 
+unique()
 
 
 write.csv(camopdataframe2017, "camop_2017.csv", row.names = FALSE)
