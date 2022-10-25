@@ -58,6 +58,7 @@ covs_2 <- left_join(detect, covs, by = c("cams" = "CameraID"))
 covs_2 <- select(covs_2, 145:244)
 
 #need to join this but not now bc it lowers sites from 256 to 251
+#need to add covs: logging, season, month, cam type, time, lat*long, camera
 #covs_3 <- left_join(sitecovs, covs_2, by = c("site" = "cams"))
 
 
@@ -70,49 +71,65 @@ data_merge <- inner_join(sitecovs, detect, by = "site")
 
 ##########################################################################
 
+#check all covs - for some reason some have been converted to factors?
+covs_2$cams <- factor(covs_2$cams)
+#covs500[,c(28,41,54,67,80,93)] <- lapply(covs500[,c(28,41,54,67,80,93)], as.numeric)
+
 
 unmarkedFrame <- unmarkedFrameOccu(y = detect_hist_GF$detection_history, siteCovs = covs_2)
-#same number of rows but clearly there is some issue with the camera IDs differences?????
 summary(unmarkedFrame)
 
 
+#standardizing variables
+unmarkedFrame@siteCovs$Canopy_Height_m <- scale(unmarkedFrame@siteCovs$Canopy_Height_m)
 
+#start modeling
+modlist <- list()
 
-################################################################################
-fm <- occu(formula = ~1
-           ~1,
-           data = unmarkedFrame)
-summary(fm)
+fm1 <- occu(formula = ~1 # detection formula first
+                                      ~1,# occupancy formula second,
+                                      data = unmarkedFrame)
 
-backTransform(fm, type = "state")
-backTransform(fm, type = "det")
+backTransform(fm1, type = "state")
+backTransform(fm1, type = "det")
 
-###Random effect
-
-model <- stan_occu(data = unmarkedFrame, formula = ~1 ~1)
+###models with Random effect
+#ubms is Bayesian
+modlist[["int"]] <- fm2 <- stan_occu(data = unmarkedFrame, formula = ~1 ~1)
 model
 
-output <- summary(model, "state")
-logit<-output$mean[1]
+output <- summary(fm2, "state")
+logit <- output$mean[1]
 odds <- exp(logit)
-prob <- odds / (1 + odds)
-prob
+prob1 <- odds / (1 + odds)
+prob1
+#occupancy probability ~ 0.622 or we expect to find gray foxes at ~62% of sites
 
-model_log <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging)
-model_log
-output <- summary(model_log, "state")
+modlist[["canopy"]] <- fm3 <- stan_occu(data = unmarkedFrame, formula = ~1 ~Canopy_Height_m)
+fm3
+#i need to ask elise what the outputs mean
+
+output <- summary(fm3, "state")
 logit <- output$mean[2]
 odds <- exp(logit)
 prob2 <- odds / (1 + odds)
 prob2
+#psi = 0.586 or ~59% of sites occupied
 
-model_rand <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging + (1|site))
-model_rand
+modlist[["canopy_r"]] <- fm4 <- stan_occu(data = unmarkedFrame, formula = ~1 ~Canopy_Height_m + (1|cams))
+fm4
+#this ran really, really slow (9 min)
+#should we specify chains and iters?
+#is there another way to add random effects?
 
-output <- summary(model_rand, "state")
+output <- summary(fm4, "state")
 logit <- output$mean[2]
 odds <- exp(logit)
-prob <- odds / (1 + odds)
-prob
+prob3 <- odds / (1 + odds)
+prob3
+#psi = 0.637 or ~64% of sites [higher]
 
-prob;prob2
+#compare
+prob2;prob3
+
+#compare models??
