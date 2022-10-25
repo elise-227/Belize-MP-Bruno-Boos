@@ -477,6 +477,8 @@ records_2016_clean <- records_2016 %>%
   mutate(site = paste0(Cam.nr,series)) %>%
   drop_na(Cam.nr)
 
+records_2016_clean[records_2016_clean$site %in% c("607Ab","607Ac", "607Ad"),]$site <- "607A"
+
 unique(records_2016_clean$site)
 
 ```
@@ -496,9 +498,24 @@ datafor2016 <- full_join(records_2016_clean, cameraops2016, by = c("site" = "Nam
 datafor2016$Date.Placement <- as.Date(datafor2016$Date.Placement, "%B %d, %Y")
 datafor2016$Date.Removed <- as.Date(datafor2016$Date.Removed, "%B %d, %Y")
 
+
+
 #calc end date for cam
 datafor2016_edit <- datafor2016 %>%
   mutate(Last.Record = Date.Placement + Days + 1)
+
+datafor2016_edit[1546,]$Last.Record <- "2016-04-12"
+#remove 3 records from 2012 
+#remove 4078 for 602J picture doesn't exist
+
+datafor2016_edit[1225, ]$Month <- 6
+datafor2016_edit[1232, ]$Month <- 6
+datafor2016_edit[1225, ]$Day <- 10
+
+#604 K <- day and night for hour!!!!!
+
+datafor2016_edit <- datafor2016_edit[-c(1312,1313,1319,102,928), ]
+
 
 #visit day
 datafor2016_visit <- datafor2016_edit %>%
