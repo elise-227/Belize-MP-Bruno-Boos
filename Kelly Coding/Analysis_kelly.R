@@ -21,7 +21,7 @@ setwd("~/Belize-MP-Bruno-Boos")
 ##load dfs
 load("obs_data.RData")
 load("cam_op.RData")
-Obs_covs <- read_xlsx("Covariates_cams.xlsx")
+covs <- read_xlsx("Covariates_cams.xlsx")
 
 cam_op2 <- cam_op
 
@@ -54,8 +54,12 @@ detect <- as.data.frame(detect_hist_GF$detection_history, row.names = NULL,
 
 detect$cams <- row.names(detect) #column of cams
 
-Obs_covs_2 <- left_join(detect, Obs_covs, by = c("cams" = "CameraID"))
-Obs_covs_2 <- select(Obs_covs_2, 145:244)
+covs_2 <- left_join(detect, covs, by = c("cams" = "CameraID"))
+covs_2 <- select(covs_2, 145:244)
+
+#need to join this but not now bc it lowers sites from 256 to 251
+#covs_3 <- left_join(sitecovs, covs_2, by = c("site" = "cams"))
+
 
 ########################################################################
 #something wrong#
@@ -67,7 +71,7 @@ data_merge <- inner_join(sitecovs, detect, by = "site")
 ##########################################################################
 
 
-unmarkedFrame <- unmarkedFrameOccu(y = detect_hist_GF$detection_history, siteCovs = NULL, obsCovs = list(Obs_covs_2 = Obs_covs_2))
+unmarkedFrame <- unmarkedFrameOccu(y = detect_hist_GF$detection_history, siteCovs = covs_2)
 #same number of rows but clearly there is some issue with the camera IDs differences?????
 summary(unmarkedFrame)
 
