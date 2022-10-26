@@ -515,8 +515,8 @@ datafor2016_edit[1225, ]$Day <- 10
 #604 K <- day and night for hour!!!!!
 
 datafor2016_edit <- datafor2016_edit[-c(1312,1313,1319,102,928), ]
-datafor2016_edit <- datafor2016_edit[-c(435:458),]
-
+datafor2016_edit <- datafor2016_edit[-c(434:458),]
+no_hour <- datafor2016_edit$Comment == "Date not working"
 
 
 #visit day
@@ -532,7 +532,17 @@ summary(datafor2016_errors$errors)
 summary(datafor2016_errors$opp_errors)
 
 data2016_final <- datafor2016_errors  %>%
-  mutate(date_time_obs = paste(obsdate, sprintf("%.2f", round(as.numeric(Hour.Exact), 2))))
+  mutate(date_time_obs = paste(obsdate, sprintf("%.2f", round(as.numeric(Hour.Exact), 2)))) %>%
+  select()
+
+nonfunc2016 <- data2016_final[data2016_final$Days == 0,]
+rows <- rownames(nonfunc2016)
+data2016_final <- data2016_final[-as.numeric(rows),]
+
+camdataprep_2016 <- data2016_final %>%
+  select(site, Date_Place, Days, Last.Record, Northing.1, Easting.1)
+camopdataframe2015 <- camdataprep_2015[!duplicated(camdataprep_2015$site), ]
+
 
 #years incorrect some marked as 2015 instead of 2016
 #fixed in excel
