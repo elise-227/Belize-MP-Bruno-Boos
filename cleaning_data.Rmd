@@ -513,15 +513,14 @@ datafor2016_edit[1232, ]$Month <- 6
 datafor2016_edit[1225, ]$Day <- 10
 
 #604 K <- day and night for hour!!!!!
-
-datafor2016_new <- datafor2016_edit[-c(1312,1313,1319,102,928), ]
-#datafor2016_edit <- datafor2016_edit[-c(434:458),]
-
-no_hour <- datafor2016_new[datafor2016_new$Comment == "Date not working",]
+no_hour <- datafor2016_edit[datafor2016_edit$Comment == "Date not working",]
 no_hour <- no_hour %>%
   drop_na(site)
 rows_no_hour <- rownames(no_hour)
-datafor2016_new <- datafor2016_new[-as.numeric(rows_no_hour),]
+ronumb <- as.numeric(rows_no_hour)
+datafor2016_new <- datafor2016_edit[-c(1312,1313,1319,102,928,ronumb), ]
+#datafor2016_edit <- datafor2016_edit[-c(434:458),]
+
 
 #visit day
 datafor2016_visit <- datafor2016_new %>%
