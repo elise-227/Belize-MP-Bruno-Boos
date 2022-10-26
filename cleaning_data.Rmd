@@ -514,13 +514,17 @@ datafor2016_edit[1225, ]$Day <- 10
 
 #604 K <- day and night for hour!!!!!
 
-datafor2016_edit <- datafor2016_edit[-c(1312,1313,1319,102,928), ]
-datafor2016_edit <- datafor2016_edit[-c(434:458),]
-no_hour <- datafor2016_edit$Comment == "Date not working"
+datafor2016_new <- datafor2016_edit[-c(1312,1313,1319,102,928), ]
+#datafor2016_edit <- datafor2016_edit[-c(434:458),]
 
+no_hour <- datafor2016_new[datafor2016_new$Comment == "Date not working",]
+no_hour <- no_hour %>%
+  drop_na(site)
+rows_no_hour <- rownames(no_hour)
+datafor2016_new <- datafor2016_new[-as.numeric(rows_no_hour),]
 
 #visit day
-datafor2016_visit <- datafor2016_edit %>%
+datafor2016_visit <- datafor2016_new %>%
   mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
   mutate(visit = as.numeric((obsdate - Date.Placement) + 1))
 
@@ -532,16 +536,16 @@ summary(datafor2016_errors$errors)
 summary(datafor2016_errors$opp_errors)
 
 data2016_final <- datafor2016_errors  %>%
-  mutate(date_time_obs = paste(obsdate, sprintf("%.2f", round(as.numeric(Hour.Exact), 2)))) %>%
-  select()
+  mutate(date_time_obs = paste(obsdate, sprintf("%.2f", round(as.numeric(Hour.Exact),2)))) %>%
+  select(4:11,13:21,25:35,38)
 
 nonfunc2016 <- data2016_final[data2016_final$Days == 0,]
 rows <- rownames(nonfunc2016)
 data2016_final <- data2016_final[-as.numeric(rows),]
 
 camdataprep_2016 <- data2016_final %>%
-  select(site, Date_Place, Days, Last.Record, Northing.1, Easting.1)
-camopdataframe2015 <- camdataprep_2015[!duplicated(camdataprep_2015$site), ]
+  select(site, Date.Placement, Days, Last.Record, Northing, Easting)
+camopdataframe2016 <- camdataprep_2016[!duplicated(camdataprep_2016$site), ]
 
 
 #years incorrect some marked as 2015 instead of 2016
