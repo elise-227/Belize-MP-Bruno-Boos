@@ -551,6 +551,10 @@ camopdataframe2016 <- camdataprep_2016[!duplicated(camdataprep_2016$site), ]
 data2016_final <- data2016_final%>%
   drop_na(obsdate)
 
+
+write.csv(camopdataframe2016, "camop_2016.csv", row.names = FALSE)
+write.csv(data2016_final, "data2016_final.csv", row.names = FALSE)
+
 #years incorrect some marked as 2015 instead of 2016
 #fixed in excel
 ```
