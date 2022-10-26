@@ -366,6 +366,12 @@ camopdataframe2014 <- camdataprep_2014[!duplicated(camdataprep_2014$site), ]
 
 write.csv(data2014_final, "data2014_final.csv", row.names = FALSE)
 write.csv(camopdataframe2014, "camop_2014.csv", row.names = FALSE)
+
+covs2014 <- read.csv("./2014/Covariates_Cams_2014.csv", stringsAsFactors = TRUE)
+sitecovs2014 <- left_join(camopdataframe2014, cameraops2014, c("site"="Name"))
+sitecovs2014 <- left_join(sitecovs2014, covs2014, c("site"="Name"))
+
+write.csv(sitecovs2014, "sitecovs2014.csv", row.names = FALSE)
 ```
 Errors in data found that need to fix: 
 
@@ -465,8 +471,8 @@ write.csv(camopdataframe2015, "camop_2015.csv", row.names = FALSE)
 write.csv(data2015_final, "data2015_final.csv", row.names = FALSE)
 
 #camop2015 <- cameraOperation(camopdataframe2015, stationCol = "site", setupCol = "Date_Place", retrievalCol = "Last.Record", occasionStartTime = 0 , dateFormat = "%Y-%m-%d", writecsv = FALSE)
-
-
+sitecovs2015 <- left_join(camopdataframe2015, cameraops2015, c("site"="Name"))
+write.csv(sitecovs2015, "sitecovs2015.csv", row.names = FALSE)
 ```
 
 Only errors in 7 of the observations - can check back for typos 
@@ -557,6 +563,10 @@ write.csv(data2016_final, "data2016_final.csv", row.names = FALSE)
 
 #years incorrect some marked as 2015 instead of 2016
 #fixed in excel
+
+sitecovs2016 <- left_join(camopdataframe2016, cameraops2016, c("site"="Name"))
+
+write.csv(sitecovs2016, "sitecovs2016.csv", row.names = FALSE)
 ```
 
 607A -> subsetted into Ab Ac Ad, not sure if this is just the location of 607A or what the reason for subsetting is. Accounts for all the NA's.
@@ -642,14 +652,18 @@ data2017_final <- data2017_final %>%
   drop_na(Hour.Exact)
 
 camdataprep_2017 <- data2017_final %>%
-  select(site, First_Obs, Days, Last.Record_clean, Northing, Easting)
+  select(site, First_Obs, Days, Last.Record_clean, Northing, Easting, Logging)
 camopdataframe2017 <- camdataprep_2017[!duplicated(camdataprep_2017$site), ]
 
-unique()
+
 
 
 write.csv(camopdataframe2017, "camop_2017.csv", row.names = FALSE)
 write.csv(data2017_final, "data2017_final.csv", row.names = FALSE)
+
+sitecovs2017 <- left_join(camopdataframe2017, cameraops2017, c("site"="Name"))
+
+write.csv(sitecovs2017, "sitecovs2017.csv", row.names = FALSE)
 ```
 
 Errors with cam 710E (maybe other cams too) Have to do with "Last.Record". This date is different than the date removed. Date removed would not result in these errors.
@@ -780,6 +794,9 @@ camopdataframe2018 <- camdataprep_2018[!duplicated(camdataprep_2018$site), ]
 
 write.csv(camopdataframe2018, "camop_2018.csv", row.names = FALSE)
 write.csv(data2018_final, "data2018_final.csv", row.names = FALSE)
+
+sitecovs2018 <- left_join(camopdataframe2018, cameraops2018, c("site"="Name"))
+write.csv(sitecovs2018, "sitecovs2018.csv", row.names = FALSE)
 ```
 NOTE: remove non functions cameras maybe and also remove the days record
 
