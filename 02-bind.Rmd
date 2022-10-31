@@ -125,19 +125,99 @@ save(dat, file = "dat.RData")
 ```
 
 ```{r bind site covs}
-sitecovs2014_select <- select(sitecovs2014, site, Days.x, Brand.x, Conservation.Area, Active.Logging, Hurricane.Damage, Fire.Damage, Location.descr., Landscape, Northing, Easting)
+
+#add logging column? if ever logged?
+#sitecov2014$Logged.in.Year <- replace_na(sitecov2014$Logged.in.Year, "No") #na to No
+#sitecov2014$Year_Since_Logging <- ifelse(sitecov2014$Logged.in.Year == "No", "No","Yes")
+
+
+
+#add season column
+#2014
+sitecovs2014$Month <- str_replace(sitecovs2014$Date.Placement.x, pattern = ".*-([^-]*)-.*", replacement = "\\1")
+sitecovs2014$Season <- ifelse(sitecovs2014$Month %in% c("05", "06", "07", "08", "09", "10"), 
+                             "Rainy", "Dry")
+#2015
+sitecovs2015$Month <- str_replace(sitecovs2015$Date_Place.x, pattern = ".*-([^-]*)-.*", replacement = "\\1")
+sitecovs2015$Season <- ifelse(sitecovs2015$Month %in% c("05", "06", "07", "08", "09", "10"), 
+                             "Rainy", "Dry")
+#2016
+sitecovs2016$Month <- str_replace(sitecovs2016$Date.Placement.x, pattern = ".*-([^-]*)-.*", replacement = "\\1")
+sitecovs2016$Season <- ifelse(sitecovs2016$Month %in% c("05", "06", "07", "08", "09", "10"), 
+                             "Rainy", "Dry")
+#2017
+sitecovs2017$Month <- str_replace(sitecovs2017$Date.Placement, pattern = ".*-([^-]*)-.*", replacement = "\\1")
+sitecovs2017$Season <- ifelse(sitecovs2017$Month %in% c("05", "06", "07", "08", "09", "10"), 
+                               "Rainy", "Dry")
+#2018
+sitecovs2018$Month <- str_replace(sitecovs2018$Date.Placement, pattern = ".*-([^-]*)-.*", replacement = "\\1")
+sitecovs2018$Season <- ifelse(sitecovs2018$Month %in% c("05", "06", "07", "08", "09", "10"), 
+                             "Rainy", "Dry")
+sitecovs2018$Active_Log <- ifelse(sitecovs2018$Active_Log == "no", "No", "Yes") #fix error
+#2019
+sitecovs2019$Month <- str_replace(sitecovs2019$Date.Placement.x, pattern = ".*-([^-]*)-.*", replacement = "\\1")
+sitecovs2019$Season <- ifelse(sitecovs2019$Month %in% c("05", "06", "07", "08", "09", "10"), 
+                             "Rainy", "Dry")
+#2020
+sitecovs2020$Month <- str_replace(sitecovs2020$Date.Placement.x, pattern = ".*-([^-]*)-.*", replacement = "\\1")
+sitecovs2020$Season <- ifelse(sitecovs2020$Month %in% c("05", "06", "07", "08", "09", "10"), 
+                             "Rainy", "Dry")
+
+#select columns
+sitecovs2014 <- select(sitecovs2014, site, Brand.x, Conservation.Area, Active.Logging, Hurricane.Damage, Fire.Damage, Location.descr., Landscape, Lat, Lon, Season)
 #get location???/ property 
 
-sitecovs2015_select <- select(sitecovs2015, site, Days.x, Brand, Conservati, Active_Log, Hurricane, Fire_Damag, Location_d, Landscape, Northing, Easting)
+sitecovs2015 <- select(sitecovs2015, site, Brand, Conservati, Active_Log, Hurricane, Fire_Damag, Location_d, Landscape, Lat, Lat.1, Season)
+#Lat.1 is Long
 
-sitecovs2016_select <- select(sitecovs2016, site, Days.x, Brand, Conservati, Active_Log, Hurricane, Fire_Damag, Location_d, Landscape, Northing.x, Easting.x)
+sitecovs2016 <- select(sitecovs2016, site, Brand, Conservati, Active_Log, Hurricane, Fire_Damag, Location_d, Landscape, Lat, Long, Season)
 #this one has property ----- probs should add in 
 
-####SKIP WEIRD 
-sitecovs2017_select <- select(sitecovs2017, site, Days.x, )
+#fill data at some point- missing from sitecovs2017
+#sitecovs2017 <- sitecovs2017$Brand %>% fill(sitecovs2017$Brand, .direction = "down")
 
+sitecovs2017 <- select(sitecovs2017, site, Brand,  Conservati, Active_Log, Hurricane, Fire_Damag, Location_d, Landscape, Lat, Long, Season)
 
-sitecovs2018_select <- select(sitecovs2018, site, Days.x, Brand, Northing, Easting)
+#missing some info
+sitecovs2018$Conservation <- NA
+sitecovs2018 <- select(sitecovs2018, site, Brand, Conservation, Active_Log, Hurricane, Fire_Damag, Location_d, Landscape, Lat, Long, Season)
 
+#missing things
+sitecovs2019$Conservation <- NA
+sitecovs2019$Hurricane <- NA
+sitecovs2019$Fire <- NA
+sitecovs2019$Location <- NA
+sitecovs2019$Landscape <- NA
+sitecovs2019 <- select(sitecovs2019, site, Brand, Conservation, Logging, Hurricane, Fire, Location, Landscape, Lat, Long, Season)
 
+sitecovs2020$Conservation <- NA
+sitecovs2020$Fire <- NA
+sitecovs2020$Hurricane <- NA
+sitecovs2020$Location <- NA
+sitecovs2020$Landscape <- NA
+sitecovs2020 <- select(sitecovs2020, Name, Brand, Conservation, Logging, Hurricane, Fire, Location, Landscape, Lat, Long, Season)
+
+#colnames
+colnames(sitecovs2014) <- c("site", "Brand", "Conservation", "Logging", "Hurricane", "Fire", "Location", "Landscape", "Lat", "Long", "Season")
+colnames(sitecovs2015) <- c("site", "Brand", "Conservation", "Logging", "Hurricane", "Fire", "Location", "Landscape", "Lat", "Long", "Season")
+colnames(sitecovs2016) <- c("site", "Brand", "Conservation", "Logging", "Hurricane", "Fire", "Location", "Landscape", "Lat", "Long", "Season")
+colnames(sitecovs2017) <- c("site", "Brand", "Conservation", "Logging", "Hurricane", "Fire", "Location", "Landscape", "Lat", "Long", "Season")
+colnames(sitecovs2018) <- c("site", "Brand", "Conservation", "Logging", "Hurricane", "Fire", "Location", "Landscape", "Lat", "Long", "Season")
+colnames(sitecovs2019) <- c("site", "Brand", "Conservation", "Logging", "Hurricane", "Fire", "Location", "Landscape", "Lat", "Long", "Season")
+colnames(sitecovs2020) <- c("site", "Brand", "Conservation", "Logging", "Hurricane", "Fire", "Location", "Landscape", "Lat", "Long", "Season")
+
+#bind1
+sitecovs_tojoin <- rbind(sitecovs2014, sitecovs2015, sitecovs2016, sitecovs2017, sitecovs2018, sitecovs2019, sitecovs2020)
+
+##other site covs
+require(readxl)
+covs <- read_excel("Covariates_cams.xlsx")
+
+#join cov frames together
+covs_all <- left_join(sitecovs_tojoin, covs, by = c("site" = "CameraID"))
+
+covs_all$LatLong <- (covs_all$Lat * covs_all$Long) #new Lat*Long column to account for autocorrelation
+
+#save
+save(covs_all, file = "site_covs.RData")
 ```

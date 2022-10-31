@@ -90,7 +90,7 @@ sitecovs <- dat %>% #filter(dat$Species == "Gray Fox") %>%
   select(site, Easting, Northing, Month, Hour)
 sitecovs <- sitecovs[!duplicated(sitecovs$site), ]
 
-#need to join these to get cam IDs right
+#need to join these to get cam IDs right###mess with this
 detect <- as.data.frame(detect_hist_GF$detection_history, row.names = NULL,
                         stringsAsFactors = FALSE)
 
