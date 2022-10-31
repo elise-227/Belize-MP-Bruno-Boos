@@ -59,11 +59,11 @@ save(allcamop, file = "camop.RData")
 
 ```{r bind data}
 
-data2014_select <- select(data2014, site, Picture, Species, Nr, Year, Month, Day, Hour_exact, obsdate, Mammal, Easting.x, Northing.x)
+data2014_select <- select(data2014, site, Picture, Species, Nr, Year, Month, Day, Hour_exact, obsdate, Mammal, Easting.x, Northing.x, date_time_obs)
 
-data2015_select <- select(data2015, site, Picture, Species, Nr, Year, Month, Day, Hour_exact, obsdate, Mammal, Easting.1, Northing.1)
+data2015_select <- select(data2015, site, Picture, Species, Nr, Year, Month, Day, Hour_exact, obsdate, Mammal, Easting.1, Northing.1, date_time_obs)
 
-data2016_select <- select(data2016, site, picture, species.name, Nr, Year, Month, Day, Hour.Exact, obsdate, Mammal, Easting, Northing)
+data2016_select <- select(data2016, site, picture, species.name, Nr, Year, Month, Day, Hour.Exact, obsdate, Mammal, Easting, Northing, date_time_obs)
 
 #add mammal column to 2017
 data2017$species.name <- gsub("Gray fox", "Gray Fox", data2017$species.name)
@@ -100,22 +100,22 @@ data2017$Mammal <- ifelse(data2017$species.name %in% c("Baird's Tapir", "Puma", 
                                                                       "Little Tinamou", "Crested Guan"), "No", NA))
 
 
-data2017_select <- select(data2017, site, picture, species.name, Nr, Year, Month, Day, Hour.Exact, obsdate, Mammal, Easting, Northing)
+data2017_select <- select(data2017, site, picture, species.name, Nr, Year, Month, Day, Hour.Exact, obsdate, Mammal, Easting, Northing, date_time_obs)
 
-data2018_select <- select(data2018, site, picture, species.name, Nr, Year, Month, Day, Hour.Exact, obsdate, Mammal, Easting.y, Northing.y)
+data2018_select <- select(data2018, site, picture, species.name, Nr, Year, Month, Day, Hour.Exact, obsdate, Mammal, Easting.y, Northing.y, date_time_obs)
 
-data2019_select <- select(data2019, site, picture, species.name, Nr, Year, Month, Day, Hour.Exact, obsdate, Mammal, Easting.y, Northing.y)
+data2019_select <- select(data2019, site, picture, species.name, Nr, Year, Month, Day, Hour.Exact, obsdate, Mammal, Easting.y, Northing.y, date_time_obs)
 
-data2020_select <- select(data2020, Name, picture, species.name, Nr, Year, Month, Day, Hour.Exact, obsdate, Mammal, Easting.x, Northing.x)
+data2020_select <- select(data2020, Name, picture, species.name, Nr, Year, Month, Day, Hour.Exact, obsdate, Mammal, Easting.x, Northing.x, date_time_obs)
 
 #change col names before binding
-colnames(data2014_select) <- c("site", "picture", "Species", "Number_recorded", "Year", "Month", "Day", "Hour", "obsdate", "Mammal", "Easting", "Northing")
-colnames(data2015_select) <- c("site", "picture", "Species", "Number_recorded", "Year", "Month", "Day", "Hour", "obsdate", "Mammal", "Easting", "Northing")
-colnames(data2016_select) <- c("site", "picture", "Species", "Number_recorded", "Year", "Month", "Day", "Hour", "obsdate", "Mammal", "Easting", "Northing")
-colnames(data2017_select) <- c("site", "picture", "Species", "Number_recorded", "Year", "Month", "Day", "Hour", "obsdate", "Mammal", "Easting", "Northing")
-colnames(data2018_select) <- c("site", "picture", "Species", "Number_recorded", "Year", "Month", "Day", "Hour", "obsdate", "Mammal", "Easting", "Northing")
-colnames(data2019_select) <- c("site", "picture", "Species", "Number_recorded", "Year", "Month", "Day", "Hour", "obsdate", "Mammal", "Easting", "Northing")
-colnames(data2020_select) <- c("site", "picture", "Species", "Number_recorded", "Year", "Month", "Day", "Hour", "obsdate", "Mammal", "Easting", "Northing")
+colnames(data2014_select) <- c("site", "picture", "Species", "Number_recorded", "Year", "Month", "Day", "Hour", "obsdate", "Mammal", "Easting", "Northing", "date_time_obs")
+colnames(data2015_select) <- c("site", "picture", "Species", "Number_recorded", "Year", "Month", "Day", "Hour", "obsdate", "Mammal", "Easting", "Northing", "date_time_obs")
+colnames(data2016_select) <- c("site", "picture", "Species", "Number_recorded", "Year", "Month", "Day", "Hour", "obsdate", "Mammal", "Easting", "Northing", "date_time_obs")
+colnames(data2017_select) <- c("site", "picture", "Species", "Number_recorded", "Year", "Month", "Day", "Hour", "obsdate", "Mammal", "Easting", "Northing", "date_time_obs")
+colnames(data2018_select) <- c("site", "picture", "Species", "Number_recorded", "Year", "Month", "Day", "Hour", "obsdate", "Mammal", "Easting", "Northing", "date_time_obs")
+colnames(data2019_select) <- c("site", "picture", "Species", "Number_recorded", "Year", "Month", "Day", "Hour", "obsdate", "Mammal", "Easting", "Northing", "date_time_obs")
+colnames(data2020_select) <- c("site", "picture", "Species", "Number_recorded", "Year", "Month", "Day", "Hour", "obsdate", "Mammal", "Easting", "Northing", "date_time_obs")
 
 #bind
 dat <- rbind(data2014_select, data2015_select, data2016_select, data2017_select, data2018_select, data2019_select, data2020_select)
