@@ -849,12 +849,29 @@ datafor2019_visit <- datafor2019 %>%
 datafor2019_errors <- datafor2019_visit %>%
   mutate(errors = ifelse(obsdate > Last.record, TRUE, FALSE)) %>%
   mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE)) %>%
-  drop_na(Date.Placement)
+  drop_na(Date.Placement) %>%
+  drop_na(Location)
 summary(datafor2019_errors$errors)
 summary(datafor2019_errors$opp_errors)
 
 
+data2019_final <- datafor2019_errors %>%
+  mutate(date_time_obs = paste(obsdate, sprintf("%.2f", round(Hour.Exact, 2)))) %>%
+  select(1:2,7:34, date_time_obs)
 
+camdataprep_2019 <- data2019_final %>%
+  select(site, Date.Placement, Days, Last.record, Northing.y, Easting.y)
+camopdataframe2019 <- camdataprep_2019[!duplicated(camdataprep_2019$site), ]
+
+
+
+
+write.csv(camopdataframe2019, "camop_2019.csv", row.names = FALSE)
+write.csv(data2019_final, "data2019_final.csv", row.names = FALSE)
+
+sitecovs2019 <- left_join(camopdataframe2019, cameraops2019, c("site"="Name"))
+
+write.csv(sitecovs2019, "sitecovs2019.csv", row.names = FALSE)
 ```
 909A month is wrong 
 
@@ -882,6 +899,23 @@ datafor2020 <- full_join(records_2020, cameraops2020, by = "Name")
 datafor2020$Date.Placement <- as.Date(as.character(datafor2020$Date.Placement), "%Y%m%d")
 datafor2020$Date.Removed <- as.Date(as.character(datafor2020$Date.Removed), "%Y%m%d")
 datafor2020$Last.record <- as.Date(as.character(datafor2020$Last.record), "%Y%m%d")
+
+datafor2020[datafor2020$Name == "05B",]$Last.record <- as.Date("2020-05-22","%Y-%m-%d")
+datafor2020[datafor2020$Name == "04B",]$Last.record <- as.Date("2020-05-22","%Y-%m-%d")
+datafor2020[datafor2020$Name == "05B",]$Date.Removed <- as.Date("2020-05-22","%Y-%m-%d")
+datafor2020[datafor2020$Name == "04B",]$Date.Removed <- as.Date("2020-05-22","%Y-%m-%d")
+
+datafor2020[datafor2020$Name == "12E",]$Last.record <- as.Date("2020-09-09","%Y-%m-%d")
+datafor2020[datafor2020$Name == "11B",]$Last.record <- as.Date("2020-04-15","%Y-%m-%d")
+
+datafor2020[datafor2020$Name == "06E",]$Date.Removed <- as.Date("2020-08-22","%Y-%m-%d")
+datafor2020[datafor2020$Name == "06E",]$Last.record <- as.Date("2020-08-22","%Y-%m-%d")
+datafor2020[datafor2020$Name == "06E",]$Date.Placement <- as.Date("2020-07-18","%Y-%m-%d")
+
+datafor2020[datafor2020$Name == "05F",]$Date.Placement <- as.Date("2020-08-08","%Y-%m-%d")
+datafor2020[datafor2020$Name == "02H",]$Date.Placement <- as.Date("2020-09-10","%Y-%m-%d")
+
+datafor2020 <- datafor2020[-2501, ]
 
 #visit day
 datafor2020_visit <- datafor2020 %>%
