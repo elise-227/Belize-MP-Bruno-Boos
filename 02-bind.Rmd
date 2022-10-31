@@ -52,13 +52,76 @@ colnames(camop_2020) <- c("site", "Date.Placement", "Days", "Last.record", "Nort
 allcamop <- rbind(camop_2014, camop_2015, camop_2016, camop_2017, camop_2018, camop_2019, camop_2020)
 
 write.csv(allcamop, "allcamop.csv", row.names = F)
+
+#save to source
+save(allcamop, file = "camop.RData")
 ```
 
 ```{r bind data}
-data2014_select <- select(data2014, site, Picture, Species, Nr, Year, Month, Day, Hour_exact, obsdate, visit, Mammal)
 
-data2015_select <- select(data2015, site, Picture, Species, Nr, Year, Month, Day, Hour_exact, Easting.1, Northing.1, )
+data2014_select <- select(data2014, site, Picture, Species, Nr, Year, Month, Day, Hour_exact, obsdate, Mammal, Easting.x, Northing.x)
 
+data2015_select <- select(data2015, site, Picture, Species, Nr, Year, Month, Day, Hour_exact, obsdate, Mammal, Easting.1, Northing.1)
+
+data2016_select <- select(data2016, site, picture, species.name, Nr, Year, Month, Day, Hour.Exact, obsdate, Mammal, Easting, Northing)
+
+#add mammal column to 2017
+data2017$species.name <- gsub("Gray fox", "Gray Fox", data2017$species.name)
+data2017$species.name <- gsub("Ruddy Quail Dove ", "Ruddy Quail-dove", data2017$species.name)
+data2017$species.name <- gsub("Collared Pecary", "Collared Peccary", data2017$species.name)
+data2017$species.name <- gsub("Crested guan", "Crested Guan", data2017$species.name)
+data2017$species.name <- gsub("Lesson's motmot", "Lesson's Motmot", data2017$species.name)
+data2017$species.name <- gsub("Bare-throated Tiger-heron", "Bare-throated Tiger Heron", data2017$species.name)
+data2017$species.name <- gsub("Black-crowned Night-Heron", "Black-crowned Night Heron", data2017$species.name)
+data2017$species.name <- gsub("Great Blue-heron", "Great Blue Heron", data2017$species.name)
+data2017$species.name <- gsub("Clay coloured Thrush", "Clay-coloured Thrush", data2017$species.name)
+data2017$species.name <- gsub("Yellow-crowned Night-Heron", "Yellow-crowned Night Heron", data2017$species.name)
+data2017$species.name <- gsub("Blue Ground-Dove", "Blue Ground Dove", data2017$species.name)
+data2017$species.name <- gsub("Gray catbird", "Gray Catbird", data2017$species.name)
+
+#add mammal Y/N
+data2017$Mammal <- ifelse(data2017$species.name %in% c("Baird's Tapir", "Puma", "Red Brocket Deer", "White-lipped Peccary", 
+                                                               "White-tailed Deer", "Ocelot", "Agouti", "Gray Fox", 
+                                                               "Tamandua", "White-nosed Coati", "Common Opossum", "Jaguar", 
+                                                               "Margay", "Paca", "Tayra", "Racoon", "Striped Hog-nosed Skunk", 
+                                                               "Otter", "Brown Four-eyed Opossum", "Nine-banded Armadillo", 
+                                                               "Coyote", "Jaguarundi", "Rodent", "Social Flycatcher", "Squirrel", 
+                                                               "Deppe's Squirrel"), "Yes",
+                              ifelse(data2017$species.name %in% c("Great Curassow", "Ocellated Turkey", "Unknown", "Humans", 
+                                                                      "Mottled Owl", "Neeltje", "Gray-headed Dove", "Chachalaca", 
+                                                                      "Ruddy Quail-dove", "Black-faced Antthrush", "Scaled Pigeon", 
+                                                                      "Collared Peccary", "Lesson's Motmot", "Wood Thrush", 
+                                                                      "Boat-billed Heron", "Slaty-breasted Tinamou", "Bare-throated Tiger Heron", 
+                                                                      "Black-crowned Night Heron", "Cane Toad", "Great Blue Heron", 
+                                                                      "Great Tinamou", "Limpkin", "Agami Heron", "Clay-coloured Thrush", 
+                                                                      "Yellow-crowned Night Heron", "Russet-naped Woodrail", "Bird", 
+                                                                      "Blue Ground Dove", "Gray Catbird", "Gray-chested Dove", "Hawk", 
+                                                                      "Northern Waterthrush", "Ornate Hawk-eagle", "Roadside Hawk", 
+                                                                      "Little Tinamou", "Crested Guan"), "No", NA))
+
+
+data2017_select <- select(data2017, site, picture, species.name, Nr, Year, Month, Day, Hour.Exact, obsdate, Mammal, Easting, Northing)
+
+data2018_select <- select(data2018, site, picture, species.name, Nr, Year, Month, Day, Hour.Exact, obsdate, Mammal, Easting.y, Northing.y)
+
+data2019_select <- select(data2019, site, picture, species.name, Nr, Year, Month, Day, Hour.Exact, obsdate, Mammal, Easting.y, Northing.y)
+
+data2020_select <- select(data2020, Name, picture, species.name, Nr, Year, Month, Day, Hour.Exact, obsdate, Mammal, Easting.x, Northing.x)
+
+#change col names before binding
+colnames(data2014_select) <- c("site", "picture", "Species", "Number_recorded", "Year", "Month", "Day", "Hour", "obsdate", "Mammal", "Easting", "Northing")
+colnames(data2015_select) <- c("site", "picture", "Species", "Number_recorded", "Year", "Month", "Day", "Hour", "obsdate", "Mammal", "Easting", "Northing")
+colnames(data2016_select) <- c("site", "picture", "Species", "Number_recorded", "Year", "Month", "Day", "Hour", "obsdate", "Mammal", "Easting", "Northing")
+colnames(data2017_select) <- c("site", "picture", "Species", "Number_recorded", "Year", "Month", "Day", "Hour", "obsdate", "Mammal", "Easting", "Northing")
+colnames(data2018_select) <- c("site", "picture", "Species", "Number_recorded", "Year", "Month", "Day", "Hour", "obsdate", "Mammal", "Easting", "Northing")
+colnames(data2019_select) <- c("site", "picture", "Species", "Number_recorded", "Year", "Month", "Day", "Hour", "obsdate", "Mammal", "Easting", "Northing")
+colnames(data2020_select) <- c("site", "picture", "Species", "Number_recorded", "Year", "Month", "Day", "Hour", "obsdate", "Mammal", "Easting", "Northing")
+
+#bind
+dat <- rbind(data2014_select, data2015_select, data2016_select, data2017_select, data2018_select, data2019_select, data2020_select)
+
+#save
+save(dat, file = "dat.RData")
 ```
 
 ```{r bind site covs}
