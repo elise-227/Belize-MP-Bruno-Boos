@@ -925,10 +925,29 @@ datafor2020_visit <- datafor2020 %>%
 #error finder 
 datafor2020_errors <- datafor2020_visit %>%
   mutate(errors = ifelse(obsdate > Last.record, TRUE, FALSE)) %>%
-  mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE)) 
+  mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE)) %>%
+  drop_na(obsdate)
 summary(datafor2020_errors$errors)
 summary(datafor2020_errors$opp_errors)
 
+
+data2020_final <- datafor2020_errors %>%
+  mutate(date_time_obs = paste(obsdate, sprintf("%.2f", round(Hour.Exact, 2)))) %>%
+  select(1:9,11:15,17:21,25:36,obsdate,visit, date_time_obs)
+
+camdataprep_2020 <- data2020_final %>%
+  select(Name, Date.Placement, Days, Last.record, Northing.y, Easting.y)
+camopdataframe2020 <- camdataprep_2020[!duplicated(camdataprep_2020$Name), ]
+
+
+
+
+write.csv(camopdataframe2020, "camop_2020.csv", row.names = FALSE)
+write.csv(data2020_final, "data2020_final.csv", row.names = FALSE)
+
+sitecovs2020 <- left_join(camopdataframe2020, cameraops2020, by = "Name")
+
+write.csv(sitecovs2020, "sitecovs2020.csv", row.names = FALSE)
 ```
 weird stuff with 2020 some obs dates are before the camera was placed.
 
