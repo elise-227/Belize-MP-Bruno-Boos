@@ -952,6 +952,12 @@ write.csv(sitecovs2020, "sitecovs2020.csv", row.names = FALSE)
 weird stuff with 2020 some obs dates are before the camera was placed.
 
 
+
+
+
+
+
+---------------------------------------------------------------
 Create a spatial data frame for the camaeras for all the years:
 ```{r combining cameras and locationas}
 cameraops2014_edit <- cameraops2014 %>%
