@@ -63,8 +63,18 @@ data2015_select <- select(data2015, site, Picture, Species, Nr, Year, Month, Day
 
 ```{r bind site covs}
 sitecovs2014_select <- select(sitecovs2014, site, Days.x, Brand.x, Conservation.Area, Active.Logging, Hurricane.Damage, Fire.Damage, Location.descr., Landscape, Northing, Easting)
-#get location???
+#get location???/ property 
 
-sitecovs2015_select <- select(site, Days.x, Brand, Northing.1, Easting.1)
+sitecovs2015_select <- select(sitecovs2015, site, Days.x, Brand, Conservati, Active_Log, Hurricane, Fire_Damag, Location_d, Landscape, Northing, Easting)
+
+sitecovs2016_select <- select(sitecovs2016, site, Days.x, Brand, Conservati, Active_Log, Hurricane, Fire_Damag, Location_d, Landscape, Northing.x, Easting.x)
+#this one has property ----- probs should add in 
+
+####SKIP WEIRD 
+sitecovs2017_select <- select(sitecovs2017, site, Days.x, )
+
+
+sitecovs2018_select <- select(sitecovs2018, site, Days.x, Brand, Northing, Easting)
+
 
 ```
