@@ -826,6 +826,20 @@ datafor2019$Date.Removed <- as.Date(as.character(datafor2019$Date.Removed), "%Y%
 datafor2019$Last.record <- as.Date(as.character(datafor2019$Last.record), "%Y%m%d")
 
 datafor2019[datafor2019$site == "907E",]$Last.record <- as.Date("2019-08-24","%Y-%m-%d")
+datafor2019[datafor2019$site == "909A",]$Date.Placement <- as.Date("2019-12-02","%Y-%m-%d")
+datafor2019[datafor2019$site == "909A",]$Last.record <- as.Date("2020-01-06","%Y-%m-%d")
+datafor2019[datafor2019$site == "909A",]$Date.Removed <- as.Date("2020-01-06","%Y-%m-%d")
+datafor2019[datafor2019$site == "909B",]$Date.Placement <- as.Date("2020-01-06","%Y-%m-%d")
+datafor2019[datafor2019$site == "909B",]$Last.record <- as.Date("2020-02-06","%Y-%m-%d")
+datafor2019[datafor2019$site == "909B",]$Date.Removed <- as.Date("2020-02-06","%Y-%m-%d")
+datafor2019[datafor2019$site == "909C",]$Date.Placement <- as.Date("2020-02-18","%Y-%m-%d")
+datafor2019[datafor2019$site == "909C",]$Last.record <- as.Date("2020-04-11","%Y-%m-%d")
+datafor2019[datafor2019$site == "909C",]$Date.Removed <- as.Date("2020-04-11","%Y-%m-%d")
+datafor2019[datafor2019$site == "910G",]$Date.Placement <- as.Date("2019-08-24","%Y-%m-%d")
+
+datafor2019[datafor2019$site == "909A" & datafor2019$Month == 1,]$Year <- 2020 
+datafor2019[datafor2019$site == "909B" | datafor2019$site == "909C",]$Year <- 2020 
+
 #visit day
 datafor2019_visit <- datafor2019 %>%
   mutate(obsdate = as.Date(paste0(Year,"-",Month,"-",Day), "%Y-%m-%d")) %>%
@@ -834,9 +848,12 @@ datafor2019_visit <- datafor2019 %>%
 #error finder 
 datafor2019_errors <- datafor2019_visit %>%
   mutate(errors = ifelse(obsdate > Last.record, TRUE, FALSE)) %>%
-  mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE))
+  mutate(opp_errors = ifelse(obsdate < Date.Placement, TRUE, FALSE)) %>%
+  drop_na(Date.Placement)
 summary(datafor2019_errors$errors)
 summary(datafor2019_errors$opp_errors)
+
+
 
 ```
 909A month is wrong 
