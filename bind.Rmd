@@ -9,22 +9,47 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+```{r read in}
+require(tidyverse)
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+data2014 <- read.csv("data2014_final.csv", stringsAsFactors = T)
+data2015 <- read.csv("data2015_final.csv", stringsAsFactors = T)
+data2016 <- read.csv("data2016_final.csv", stringsAsFactors = T)
+data2017 <- read.csv("data2017_final.csv", stringsAsFactors = T)
+data2018 <- read.csv("data2018_final.csv", stringsAsFactors = T)
+data2019 <- read.csv("data2019_final.csv", stringsAsFactors = T)
+data2020 <- read.csv("data2020_final.csv", stringsAsFactors = T)
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+camop_2014 <- read.csv("camop_2014.csv", stringsAsFactors = T)
+camop_2015 <- read.csv("camop_2015.csv", stringsAsFactors = T)
+camop_2016 <- read.csv("camop_2016.csv", stringsAsFactors = T)
+camop_2017 <- read.csv("camop_2017.csv", stringsAsFactors = T)
+camop_2018 <- read.csv("camop_2018.csv", stringsAsFactors = T)
+camop_2019 <- read.csv("camop_2019.csv", stringsAsFactors = T)
+camop_2020 <- read.csv("camop_2020.csv", stringsAsFactors = T)
 
-```{r cars}
-summary(cars)
+sitecovs2014 <- read.csv("sitecovs2014.csv", stringsAsFactors = T)
+sitecovs2015 <- read.csv("sitecovs2015.csv", stringsAsFactors = T)
+sitecovs2016 <- read.csv("sitecovs2016.csv", stringsAsFactors = T)
+sitecovs2017 <- read.csv("sitecovs2017.csv", stringsAsFactors = T)
+sitecovs2018 <- read.csv("sitecovs2018.csv", stringsAsFactors = T)
+sitecovs2019 <- read.csv("sitecovs2019.csv", stringsAsFactors = T)
+sitecovs2020 <- read.csv("sitecovs2020.csv", stringsAsFactors = T)
+
 ```
 
-## Including Plots
+cam op dataframe: site, easting, northing, Date.Placement, Last.Record, Days
+```{r bind}
+colnames(camop_2014) <- c("site", "Date.Placement", "Days", "Last.record", "Northing", "Easting")
+colnames(camop_2015) <- c("site", "Date.Placement", "Days", "Last.record", "Northing", "Easting")
+colnames(camop_2016) <- c("site", "Date.Placement", "Days", "Last.record", "Northing", "Easting")
+colnames(camop_2017) <- c("site", "Date.Placement", "Days", "Last.record", "Northing", "Easting", "Logging")
+camop_2017 <- select(camop_2017, 1:6)
+colnames(camop_2018) <- c("site", "Date.Placement", "Days", "Last.record", "Northing", "Easting")
+colnames(camop_2019) <- c("site", "Date.Placement", "Days", "Last.record", "Northing", "Easting")
+colnames(camop_2020) <- c("site", "Date.Placement", "Days", "Last.record", "Northing", "Easting")
 
-You can also embed plots, for example:
+allcamop <- rbind(camop_2014, camop_2015, camop_2016, camop_2017, camop_2018, camop_2019, camop_2020)
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+write.csv(allcamop, "allcamop.csv", row.names = F)
 ```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
