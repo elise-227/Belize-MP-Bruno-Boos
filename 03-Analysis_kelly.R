@@ -1,0 +1,149 @@
+#clean space
+rm(list=ls())
+
+#load packages
+#packages
+require(tidyverse)
+require(dplyr)
+require(sf)
+require(leaflet)
+require(mapview)
+require(readxl)
+require(lubridate)
+require(readxl)
+library(unmarked)
+library(AICcmodavg)
+library(camtrapR)
+library(ubms)
+#set wd
+setwd("~/Belize-MP-Bruno-Boos")
+
+##load dfs
+load("dat.RData")
+load("camop.RData")
+load("site_covs.RData")
+
+#make camera_operation frame
+cam_op <- cameraOperation(allcamop, stationCol = "site", setupCol = "Date.Placement", 
+                             retrievalCol = "Last.record", occasionStartTime = 0 , 
+                             dateFormat = "%Y-%m-%d", writecsv = FALSE)
+
+
+#detection history for gray fox
+
+#getting an error for date_time_obs so checking it
+IsDate <- function(mydate, date.format = "%Y-%m-%d %H.%M") {
+  tryCatch(!is.na(as.Date(mydate, date.format)),  
+           error = function(err) {FALSE})  
+}
+
+datecheck <- data.frame(IsDate(dat$date_time_obs))
+#issues with row 1557, 4439, 4743, 6066, 13493, 15059
+dat <- dat[-c(1557,4439,4743,6066,13493,15059),]
+
+detect_hist_GF <- detectionHistory(recordTable = dat, species = "Gray Fox", 
+                                             camOp = cam_op, output = "binary", stationCol = "site", 
+                                             speciesCol = "Species", day1 ="station", 
+                                             recordDateTimeCol = "date_time_obs", 
+                                             recordDateTimeFormat =  "%Y-%m-%d %H.%M", 
+                                             timeZone = "UTC", occasionLength = 1, 
+                                             includeEffort = TRUE, scaleEffort = FALSE, 
+                                             writecsv = FALSE)
+#fix site covs
+site_covs <- covs_all[!duplicated(covs_all$site), ]
+
+#need to join detection history frame with site covs to get cam IDs right
+detect <- as.data.frame(detect_hist_GF$detection_history, row.names = NULL,
+                        stringsAsFactors = FALSE)
+
+detect$cams <- row.names(detect) #column of cams
+
+site_covs <- left_join(detect, site_covs, by = c("cams" = "site")) #in this case it was already correct
+site_covs2 <- select(site_covs, c(145:156,255))
+
+#fix logging column
+site_covs2$Logging <- ifelse(site_covs2$Logging == c("No", "No Logging"), "No", "Yes")
+
+
+######################################################################
+#time to model
+#check all covs to make sure their class is correct, characters will be converted to factors when making unmarked frame
+summary(site_covs2)
+
+#make unmarked frame
+unmarkedFrame <- unmarkedFrameOccu(y = detect_hist_GF$detection_history, siteCovs = site_covs2)
+summary(unmarkedFrame)
+
+
+#standardizing variables
+unmarkedFrame@siteCovs$Canopy_Height_m <- scale(unmarkedFrame@siteCovs$Canopy_Height_m)
+unmarkedFrame@siteCovs$LatLong <- scale(unmarkedFrame@siteCovs$LatLong)
+
+#start modeling
+modlist <- list()
+
+
+###models with Random effect
+#ubms is Bayesian
+modlist[["null"]] <- f1 <- stan_occu(data = unmarkedFrame, formula = ~1 ~1, chains = 4, iter = 1000)
+f1
+#prob/credible intervals (does not cross zero - positive effect), n_eff is # of effective obs, Rhat convergence diagnostic tells us fit - should be >1
+#should do 1000 - 5000 iterations
+
+output <- summary(f1, "state")
+logit <- output$mean[1]
+odds <- exp(logit)
+prob1 <- odds / (1 + odds)
+prob1
+#occupancy probability ~ 0.668 or we expect to find gray foxes at ~68% of sites
+
+modlist[["canopy"]] <- f2 <- stan_occu(data = unmarkedFrame, formula = ~1 ~Canopy_Height_m, chains = 4, iter = 1000)
+f2
+
+output <- summary(f2, "state")
+logit <- output$mean[2]
+odds <- exp(logit)
+prob2 <- odds / (1 + odds)
+prob2
+#psi = 0.499 or ~50% of sites occupied
+
+modlist[["canopy_r"]] <- f3 <- stan_occu(data = unmarkedFrame, formula = ~1 ~Canopy_Height_m + (1|cams), chains = 4, iter = 1000)
+f3
+
+output <- summary(f3, "state")
+logit <- output$mean[2]
+odds <- exp(logit)
+prob3 <- odds / (1 + odds)
+prob3
+#psi = 0.499 or ~50% of sites [no difference] but failed to converge so increase iterations
+
+prob2;prob3 #compare without random effect to will random effect
+
+modlist[["logged"]] <- f4 <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging, chains = 4, iter = 1000)
+f4
+
+modlist[["logging_r"]] <- f5 <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging + (1|cams), chains = 3, iter = 800)
+f5
+
+output <- summary(f4, "state")
+logit <- output$mean[2]
+odds <- exp(logit)
+prob4 <- odds / (1 + odds)
+prob4
+#psi = 0.589 or 59%
+
+output <- summary(f5, "state")
+logit <- output$mean[2]
+odds <- exp(logit)
+prob5 <- odds / (1 + odds)
+prob5
+#psi = 0.657 or 66%
+
+#predict with formula Issue here I think
+#0.750 + 0.648*LoggingYes + 2.281*site
+
+exp(0.750 + 0.648 + 2.281) / (1 + exp(0.750 + 0.648 + 2.281))
+#psi with logging at site - 0.975
+
+exp(0.750 + 2.281) / (1 + exp(0.750 + 2.281))
+#psi without logging at site - 0.954

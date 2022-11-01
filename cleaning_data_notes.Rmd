@@ -27,11 +27,22 @@ library(unmarked)
 library(AICcmodavg)
 #make mapview work on a mac
 mapviewOptions(fgb = FALSE)
+
+#install flocker
+#install.packages("remotes")
+#remotes::install_github("jsocolar/flocker")
+
+#remove.packages(c("StanHeaders", "rstan"))
+#install.packages("StanHeaders", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
+#install.packages("rstan", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
+
+#library(flocker)
+
+#install.packages("camtrapR")
 library(camtrapR)
 
 ```
 
-READ IN DATA
 ```{r load data}
 #load data
 records_2014 <- read.csv("./By_year/2014_Records_Yalbac_data.csv", stringsAsFactors = T)
@@ -43,8 +54,9 @@ records_2019 <- read.csv("./By_year/2019_Records_Yalbac_data.csv", stringsAsFact
 records_2020 <- read.csv("./By_year/2020_Records_Yalbac_data.csv", stringsAsFactors = T)
 ```
 
+General notes:
+some years cam name is 'site', later years cam name is 'Name'
 
-FIX SPELLING 
 ```{r kelly species spelling cleaning}
 #collect species names
 names2014 <- unique(records_2014$Species)
@@ -172,7 +184,6 @@ records_2020$species.name <- gsub("Crested guan", "Crested Guan", records_2020$s
 
 ```
 
-MAKE MAMMAL CODE
 ```{r mammal code - kelly}
 records_2014$Mammal <- ifelse(records_2014$Species %in% c("Agouti", "Central American Tapir", "Collared Peccary", "Common Opossum", 
                                                           "Deppe's Squirrel", "Four-eyed Opossum", "Gray Fox", "Jaguar", "Jaguarundi", 
@@ -268,7 +279,19 @@ records_2020$Mammal <- ifelse(records_2020$species.name %in% c("White-lipped Pec
 
 ```
 
-2014
+Ultimately need to make this:
+
+unmarkedMultFrame(y, siteCovs, obsCovs, numPrimary, yearlySiteCovs)
+
+y	- A matrix of the observed data.
+
+siteCovs - Data frame of covariates that vary at the site level.
+
+obsCovs	- Data frame of covariates that vary within site-year-observation level.
+
+numPrimary - Number of primary time periods (seasons in the multiseason model).
+
+yearlySiteCovs - Data frame containing covariates at the site-year level.
 
 ```{r 2014 cleaning}
 #clean all 2014 data
@@ -277,7 +300,11 @@ records_2014_clean <- records_2014 %>%
 
 #unique(records_2014_clean$site)
 ```
+71 cameras have observations for 2014. 79 cameras are listed with 3 not placed or stolen. Allegedly 76 should have been recording so logically 5 sites had 0 observations of any animal
 
+These cameras that observed nothing or didn't work (hypothetically) are 402A, 402C, 406F, 408F and 412C2.
+
+length of all matrices for 2014 then should be 76 because there are than many sites.
 
 ```{r days op and ect}
 #load operational days
@@ -346,11 +373,26 @@ sitecovs2014 <- left_join(sitecovs2014, covs2014, c("site"="Name"))
 
 write.csv(sitecovs2014, "sitecovs2014.csv", row.names = FALSE)
 ```
+Errors in data found that need to fix: 
 
--------------------
+410C2 is repeated 410C needed to be fixed in the days operational in the original excel file.
 
-2015
+Record 2234 is an obs after the camera was removed so need to removed probably. A couple data points are like this need to look into!!!! 241 observations are after end date!
+ERROR SEEMS TO BE IN C2 and C points - repeated in data of days operational (more than this tho)
 
+are days operational including day 1? From looking at data day 1 is included as one operational day. Actually idk
+
+Some points that are inconsistent going to need to just put 0s to the days the camera was out there.
+
+39 or more like 47? cameras have incorrect operational days. for 2014 might just have to do the days the camera was out
+
+~~~~~~~~~
+New notes 
+
+record 475 for 401A i believe the month and day are flipped 
+
+still need to figure out where the error is in days cam out 
+------------------------------
 ```{r 2015 cleaning}
 #clean all 2014 data
 records_2015_clean <- records_2015 %>%
@@ -433,10 +475,9 @@ sitecovs2015 <- left_join(camopdataframe2015, cameraops2015, c("site"="Name"))
 write.csv(sitecovs2015, "sitecovs2015.csv", row.names = FALSE)
 ```
 
+Only errors in 7 of the observations - can check back for typos 
 
 --------------------
-2016
-
 ```{r cleaning 2016}
 records_2016_clean <- records_2016 %>%
   mutate(site = paste0(Cam.nr,series)) %>%
@@ -528,8 +569,15 @@ sitecovs2016 <- left_join(camopdataframe2016, cameraops2016, c("site"="Name"))
 write.csv(sitecovs2016, "sitecovs2016.csv", row.names = FALSE)
 ```
 
-------------------
-2017 
+607A -> subsetted into Ab Ac Ad, not sure if this is just the location of 607A or what the reason for subsetting is. Accounts for all the NA's.
+
+Some january placement days were listed as 2015 instead of 2016 -> once that is fixed only 5 errors
+
+284 NA's = the 607A deviations
+
+Maybe check photo to see observation day. 
+
+----------------------
 
 ```{r cleaning 2017}
 records_2017_clean <- records_2017 %>%
@@ -618,7 +666,9 @@ sitecovs2017 <- left_join(camopdataframe2017, cameraops2017, c("site"="Name"))
 write.csv(sitecovs2017, "sitecovs2017.csv", row.names = FALSE)
 ```
 
+Errors with cam 710E (maybe other cams too) Have to do with "Last.Record". This date is different than the date removed. Date removed would not result in these errors.
 
+Edit clean data frame to have first_obs and last.record_clean to be date.placement and last.record
 
 ```{r making occupancy dataframe 2017}
 
@@ -629,10 +679,46 @@ detect_hist_2017_grayfox <- detectionHistory(recordTable = data2017_final, speci
 
 detectionhist <- detect_hist_2017_grayfox$detection_history
 ```
+In making the prep data frames need to make sure using correct date placements ie the calculated ones. 
+
+```{r model test}
+covariates <- read_xlsx("Covariates_cams.xlsx")
+
+cams700 <- covariates[188:263,]
+
+dataframe_det <- as.data.frame(detectionhist)
+dataframe_det$rn <- row.names(dataframe_det)
+
+
+join <- left_join(dataframe_det,cams700, by = c("rn" = "CameraID"))
+cams700_clean <- select(join, 116:215)
+
+unmarkedFrame <- unmarkedFrameOccu(detectionhist, siteCovs = cams700_clean)
+summary(unmarkedFrame)
+
+#flock_data <- make_flocker_data(obs = detectionhist, unit_covs = cams700_clean)
+```
+
+```{r ooo model}
+#flock(f_occ = ~ 1, f_det = ~ 1, flocker_data = flock_data)
+
+fm <- occu(formula = ~1
+                     ~1,
+           data = unmarkedFrame)
+summary(fm)
+
+backTransform(fm, type = "state")
+backTransform(fm, type = "det")
+
+#try a covariate
+
+fm2 <- occu(formula = ~1
+                     ~ Avg_pr_2017,
+           data = unmarkedFrame)
+summary(fm2)
+```
 
 ----------------------
-
-2018
 
 ```{r cleaning 2018}
 records_2018_clean <- records_2018 %>%
@@ -712,9 +798,10 @@ write.csv(data2018_final, "data2018_final.csv", row.names = FALSE)
 sitecovs2018 <- left_join(camopdataframe2018, cameraops2018, c("site"="Name"))
 write.csv(sitecovs2018, "sitecovs2018.csv", row.names = FALSE)
 ```
+NOTE: remove non functions cameras maybe and also remove the days record
 
+CHECK BACK AT PHOTOS to see if obs date is right!
 --------------------
-2019
 
 ```{r cleaning 2019}
 unique(records_2019$Camera)
@@ -786,9 +873,14 @@ sitecovs2019 <- left_join(camopdataframe2019, cameraops2019, c("site"="Name"))
 
 write.csv(sitecovs2019, "sitecovs2019.csv", row.names = FALSE)
 ```
+909A month is wrong 
 
+series wrong for 905E (says F) - something wrong here, not sure if location is right maybe is F 
+
+only two cameras with issues XXXX
+
+remove empty rows
 ----------------
-2020
 
 ```{r cleaning 2020}
 
@@ -857,6 +949,9 @@ sitecovs2020 <- left_join(camopdataframe2020, cameraops2020, by = "Name")
 
 write.csv(sitecovs2020, "sitecovs2020.csv", row.names = FALSE)
 ```
+weird stuff with 2020 some obs dates are before the camera was placed.
+
+
 
 
 
