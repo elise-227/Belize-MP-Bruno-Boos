@@ -15,13 +15,18 @@ library(unmarked)
 library(AICcmodavg)
 library(camtrapR)
 library(ubms)
+
 #set wd
-setwd("~/Belize-MP-Bruno-Boos")
+setwd("~/Belize-MP-Bruno-Boos") 
+## jp - this setwd() line shouldn't be necessary
 
 ##load dfs
 load("dat.RData")
 load("camop.RData")
 load("site_covs.RData")
+
+## jp - I suggest making the names of the dataframes the same as the source data
+## (or vice versa) so that you don't have to search for allcamop and covs_all
 
 #make camera_operation frame
 cam_op <- cameraOperation(allcamop, stationCol = "site", setupCol = "Date.Placement", 
@@ -85,7 +90,7 @@ modlist <- list()
 
 ###models with Random effect
 #ubms is Bayesian
-modlist[["null"]] <- f1 <- stan_occu(data = unmarkedFrame, formula = ~1 ~1, chains = 4, iter = 1000)
+modlist[["null"]] <- f1 <- stan_occu(data = unmarkedFrame, formula = ~1 ~1, chains = 4, iter = 10000)
 f1
 #prob/credible intervals (does not cross zero - positive effect), n_eff is # of effective obs, Rhat convergence diagnostic tells us fit - should be >1
 #should do 1000 - 5000 iterations
@@ -95,9 +100,13 @@ logit <- output$mean[1]
 odds <- exp(logit)
 prob1 <- odds / (1 + odds)
 prob1
+
+## jp - if you load the boot package you can use inv.logit() for probability
+## jp - what you did is great, just saying...
+
 #occupancy probability ~ 0.668 or we expect to find gray foxes at ~68% of sites
 
-modlist[["canopy"]] <- f2 <- stan_occu(data = unmarkedFrame, formula = ~1 ~Canopy_Height_m, chains = 4, iter = 1000)
+modlist[["canopy"]] <- f2 <- stan_occu(data = unmarkedFrame, formula = ~1 ~Canopy_Height_m, chains = 4, iter = 10000)
 f2
 
 output <- summary(f2, "state")
@@ -107,9 +116,15 @@ prob2 <- odds / (1 + odds)
 prob2
 #psi = 0.499 or ~50% of sites occupied
 
-modlist[["canopy_r"]] <- f3 <- stan_occu(data = unmarkedFrame, formula = ~1 ~Canopy_Height_m + (1|cams), chains = 4, iter = 1000)
+
+modlist[["canopy_r"]] <- f3 <- stan_occu(data = unmarkedFrame, formula = ~1 ~scale(Canopy_Height_m) + 
+                                           (1|cams), chains = 4, iter = 10000)
 f3
 
+traceplot(f3, pars=c("beta_state", "beta_det"))
+ plot_residuals(f3, submodel="state")
+  plot_residuals(f3, submodel="state", covariate="Canopy_Height_m")
+ 
 output <- summary(f3, "state")
 logit <- output$mean[2]
 odds <- exp(logit)
@@ -117,12 +132,21 @@ prob3 <- odds / (1 + odds)
 prob3
 #psi = 0.499 or ~50% of sites [no difference] but failed to converge so increase iterations
 
+boot::inv.logit(logit)
+
+
+## jp - you can compare models as...
+## jp - this suggests the null model is best (yikes) but the last model didn't converge
+mods <- fitList(f1, f2, f3)
+round(modSel(mods), 3)
+
+
 prob2;prob3 #compare without random effect to will random effect
 
-modlist[["logged"]] <- f4 <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging, chains = 4, iter = 1000)
+modlist[["logged"]] <- f4 <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging, chains = 4, iter = 5000)
 f4
 
-modlist[["logging_r"]] <- f5 <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging + (1|cams), chains = 3, iter = 800)
+modlist[["logging_r"]] <- f5 <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging + (1|cams), chains = 3, iter = 5000)
 f5
 
 output <- summary(f4, "state")
