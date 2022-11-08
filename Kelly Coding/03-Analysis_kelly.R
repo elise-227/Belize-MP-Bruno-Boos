@@ -65,6 +65,8 @@ detect$cams <- row.names(detect) #column of cams
 
 site_covs <- left_join(detect, site_covs, by = c("cams" = "site")) #in this case it was already correct
 site_covs2 <- select(site_covs, c(145:156,255))
+##review this?
+
 
 #fix logging column
 site_covs2$Logging <- ifelse(site_covs2$Logging == c("No", "No Logging"), "No", "Yes")
@@ -137,11 +139,12 @@ boot::inv.logit(logit)
 
 ## jp - you can compare models as...
 ## jp - this suggests the null model is best (yikes) but the last model didn't converge
+## no worries bc this doesn't include most of our variables (yet)
 mods <- fitList(f1, f2, f3)
 round(modSel(mods), 3)
 
 
-prob2;prob3 #compare without random effect to will random effect
+prob2;prob3 #compare without random effect to with random effect
 
 modlist[["logged"]] <- f4 <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging, chains = 4, iter = 5000)
 f4
