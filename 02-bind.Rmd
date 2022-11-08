@@ -124,6 +124,7 @@ dat <- rbind(data2014_select, data2015_select, data2016_select, data2017_select,
 save(dat, file = "dat.RData")
 ```
 
+
 ```{r bind site covs}
 
 #add logging column? if ever logged?
@@ -212,6 +213,13 @@ sitecovs_tojoin <- rbind(sitecovs2014, sitecovs2015, sitecovs2016, sitecovs2017,
 ##other site covs
 require(readxl)
 covs <- read_excel("Covariates_cams.xlsx")
+
+#join new variables
+biomass <- read.csv("mean_biomass.csv")
+
+#join to covs
+covs <- left_join(biomass, covs, by = "CameraID")
+covs <- covs_test[!duplicated(covs_test$CameraID), ]
 
 #join cov frames together
 covs_all <- left_join(sitecovs_tojoin, covs, by = c("site" = "CameraID"))
