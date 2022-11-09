@@ -16,9 +16,6 @@ library(AICcmodavg)
 library(camtrapR)
 library(ubms)
 
-#set wd
-setwd("~/Belize-MP-Bruno-Boos") 
-## jp - this setwd() line shouldn't be necessary
 
 ##load dfs
 load("dat.RData")
@@ -37,6 +34,10 @@ plot <- ggplot(covs_all, aes(x = Logging, y = mean_bioma, color = Logging)) +
 plot2 <- ggplot(covs_all, aes(x = Logging, y = Forest_Los, color = Logging)) +
   geom_line() +
   geom_point()
+
+xtabs(~Logging + FL, data = covs_all) #noteworthy - we have much more logging sites than no logging sites
+#92 sites no logging, 318 sites yes logging
+apply(table(covs_all[, c("Logging", "FL")]), 1, prop.table)
 
 #make camera_operation frame
 cam_op <- cameraOperation(allcamop, stationCol = "site", setupCol = "Date.Placement", 

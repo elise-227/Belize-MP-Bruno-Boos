@@ -221,7 +221,7 @@ covs <- read_excel("Covariates_cams.xlsx")
 
 #join new variables
 biomass <- read.csv("mean_biomass.csv")
-forest_loss <- read_excel("FL_new.xlsx") #come back to this, it doesnt seem right
+forest_loss <- read_excel("FL_new.xlsx")
 
 #fix FL cov
 forest_loss$Forest_Los <- round(forest_loss$FL, digits = 1)
