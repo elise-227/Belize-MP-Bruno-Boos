@@ -23,7 +23,7 @@ setwd("~/Belize-MP-Bruno-Boos")
 ##load dfs
 load("dat.RData")
 load("camop.RData")
-load("site_covs.RData")
+load("covs_all.RData")
 
 #fix logging column
 covs_all$Logging <- ifelse(covs_all$Logging == c("No", "No Logging"), "No", "Yes")
@@ -33,8 +33,10 @@ plot <- ggplot(covs_all, aes(x = Logging, y = mean_bioma, color = Logging)) +
   geom_line() +
   geom_point()
 
-## jp - I suggest making the names of the dataframes the same as the source data
-## (or vice versa) so that you don't have to search for allcamop and covs_all
+#look at logging & FL columns
+plot2 <- ggplot(covs_all, aes(x = Logging, y = Forest_Los, color = Logging)) +
+  geom_line() +
+  geom_point()
 
 #make camera_operation frame
 cam_op <- cameraOperation(allcamop, stationCol = "site", setupCol = "Date.Placement", 
@@ -72,7 +74,7 @@ detect <- as.data.frame(detect_hist_GF$detection_history, row.names = NULL,
 detect$cams <- row.names(detect) #column of cams
 
 site_covs <- left_join(detect, site_covs, by = c("cams" = "site")) #in this case it was already correct
-site_covs2 <- select(site_covs, c(145:157,256))
+site_covs2 <- select(site_covs, c(145:157,256)) #careful here, this will change
 ##review this? (Note to Elise - did not lose any cameras, just cut out unneeded variables)
 
 ######################################################################

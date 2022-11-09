@@ -221,12 +221,12 @@ covs <- read_excel("Covariates_cams.xlsx")
 
 #join new variables
 biomass <- read.csv("mean_biomass.csv")
-forest_loss <- read_excel("table_FL.xlsx")
+forest_loss <- read_excel("table_FL.xlsx") #come back to this, it doesnt seem right
 
 #fix FL cov
 forest_loss$Forest_Los <- round(forest_loss$Forest_Los)
 forest_loss <- forest_loss[,-2]
-forest_loss$FL <- ifelse(forest_loss$Forest_Los == 0, "No", "Yes")
+forest_loss$FL <- ifelse(forest_loss$Forest_Los == 0, "No Loss", "Loss")
 
 #join to covs
 biomass <- left_join(biomass, forest_loss, by = c("CameraID" = "Name"))
@@ -239,8 +239,7 @@ covs <- covs[!duplicated(covs$CameraID), ]
 covs_all <- left_join(sitecovs_tojoin, covs, by = c("site" = "CameraID"))
 
 covs_all$LatLong <- (covs_all$Lat * covs_all$Long) #new Lat*Long column to account for autocorrelation
-site_covs <- covs_all
 
 #save
-save(site_covs, file = "site_covs.RData")
+save(covs_all, file = "covs_all.RData")
 ```
