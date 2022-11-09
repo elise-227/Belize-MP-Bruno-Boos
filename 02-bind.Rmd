@@ -221,15 +221,15 @@ covs <- read_excel("Covariates_cams.xlsx")
 
 #join new variables
 biomass <- read.csv("mean_biomass.csv")
-forest_loss <- read_excel("table_FL.xlsx") #come back to this, it doesnt seem right
+forest_loss <- read_excel("FL_new.xlsx") #come back to this, it doesnt seem right
 
 #fix FL cov
-forest_loss$Forest_Los <- round(forest_loss$Forest_Los)
+forest_loss$Forest_Los <- round(forest_loss$FL, digits = 1)
 forest_loss <- forest_loss[,-2]
 forest_loss$FL <- ifelse(forest_loss$Forest_Los == 0, "No Loss", "Loss")
 
 #join to covs
-biomass <- left_join(biomass, forest_loss, by = c("CameraID" = "Name"))
+biomass <- left_join(biomass, forest_loss, by = "CameraID")
 biomass <- biomass[!duplicated(biomass$CameraID), ]
 
 covs <- left_join(biomass, covs, by = "CameraID")
