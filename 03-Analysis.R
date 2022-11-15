@@ -15,13 +15,29 @@ library(unmarked)
 library(AICcmodavg)
 library(camtrapR)
 library(ubms)
-#set wd
-setwd("~/Belize-MP-Bruno-Boos")
+
 
 ##load dfs
 load("dat.RData")
 load("camop.RData")
-load("site_covs.RData")
+load("covs_all.RData")
+
+#fix logging column
+covs_all$Logging <- ifelse(covs_all$Logging == c("No", "No Logging"), "No", "Yes")
+
+#look at biomass vs logging
+plot <- ggplot(covs_all, aes(x = Logging, y = mean_bioma, color = Logging)) +
+  geom_line() +
+  geom_point()
+
+#look at logging & FL columns
+plot2 <- ggplot(covs_all, aes(x = Logging, y = Forest_Los, color = Logging)) +
+  geom_line() +
+  geom_point()
+
+xtabs(~Logging + FL, data = covs_all) #noteworthy - we have much more logging sites than no logging sites
+#92 sites no logging, 318 sites yes logging
+apply(table(covs_all[, c("Logging", "FL")]), 1, prop.table)
 
 #make camera_operation frame
 cam_op <- cameraOperation(allcamop, stationCol = "site", setupCol = "Date.Placement", 
@@ -59,11 +75,8 @@ detect <- as.data.frame(detect_hist_GF$detection_history, row.names = NULL,
 detect$cams <- row.names(detect) #column of cams
 
 site_covs <- left_join(detect, site_covs, by = c("cams" = "site")) #in this case it was already correct
-site_covs2 <- select(site_covs, c(145:156,255))
-
-#fix logging column
-site_covs2$Logging <- ifelse(site_covs2$Logging == c("No", "No Logging"), "No", "Yes")
-
+site_covs2 <- select(site_covs, c(145:157,256)) #careful here, this will change
+##review this? (Note to Elise - did not lose any cameras, just cut out unneeded variables)
 
 ######################################################################
 #time to model
@@ -78,14 +91,24 @@ summary(unmarkedFrame)
 #standardizing variables
 unmarkedFrame@siteCovs$Canopy_Height_m <- scale(unmarkedFrame@siteCovs$Canopy_Height_m)
 unmarkedFrame@siteCovs$LatLong <- scale(unmarkedFrame@siteCovs$LatLong)
+unmarkedFrame@siteCovs$mean_bioma <- scale(unmarkedFrame@siteCovs$mean_bioma)
 
 #start modeling
 modlist <- list()
 
+#run biomass model as a quick test
+modlist[["biom"]] <- f <- stan_occu(data = unmarkedFrame, formula = ~1 ~mean_bioma, chains = 4, iter = 10000)
+f
+
+output <- summary(f, "state")
+logit <- output$mean[2]
+boot::inv.logit(logit) #0.433
+
+plot_effects(f, "state")
 
 ###models with Random effect
 #ubms is Bayesian
-modlist[["null"]] <- f1 <- stan_occu(data = unmarkedFrame, formula = ~1 ~1, chains = 4, iter = 1000)
+modlist[["null"]] <- f1 <- stan_occu(data = unmarkedFrame, formula = ~1 ~1, chains = 4, iter = 10000)
 f1
 #prob/credible intervals (does not cross zero - positive effect), n_eff is # of effective obs, Rhat convergence diagnostic tells us fit - should be >1
 #should do 1000 - 5000 iterations
@@ -95,9 +118,13 @@ logit <- output$mean[1]
 odds <- exp(logit)
 prob1 <- odds / (1 + odds)
 prob1
+
+## jp - if you load the boot package you can use inv.logit() for probability
+## jp - what you did is great, just saying...
+
 #occupancy probability ~ 0.668 or we expect to find gray foxes at ~68% of sites
 
-modlist[["canopy"]] <- f2 <- stan_occu(data = unmarkedFrame, formula = ~1 ~Canopy_Height_m, chains = 4, iter = 1000)
+modlist[["canopy"]] <- f2 <- stan_occu(data = unmarkedFrame, formula = ~1 ~Canopy_Height_m, chains = 4, iter = 10000)
 f2
 
 output <- summary(f2, "state")
@@ -107,9 +134,15 @@ prob2 <- odds / (1 + odds)
 prob2
 #psi = 0.499 or ~50% of sites occupied
 
-modlist[["canopy_r"]] <- f3 <- stan_occu(data = unmarkedFrame, formula = ~1 ~Canopy_Height_m + (1|cams), chains = 4, iter = 1000)
+
+modlist[["canopy_r"]] <- f3 <- stan_occu(data = unmarkedFrame, formula = ~1 ~scale(Canopy_Height_m) + 
+                                           (1|cams), chains = 4, iter = 10000)
 f3
 
+traceplot(f3, pars=c("beta_state", "beta_det"))
+ plot_residuals(f3, submodel="state")
+  plot_residuals(f3, submodel="state", covariate="Canopy_Height_m")
+ 
 output <- summary(f3, "state")
 logit <- output$mean[2]
 odds <- exp(logit)
@@ -117,12 +150,22 @@ prob3 <- odds / (1 + odds)
 prob3
 #psi = 0.499 or ~50% of sites [no difference] but failed to converge so increase iterations
 
-prob2;prob3 #compare without random effect to will random effect
+boot::inv.logit(logit)
 
-modlist[["logged"]] <- f4 <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging, chains = 4, iter = 1000)
+
+## jp - you can compare models as...
+## jp - this suggests the null model is best (yikes) but the last model didn't converge
+## no worries bc this doesn't include most of our variables (yet)
+mods <- fitList(f1, f2, f3)
+round(modSel(mods), 3)
+
+
+prob2;prob3 #compare without random effect to with random effect
+
+modlist[["logged"]] <- f4 <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging, chains = 4, iter = 5000)
 f4
 
-modlist[["logging_r"]] <- f5 <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging + (1|cams), chains = 3, iter = 800)
+modlist[["logging_r"]] <- f5 <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging + (1|cams), chains = 3, iter = 5000)
 f5
 
 output <- summary(f4, "state")

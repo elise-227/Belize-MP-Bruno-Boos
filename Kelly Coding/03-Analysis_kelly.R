@@ -16,17 +16,28 @@ library(AICcmodavg)
 library(camtrapR)
 library(ubms)
 
-#set wd
-setwd("~/Belize-MP-Bruno-Boos") 
-## jp - this setwd() line shouldn't be necessary
 
 ##load dfs
 load("dat.RData")
 load("camop.RData")
-load("site_covs.RData")
+load("covs_all.RData")
 
-## jp - I suggest making the names of the dataframes the same as the source data
-## (or vice versa) so that you don't have to search for allcamop and covs_all
+#fix logging column
+covs_all$Logging <- ifelse(covs_all$Logging == c("No", "No Logging"), "No", "Yes")
+
+#look at biomass vs logging
+plot <- ggplot(covs_all, aes(x = Logging, y = mean_bioma, color = Logging)) +
+  geom_line() +
+  geom_point()
+
+#look at logging & FL columns
+plot2 <- ggplot(covs_all, aes(x = Logging, y = Forest_Los, color = Logging)) +
+  geom_line() +
+  geom_point()
+
+xtabs(~Logging + FL, data = covs_all) #noteworthy - we have much more logging sites than no logging sites
+#92 sites no logging, 318 sites yes logging
+apply(table(covs_all[, c("Logging", "FL")]), 1, prop.table)
 
 #make camera_operation frame
 cam_op <- cameraOperation(allcamop, stationCol = "site", setupCol = "Date.Placement", 
@@ -64,13 +75,8 @@ detect <- as.data.frame(detect_hist_GF$detection_history, row.names = NULL,
 detect$cams <- row.names(detect) #column of cams
 
 site_covs <- left_join(detect, site_covs, by = c("cams" = "site")) #in this case it was already correct
-site_covs2 <- select(site_covs, c(145:156,255))
-##review this?
-
-
-#fix logging column
-site_covs2$Logging <- ifelse(site_covs2$Logging == c("No", "No Logging"), "No", "Yes")
-
+site_covs2 <- select(site_covs, c(145:157,256)) #careful here, this will change
+##review this? (Note to Elise - did not lose any cameras, just cut out unneeded variables)
 
 ######################################################################
 #time to model
@@ -85,10 +91,20 @@ summary(unmarkedFrame)
 #standardizing variables
 unmarkedFrame@siteCovs$Canopy_Height_m <- scale(unmarkedFrame@siteCovs$Canopy_Height_m)
 unmarkedFrame@siteCovs$LatLong <- scale(unmarkedFrame@siteCovs$LatLong)
+unmarkedFrame@siteCovs$mean_bioma <- scale(unmarkedFrame@siteCovs$mean_bioma)
 
 #start modeling
 modlist <- list()
 
+#run biomass model as a quick test
+modlist[["biom"]] <- f <- stan_occu(data = unmarkedFrame, formula = ~1 ~mean_bioma, chains = 4, iter = 10000)
+f
+
+output <- summary(f, "state")
+logit <- output$mean[2]
+boot::inv.logit(logit) #0.433
+
+plot_effects(f, "state")
 
 ###models with Random effect
 #ubms is Bayesian

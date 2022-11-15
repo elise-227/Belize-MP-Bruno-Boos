@@ -51,11 +51,15 @@ colnames(camop_2020) <- c("site", "Date.Placement", "Days", "Last.record", "Nort
 
 allcamop <- rbind(camop_2014, camop_2015, camop_2016, camop_2017, camop_2018, camop_2019, camop_2020)
 
-write.csv(allcamop, "allcamop.csv", row.names = F)
+#write.csv(allcamop, "allcamop.csv", row.names = F)
+
+camop <- allcamop
 
 #save to source
-save(allcamop, file = "camop.RData")
+save(camop, file = "camop.RData")
 ```
+
+
 
 ```{r bind data}
 
@@ -123,6 +127,8 @@ dat <- rbind(data2014_select, data2015_select, data2016_select, data2017_select,
 #save
 save(dat, file = "dat.RData")
 ```
+
+
 
 ```{r bind site covs}
 
@@ -213,11 +219,27 @@ sitecovs_tojoin <- rbind(sitecovs2014, sitecovs2015, sitecovs2016, sitecovs2017,
 require(readxl)
 covs <- read_excel("Covariates_cams.xlsx")
 
+#join new variables
+biomass <- read.csv("mean_biomass.csv")
+forest_loss <- read_excel("FL_new.xlsx")
+
+#fix FL cov
+forest_loss$Forest_Los <- round(forest_loss$FL, digits = 1)
+forest_loss <- forest_loss[,-2]
+forest_loss$FL <- ifelse(forest_loss$Forest_Los == 0, "No Loss", "Loss")
+
+#join to covs
+biomass <- left_join(biomass, forest_loss, by = "CameraID")
+biomass <- biomass[!duplicated(biomass$CameraID), ]
+
+covs <- left_join(biomass, covs, by = "CameraID")
+covs <- covs[!duplicated(covs$CameraID), ]
+
 #join cov frames together
 covs_all <- left_join(sitecovs_tojoin, covs, by = c("site" = "CameraID"))
 
 covs_all$LatLong <- (covs_all$Lat * covs_all$Long) #new Lat*Long column to account for autocorrelation
 
 #save
-save(covs_all, file = "site_covs.RData")
+save(covs_all, file = "covs_all.RData")
 ```
