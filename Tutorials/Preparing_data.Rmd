@@ -28,7 +28,7 @@ sitecoords1 <- read.csv("point_locations.csv") #read coordinate data into R
 View(frogs)
 #unique point ID for point location #visit number (1/2/3) #date #time #sunset #wind #temp #cloud cover #noise index #frog species #distance to nearest individual #abundance
 
-unique(frogs$species) #view species
+unique(frogs$species) #view species ##
 
 ```
 
