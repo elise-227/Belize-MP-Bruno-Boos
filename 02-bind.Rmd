@@ -222,6 +222,9 @@ covs <- read_excel("Covariates_cams.xlsx")
 #join new variables
 biomass <- read.csv("mean_biomass.csv")
 forest_loss <- read_excel("FL_new.xlsx")
+#dis to roads
+#dis to streams
+ndvi <- read.csv("NDVI.csv")
 
 #fix FL cov
 forest_loss$Forest_Los <- round(forest_loss$FL, digits = 1)
@@ -230,6 +233,10 @@ forest_loss$FL <- ifelse(forest_loss$Forest_Los == 0, "No Loss", "Loss")
 
 #join to covs
 biomass <- left_join(biomass, forest_loss, by = "CameraID")
+biomass <- biomass[!duplicated(biomass$CameraID), ]
+
+#join NDVI
+biomass <- left_join(biomass, ndvi, by = c("CameraID" = "Name"))
 biomass <- biomass[!duplicated(biomass$CameraID), ]
 
 covs <- left_join(biomass, covs, by = "CameraID")
