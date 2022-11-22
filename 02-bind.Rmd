@@ -240,6 +240,10 @@ covs_all <- left_join(sitecovs_tojoin, covs, by = c("site" = "CameraID"))
 
 covs_all$LatLong <- (covs_all$Lat * covs_all$Long) #new Lat*Long column to account for autocorrelation
 
+#read in distance to covariates 
+disturb <- read.csv("natdisturbance_final.csv")
+
+
 #save
 save(covs_all, file = "covs_all.RData")
 ```
