@@ -256,7 +256,7 @@ disturb <- read.csv("NATDISTURB.csv")
 disturb_select <- disturb %>%
   select(site, NEAR_DIST_ROAD, NEAR_DIST_STRM, Nat_Dist)
 
-covs_all_final <- left_join(covs_all, disturb_select, by = "site")
+covs_all <- left_join(covs_all, disturb_select, by = "site")
 #save
 save(covs_all, file = "covs_all.RData")
 write.csv("covariates_all.csv", row.names = FALSE)

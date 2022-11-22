@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## SET UP 
 
-```{set up }
+```{r set up }
 #clean space
 rm(list=ls())
 
@@ -58,7 +58,7 @@ xtabs(~Logging + FL, data = covs_all) #noteworthy - we have much more logging si
 apply(table(covs_all[, c("Logging", "FL")]), 1, prop.table)
 
 #make camera_operation frame
-cam_op <- cameraOperation(allcamop, stationCol = "site", setupCol = "Date.Placement", 
+cam_op <- cameraOperation(camop, stationCol = "site", setupCol = "Date.Placement", 
                              retrievalCol = "Last.record", occasionStartTime = 0 , 
                              dateFormat = "%Y-%m-%d", writecsv = FALSE)
 
@@ -77,6 +77,8 @@ dat <- dat[-c(1557,4439,4743,6066,13493,15059),]
 ```
 
 ```{r mod list}
+#species vector 
+
 
 #start modeling
 modlist <- list()
@@ -94,12 +96,20 @@ models <- function(species) {
                                      includeEffort = TRUE, scaleEffort = FALSE, 
                                      writecsv = FALSE)
   
-  unmarkedFrame <- unmarkedFrameOccu(y = detect_hist_GF$detection_history, siteCovs = site_covs2)
+  unmarkedFrame <- unmarkedFrameOccu(y = detect_hist$detection_history, siteCovs = covs_all)
   
   unmarkedFrame@siteCovs$Canopy_Height_m <- scale(unmarkedFrame@siteCovs$Canopy_Height_m)
-  unmarkedFrame@siteCovs$LatLong <- scale(unmarkedFrame@siteCovs$LatLong)
   unmarkedFrame@siteCovs$mean_bioma <- scale(unmarkedFrame@siteCovs$mean_bioma)
+  unmarkedFrame@siteCovs$NEAR_DIST_ROAD <- scale(unmarkedFrame@siteCovs$NEAR_DIST_ROAD)
+  unmarkedFrame@siteCovs$NEAR_DIST_STRM <- scale(unmarkedFrame@siteCovs$NEAR_DIST_STRM)
+  unmarkedFrame@siteCovs$mean_NDVI <- scale(unmarkedFrame@siteCovs$mean_NDVI)
   
+  modlist[[paste0(species,"null")]] <-stan_occu(data = unmarkedFrame, formula = ~1 ~1, chains = 4, iter = 50000)
+  modlist[[paste0(species,"ANTHRO")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging + NEAR_DIST_ROAD + FL + mean_bioma + Canopy_Height_m + (1|site), chains = 4, iter = 50000)
+  modlist[[paste0(species,"ENVR")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~ NEAR_DIST_STRM + mean_NDVI + Season + Nat_Dist + (1|site), chains = 4, iter = 50000)
 }
 
+
+
 ```
+
