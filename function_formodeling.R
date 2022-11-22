@@ -1,5 +1,34 @@
+#clean space
+rm(list=ls())
+
+#load packages
+#packages
+require(tidyverse)
+require(dplyr)
+require(sf)
+require(leaflet)
+require(mapview)
+require(readxl)
+require(lubridate)
+require(readxl)
+library(unmarked)
+library(AICcmodavg)
+library(camtrapR)
+library(ubms)
 
 
+##load dfs
+load("dat.RData")
+load("camop.RData")
+load("covs_all.RData")
+
+
+
+
+
+
+
+modlist <- list()
 models <- function(species) {
   
   detect_hist <- detectionHistory(recordTable = dat, species = species, 

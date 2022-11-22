@@ -1,0 +1,105 @@
+---
+title: "Analysis_Function"
+author: "Elise Boos"
+date: "2022-11-22"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## SET UP 
+
+```{set up }
+#clean space
+rm(list=ls())
+
+#load packages
+#packages
+require(tidyverse)
+require(dplyr)
+require(sf)
+require(leaflet)
+require(mapview)
+require(readxl)
+require(lubridate)
+require(readxl)
+library(unmarked)
+library(AICcmodavg)
+library(camtrapR)
+library(ubms)
+
+
+##load dfs
+load("dat.RData")
+load("camop.RData")
+load("covs_all.RData")
+```
+
+## FINAL CLEANING
+
+```{r final cleaning}
+#fix logging column
+covs_all$Logging <- ifelse(covs_all$Logging == c("No", "No Logging"), "No", "Yes")
+
+#look at biomass vs logging
+plot <- ggplot(covs_all, aes(x = Logging, y = mean_bioma, color = Logging)) +
+  geom_line() +
+  geom_point()
+
+#look at logging & FL columns
+plot2 <- ggplot(covs_all, aes(x = Logging, y = Forest_Los, color = Logging)) +
+  geom_line() +
+  geom_point()
+
+xtabs(~Logging + FL, data = covs_all) #noteworthy - we have much more logging sites than no logging sites
+#92 sites no logging, 318 sites yes logging
+apply(table(covs_all[, c("Logging", "FL")]), 1, prop.table)
+
+#make camera_operation frame
+cam_op <- cameraOperation(allcamop, stationCol = "site", setupCol = "Date.Placement", 
+                             retrievalCol = "Last.record", occasionStartTime = 0 , 
+                             dateFormat = "%Y-%m-%d", writecsv = FALSE)
+
+
+#detection history for gray fox
+
+#getting an error for date_time_obs so checking it
+IsDate <- function(mydate, date.format = "%Y-%m-%d %H.%M") {
+  tryCatch(!is.na(as.Date(mydate, date.format)),  
+           error = function(err) {FALSE})  
+}
+
+datecheck <- data.frame(IsDate(dat$date_time_obs))
+#issues with row 1557, 4439, 4743, 6066, 13493, 15059
+dat <- dat[-c(1557,4439,4743,6066,13493,15059),]
+```
+
+```{r mod list}
+
+#start modeling
+modlist <- list()
+```
+
+```{r make function}
+models <- function(species) {
+  
+  detect_hist <- detectionHistory(recordTable = dat, species = species, 
+                                     camOp = cam_op, output = "binary", stationCol = "site", 
+                                     speciesCol = "Species", day1 ="station", 
+                                     recordDateTimeCol = "date_time_obs", 
+                                     recordDateTimeFormat =  "%Y-%m-%d %H.%M", 
+                                     timeZone = "UTC", occasionLength = 1, 
+                                     includeEffort = TRUE, scaleEffort = FALSE, 
+                                     writecsv = FALSE)
+  
+  unmarkedFrame <- unmarkedFrameOccu(y = detect_hist_GF$detection_history, siteCovs = site_covs2)
+  
+  unmarkedFrame@siteCovs$Canopy_Height_m <- scale(unmarkedFrame@siteCovs$Canopy_Height_m)
+  unmarkedFrame@siteCovs$LatLong <- scale(unmarkedFrame@siteCovs$LatLong)
+  unmarkedFrame@siteCovs$mean_bioma <- scale(unmarkedFrame@siteCovs$mean_bioma)
+  
+}
+
+```
