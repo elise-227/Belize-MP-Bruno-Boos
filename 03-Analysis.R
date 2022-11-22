@@ -65,26 +65,27 @@ detect_hist_GF <- detectionHistory(recordTable = dat, species = "Gray Fox",
                                              timeZone = "UTC", occasionLength = 1, 
                                              includeEffort = TRUE, scaleEffort = FALSE, 
                                              writecsv = FALSE)
+
 #fix site covs
-site_covs <- covs_all[!duplicated(covs_all$site), ]
+#site_covs <- covs_all[!duplicated(covs_all$site), ]
 
 #need to join detection history frame with site covs to get cam IDs right
-detect <- as.data.frame(detect_hist_GF$detection_history, row.names = NULL,
-                        stringsAsFactors = FALSE)
+#detect <- as.data.frame(detect_hist_GF$detection_history, row.names = NULL,
+#                        stringsAsFactors = FALSE)
 
-detect$cams <- row.names(detect) #column of cams
+#detect$cams <- row.names(detect) #column of cams
 
-site_covs <- left_join(detect, site_covs, by = c("cams" = "site")) #in this case it was already correct
-site_covs2 <- select(site_covs, c(145:157,256)) #careful here, this will change
+#site_covs <- left_join(detect, site_covs, by = c("cams" = "site")) #in this case it was already correct
+#site_covs2 <- select(site_covs, c(145:157,256)) #careful here, this will change
 ##review this? (Note to Elise - did not lose any cameras, just cut out unneeded variables)
 
 ######################################################################
 #time to model
 #check all covs to make sure their class is correct, characters will be converted to factors when making unmarked frame
-summary(site_covs2)
+summary(site_covs)
 
 #make unmarked frame
-unmarkedFrame <- unmarkedFrameOccu(y = detect_hist_GF$detection_history, siteCovs = site_covs2)
+unmarkedFrame <- unmarkedFrameOccu(y = detect_hist_GF$detection_history, siteCovs = site_covs)
 summary(unmarkedFrame)
 
 
