@@ -79,7 +79,6 @@ dat <- dat[-c(1557,4439,4743,6066,13493,15059),]
 ```{r mod list}
 #species vector 
 names <- unique(dat$Species)
-species_list <- paste0('"', paste(names, collapse='", "'), '"')
 #print(species_list, quote=F)
 #start modeling
 modlist <- list()

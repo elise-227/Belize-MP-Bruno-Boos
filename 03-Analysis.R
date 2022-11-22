@@ -45,7 +45,7 @@ xtabs(~Logging + FL, data = covs_all) #noteworthy - we have much more logging si
 apply(table(covs_all[, c("Logging", "FL")]), 1, prop.table)
 
 #make camera_operation frame
-cam_op <- cameraOperation(allcamop, stationCol = "site", setupCol = "Date.Placement", 
+cam_op <- cameraOperation(camop, stationCol = "site", setupCol = "Date.Placement", 
                              retrievalCol = "Last.record", occasionStartTime = 0 , 
                              dateFormat = "%Y-%m-%d", writecsv = FALSE)
 
@@ -90,7 +90,7 @@ detect_hist_GF <- detectionHistory(recordTable = dat, species = "Gray Fox",
 summary(site_covs)
 
 #make unmarked frame
-unmarkedFrame <- unmarkedFrameOccu(y = detect_hist_GF$detection_history, siteCovs = site_covs)
+unmarkedFrame <- unmarkedFrameOccu(y = detect_hist_GF$detection_history, siteCovs = covs_all)
 summary(unmarkedFrame)
 
 
@@ -103,7 +103,8 @@ unmarkedFrame@siteCovs$mean_bioma <- scale(unmarkedFrame@siteCovs$mean_bioma)
 modlist <- list()
 species <- "Gray Fox"
 modlist[[paste0(species,"null")]] <-stan_occu(data = unmarkedFrame, formula = ~1 ~1, chains = 4, iter = 5000)
-
+print(a)
+print(names)
 #run biomass model as a quick test
 modlist[["biom"]] <- f <- stan_occu(data = unmarkedFrame, formula = ~1 ~mean_bioma, chains = 4, iter = 10000)
 f
