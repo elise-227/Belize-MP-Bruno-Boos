@@ -78,15 +78,16 @@ dat <- dat[-c(1557,4439,4743,6066,13493,15059),]
 
 ```{r mod list}
 #species vector 
-
-
+names <- unique(dat$Species)
+species_list <- paste0('"', paste(names, collapse='", "'), '"')
+#print(species_list, quote=F)
 #start modeling
 modlist <- list()
 ```
 
 ```{r make function}
 models <- function(species) {
-  
+
   detect_hist <- detectionHistory(recordTable = dat, species = species, 
                                      camOp = cam_op, output = "binary", stationCol = "site", 
                                      speciesCol = "Species", day1 ="station", 
@@ -109,7 +110,11 @@ models <- function(species) {
   modlist[[paste0(species,"ENVR")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~ NEAR_DIST_STRM + mean_NDVI + Season + Nat_Dist + (1|site), chains = 4, iter = 50000)
 }
 
+```
 
+```{r run function}
+
+models(species_list)
 
 ```
 
