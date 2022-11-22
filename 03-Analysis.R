@@ -22,6 +22,11 @@ load("dat.RData")
 load("camop.RData")
 load("covs_all.RData")
 
+names <- unique(dat$Species)
+a <- paste0('"', paste(names, collapse='", "'), '"')
+print(a, quote=F)
+
+
 #fix logging column
 covs_all$Logging <- ifelse(covs_all$Logging == c("No", "No Logging"), "No", "Yes")
 
