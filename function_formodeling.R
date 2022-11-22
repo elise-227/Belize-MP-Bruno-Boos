@@ -1,5 +1,6 @@
+
+
 models <- function(species) {
-  
   
   detect_hist <- detectionHistory(recordTable = dat, species = species, 
                                      camOp = cam_op, output = "binary", stationCol = "site", 

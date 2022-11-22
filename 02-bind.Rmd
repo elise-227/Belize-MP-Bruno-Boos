@@ -214,10 +214,14 @@ colnames(sitecovs2020) <- c("site", "Brand", "Conservation", "Logging", "Hurrica
 
 #bind1
 sitecovs_tojoin <- rbind(sitecovs2014, sitecovs2015, sitecovs2016, sitecovs2017, sitecovs2018, sitecovs2019, sitecovs2020)
+```
 
+```{r continue}
 ##other site covs
 require(readxl)
 covs <- read_excel("Covariates_cams.xlsx")
+covs <- covs %>%
+  select(CameraID, Canopy_Height_m)
 
 #join new variables
 biomass <- read.csv("mean_biomass.csv")
@@ -255,4 +259,5 @@ disturb_select <- disturb %>%
 covs_all_final <- left_join(covs_all, disturb_select, by = "site")
 #save
 save(covs_all, file = "covs_all.RData")
+write.csv("covariates_all.csv", row.names = FALSE)
 ```
