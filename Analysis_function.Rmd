@@ -78,63 +78,62 @@ dat <- dat[-c(1557,4439,4743,6066,13493,15059),]
 
 ```{r mod list}
 #species vector 
-names <- unique(dat$Species)
+mammals <- dat[dat$Mammal == "Yes",]
+unique(mammals$Species)
+count <- summary(mammals$Species)
+list <- subset(count, count > 10)
+species_list <- names(list)
 #print(species_list, quote=F)
 #start modeling
 modlist <- list()
 ```
 
 ```{r make function}
-models <- function(species) {
-
-  detect_hist <- detectionHistory(recordTable = dat, species = species, 
-                                     camOp = cam_op, output = "binary", stationCol = "site", 
-                                     speciesCol = "Species", day1 ="station", 
-                                     recordDateTimeCol = "date_time_obs", 
-                                     recordDateTimeFormat =  "%Y-%m-%d %H.%M", 
-                                     timeZone = "UTC", occasionLength = 1, 
-                                     includeEffort = TRUE, scaleEffort = FALSE, 
-                                     writecsv = FALSE)
+for (species in species_list){
+    detect_hist <- detectionHistory(recordTable = dat, species = species, 
+                                       camOp = cam_op, output = "binary", stationCol = "site", 
+                                       speciesCol = "Species", day1 ="station", 
+                                       recordDateTimeCol = "date_time_obs", 
+                                       recordDateTimeFormat =  "%Y-%m-%d %H.%M", 
+                                       timeZone = "UTC", occasionLength = 1, 
+                                       includeEffort = TRUE, scaleEffort = FALSE, 
+                                       writecsv = FALSE)
+    
+    unmarkedFrame <- unmarkedFrameOccu(y = detect_hist$detection_history, siteCovs = covs_all)
+    
+    unmarkedFrame@siteCovs$Canopy_Height_m <- scale(unmarkedFrame@siteCovs$Canopy_Height_m)
+    unmarkedFrame@siteCovs$mean_bioma <- scale(unmarkedFrame@siteCovs$mean_bioma)
+    unmarkedFrame@siteCovs$NEAR_DIST_ROAD <- scale(unmarkedFrame@siteCovs$NEAR_DIST_ROAD)
+    unmarkedFrame@siteCovs$NEAR_DIST_STRM <- scale(unmarkedFrame@siteCovs$NEAR_DIST_STRM)
+    unmarkedFrame@siteCovs$mean_NDVI <- scale(unmarkedFrame@siteCovs$mean_NDVI)
   
-  unmarkedFrame <- unmarkedFrameOccu(y = detect_hist$detection_history, siteCovs = covs_all)
-  
-  unmarkedFrame@siteCovs$Canopy_Height_m <- scale(unmarkedFrame@siteCovs$Canopy_Height_m)
-  unmarkedFrame@siteCovs$mean_bioma <- scale(unmarkedFrame@siteCovs$mean_bioma)
-  unmarkedFrame@siteCovs$NEAR_DIST_ROAD <- scale(unmarkedFrame@siteCovs$NEAR_DIST_ROAD)
-  unmarkedFrame@siteCovs$NEAR_DIST_STRM <- scale(unmarkedFrame@siteCovs$NEAR_DIST_STRM)
-  unmarkedFrame@siteCovs$mean_NDVI <- scale(unmarkedFrame@siteCovs$mean_NDVI)
-
-  
-  modlist[[paste0(species,"null")]] <-stan_occu(data = unmarkedFrame, formula = ~1 ~1, chains = 4, iter = 50000)
-  modlist[[paste0(species,"ANTHRO")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging + NEAR_DIST_ROAD + FL + mean_bioma + Canopy_Height_m + (1|site), chains = 4, iter = 50000)
-  modlist[[paste0(species,"ENVR")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~ NEAR_DIST_STRM + mean_NDVI + Season + Nat_Dist + (1|site), chains = 4, iter = 50000)
+    
+    modlist[[paste0(species,"null")]] <-stan_occu(data = unmarkedFrame, formula = ~1 ~1, chains = 4, iter = 50000)
+    modlist[[paste0(species,"ANTHRO")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging + NEAR_DIST_ROAD + FL + mean_bioma + Canopy_Height_m + (1|site), chains = 4, iter = 50000)
+    modlist[[paste0(species,"ENVR")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~ NEAR_DIST_STRM + mean_NDVI + Season + Nat_Dist + (1|site), chains = 4, iter = 50000)
 }
 
 ```
 
-```{r run function}
-models("Gray Fox")
-models(species_list)
+```{r examine}
 
-
-
-
-detect_hist <- detectionHistory(recordTable = dat, species = "Gray Fox", 
-                                     camOp = cam_op, output = "binary", stationCol = "site", 
-                                     speciesCol = "Species", day1 ="station", 
-                                     recordDateTimeCol = "date_time_obs", 
-                                     recordDateTimeFormat =  "%Y-%m-%d %H.%M", 
-                                     timeZone = "UTC", occasionLength = 1, 
-                                     includeEffort = TRUE, scaleEffort = FALSE, 
-                                     writecsv = FALSE)
-  
-  unmarkedFrame <- unmarkedFrameOccu(y = detect_hist$detection_history, siteCovs = covs_all)
-  
-  unmarkedFrame@siteCovs$Canopy_Height_m <- scale(unmarkedFrame@siteCovs$Canopy_Height_m)
-  unmarkedFrame@siteCovs$mean_bioma <- scale(unmarkedFrame@siteCovs$mean_bioma)
-  unmarkedFrame@siteCovs$NEAR_DIST_ROAD <- scale(unmarkedFrame@siteCovs$NEAR_DIST_ROAD)
-  unmarkedFrame@siteCovs$NEAR_DIST_STRM <- scale(unmarkedFrame@siteCovs$NEAR_DIST_STRM)
-  unmarkedFrame@siteCovs$mean_NDVI <- scale(unmarkedFrame@siteCovs$mean_NDVI)
-  
+  # Agoutinull <- modlist$Agoutinull
+  # AgoutiANTHRO <- modlist$AgoutiANTHRO
+  # AgoutiENVR <- modlist$AgoutiENVR
+  # modlist$`Ameiva undatanull`
+  # modlist$`Ameiva undataANTHRO`
+  # modlist$`Ameiva undataENVR`
+  # modlist$`Bare-throated Tiger Heronnull`
+  # modlist$`Bare-throated Tiger HeronANTHRO`
+  # modlist$`Bare-throated Tiger HeronENVR`
+  # 
+  # save(covs_all, file = "covs_all.RData")
+  # 
+  # mammals <- dat[dat$Mammal == "Yes",]
+  # unique(mammals$Species)
+  # count <- summary(mammals$Species)
+  # list <- subset(count, count > 10)
+  # species_list <- names(list)
 ```
+
 
