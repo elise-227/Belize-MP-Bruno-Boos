@@ -40,7 +40,7 @@ xtabs(~Logging + FL, data = covs_all) #noteworthy - we have much more logging si
 apply(table(covs_all[, c("Logging", "FL")]), 1, prop.table)
 
 #make camera_operation frame
-cam_op <- cameraOperation(allcamop, stationCol = "site", setupCol = "Date.Placement", 
+cam_op <- cameraOperation(camop, stationCol = "site", setupCol = "Date.Placement", 
                              retrievalCol = "Last.record", occasionStartTime = 0 , 
                              dateFormat = "%Y-%m-%d", writecsv = FALSE)
 
@@ -57,7 +57,7 @@ datecheck <- data.frame(IsDate(dat$date_time_obs))
 #issues with row 1557, 4439, 4743, 6066, 13493, 15059
 dat <- dat[-c(1557,4439,4743,6066,13493,15059),]
 
-detect_hist_GF <- detectionHistory(recordTable = dat, species = "Gray Fox", 
+detect_hist_WC <- detectionHistory(recordTable = dat, species = "White-nosed Coati", 
                                              camOp = cam_op, output = "binary", stationCol = "site", 
                                              speciesCol = "Species", day1 ="station", 
                                              recordDateTimeCol = "date_time_obs", 
@@ -65,37 +65,95 @@ detect_hist_GF <- detectionHistory(recordTable = dat, species = "Gray Fox",
                                              timeZone = "UTC", occasionLength = 1, 
                                              includeEffort = TRUE, scaleEffort = FALSE, 
                                              writecsv = FALSE)
+
+#Striped Hog-nosed Skunk
+detect_hist_SHS <- detectionHistory(recordTable = dat, species = "Striped Hog-nosed Skunk", 
+                                   camOp = cam_op, output = "binary", stationCol = "site", 
+                                   speciesCol = "Species", day1 ="station", 
+                                   recordDateTimeCol = "date_time_obs", 
+                                   recordDateTimeFormat =  "%Y-%m-%d %H.%M", 
+                                   timeZone = "UTC", occasionLength = 1, 
+                                   includeEffort = TRUE, scaleEffort = FALSE, 
+                                   writecsv = FALSE)
+
+
 #fix site covs
-site_covs <- covs_all[!duplicated(covs_all$site), ]
+#site_covs <- covs_all[!duplicated(covs_all$site), ]
 
 #need to join detection history frame with site covs to get cam IDs right
-detect <- as.data.frame(detect_hist_GF$detection_history, row.names = NULL,
-                        stringsAsFactors = FALSE)
+#detect <- as.data.frame(detect_hist_GF$detection_history, row.names = NULL,
+#                        stringsAsFactors = FALSE)
 
-detect$cams <- row.names(detect) #column of cams
+#detect$cams <- row.names(detect) #column of cams
 
-site_covs <- left_join(detect, site_covs, by = c("cams" = "site")) #in this case it was already correct
-site_covs2 <- select(site_covs, c(145:157,256)) #careful here, this will change
+#site_covs <- left_join(detect, site_covs, by = c("cams" = "site")) #in this case it was already correct
+#site_covs2 <- select(site_covs, c(145:157,256)) #careful here, this will change
 ##review this? (Note to Elise - did not lose any cameras, just cut out unneeded variables)
 
 ######################################################################
 #time to model
 #check all covs to make sure their class is correct, characters will be converted to factors when making unmarked frame
-summary(site_covs2)
+summary(covs_all)
 
 #make unmarked frame
-unmarkedFrame <- unmarkedFrameOccu(y = detect_hist_GF$detection_history, siteCovs = site_covs2)
-summary(unmarkedFrame)
+unmarkedFrame <- unmarkedFrameOccu(y = detect_hist_WC$detection_history, siteCovs = covs_all)
+summary(unmarkedFrame) ##important, check number of sites with obs
+
+#unmarked skunk
 
 
 #standardizing variables
 unmarkedFrame@siteCovs$Canopy_Height_m <- scale(unmarkedFrame@siteCovs$Canopy_Height_m)
-unmarkedFrame@siteCovs$LatLong <- scale(unmarkedFrame@siteCovs$LatLong)
 unmarkedFrame@siteCovs$mean_bioma <- scale(unmarkedFrame@siteCovs$mean_bioma)
+unmarkedFrame@siteCovs$mean_NDVI <- scale(unmarkedFrame@siteCovs$mean_NDVI)
+
+#coyote
+unmarkedFrame2@siteCovs$Canopy_Height_m <- scale(unmarkedFrame2@siteCovs$Canopy_Height_m)
+unmarkedFrame2@siteCovs$mean_bioma <- scale(unmarkedFrame2@siteCovs$mean_bioma)
+unmarkedFrame2@siteCovs$mean_NDVI <- scale(unmarkedFrame2@siteCovs$mean_NDVI)
+
+#tapir
+unmarkedFrame3@siteCovs$Canopy_Height_m <- scale(unmarkedFrame3@siteCovs$Canopy_Height_m)
+unmarkedFrame3@siteCovs$mean_bioma <- scale(unmarkedFrame3@siteCovs$mean_bioma)
+unmarkedFrame3@siteCovs$mean_NDVI <- scale(unmarkedFrame3@siteCovs$mean_NDVI)
 
 #start modeling
 modlist <- list()
 
+
+modlist[["null"]] <- f <- occu(data = unmarkedFrame, formula = ~1 ~1)
+
+modlist[["noNDVI"]] <- f2 <- occu(data = unmarkedFrame, formula = ~1 ~Canopy_Height_m + mean_bioma + Logging)
+
+modlist[["NDVI"]] <- f3 <- occu(data = unmarkedFrame, formula =  ~1 ~Canopy_Height_m + mean_bioma + Logging + mean_NDVI)
+
+summary(f)
+summary(f2)
+summary(f3)
+
+aictab(modlist) #month is best (probably bc of Hessuian error)
+
+
+
+##predict
+#To get real estimate of occupancy (with 95% CI)
+
+predict(fm4, 
+        newdata = data.frame(Active_Log = "Yes"),
+        type = "state")
+predict(fm4, 
+        newdata = data.frame(Active_Log = "No"),
+        type = "state")
+#not working
+
+
+#To get real estimate of detection (with 95% CI)
+predict(fm4, 
+        newdata = data.frame(temp_2015_C = mean(unmarkedFrame@siteCovs$temp_2015_C)),
+        type = "det")
+#0.08
+
+#################################################################################
 #run biomass model as a quick test
 modlist[["biom"]] <- f <- stan_occu(data = unmarkedFrame, formula = ~1 ~mean_bioma, chains = 4, iter = 10000)
 f
