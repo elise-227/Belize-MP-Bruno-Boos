@@ -136,7 +136,12 @@ for (species in species_list){
   # species_list <- names(list)
 
 load("ocelotmodels.RData")
-ocelotmodels[[1]]
+load("agouti_models.RData")
+load("grayfoxmodels.RData")
+load("whitetaileddeermodels.RData")
+load("pumamodels.RData")
+
+pumamodels[[2]]
 ```
 
 
