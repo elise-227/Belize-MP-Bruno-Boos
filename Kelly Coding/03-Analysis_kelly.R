@@ -57,7 +57,11 @@ datecheck <- data.frame(IsDate(dat$date_time_obs))
 #issues with row 1557, 4439, 4743, 6066, 13493, 15059
 dat <- dat[-c(1557,4439,4743,6066,13493,15059),]
 
-detect_hist_WC <- detectionHistory(recordTable = dat, species = "White-nosed Coati", 
+species <- unique(dat$Species) #Ocellated Turkey, Agouti, Great Curassow
+
+spe_table <- table(dat$Species)
+
+detect_hist_OT <- detectionHistory(recordTable = dat, species = "Ocellated Turkey", 
                                              camOp = cam_op, output = "binary", stationCol = "site", 
                                              speciesCol = "Species", day1 ="station", 
                                              recordDateTimeCol = "date_time_obs", 
@@ -66,8 +70,8 @@ detect_hist_WC <- detectionHistory(recordTable = dat, species = "White-nosed Coa
                                              includeEffort = TRUE, scaleEffort = FALSE, 
                                              writecsv = FALSE)
 
-#Striped Hog-nosed Skunk
-detect_hist_SHS <- detectionHistory(recordTable = dat, species = "Striped Hog-nosed Skunk", 
+#Agouti
+detect_hist_A <- detectionHistory(recordTable = dat, species = "Agouti", 
                                    camOp = cam_op, output = "binary", stationCol = "site", 
                                    speciesCol = "Species", day1 ="station", 
                                    recordDateTimeCol = "date_time_obs", 
@@ -75,6 +79,16 @@ detect_hist_SHS <- detectionHistory(recordTable = dat, species = "Striped Hog-no
                                    timeZone = "UTC", occasionLength = 1, 
                                    includeEffort = TRUE, scaleEffort = FALSE, 
                                    writecsv = FALSE)
+
+#Great Curassow
+detect_hist_GC <- detectionHistory(recordTable = dat, species = "Great Curassow", 
+                                  camOp = cam_op, output = "binary", stationCol = "site", 
+                                  speciesCol = "Species", day1 ="station", 
+                                  recordDateTimeCol = "date_time_obs", 
+                                  recordDateTimeFormat =  "%Y-%m-%d %H.%M", 
+                                  timeZone = "UTC", occasionLength = 1, 
+                                  includeEffort = TRUE, scaleEffort = FALSE, 
+                                  writecsv = FALSE)
 
 
 #fix site covs
@@ -95,46 +109,83 @@ detect_hist_SHS <- detectionHistory(recordTable = dat, species = "Striped Hog-no
 #check all covs to make sure their class is correct, characters will be converted to factors when making unmarked frame
 summary(covs_all)
 
-#make unmarked frame
-unmarkedFrame <- unmarkedFrameOccu(y = detect_hist_WC$detection_history, siteCovs = covs_all)
-summary(unmarkedFrame) ##important, check number of sites with obs
+#make unmarked frame, Ocellated Turkey
+unmarkedFrameOT <- unmarkedFrameOccu(y = detect_hist_OT$detection_history, siteCovs = covs_all)
+summary(unmarkedFrameOT) ##important, check number of sites with obs
 
-#unmarked skunk
+#Agoti
+unmarkedFrameA <- unmarkedFrameOccu(y = detect_hist_A$detection_history, siteCovs = covs_all)
+summary(unmarkedFrameA)
 
+#Great Curassow
+unmarkedFrameGC <- unmarkedFrameOccu(y = detect_hist_GC$detection_history, siteCovs = covs_all)
+summary(unmarkedFrameGC)
 
 #standardizing variables
-unmarkedFrame@siteCovs$Canopy_Height_m <- scale(unmarkedFrame@siteCovs$Canopy_Height_m)
-unmarkedFrame@siteCovs$mean_bioma <- scale(unmarkedFrame@siteCovs$mean_bioma)
-unmarkedFrame@siteCovs$mean_NDVI <- scale(unmarkedFrame@siteCovs$mean_NDVI)
+unmarkedFrameOT@siteCovs$Canopy_Height_m <- scale(unmarkedFrameOT@siteCovs$Canopy_Height_m)
+unmarkedFrameOT@siteCovs$mean_bioma <- scale(unmarkedFrameOT@siteCovs$mean_bioma)
+unmarkedFrameOT@siteCovs$mean_NDVI <- scale(unmarkedFrameOT@siteCovs$mean_NDVI)
 
-#coyote
-unmarkedFrame2@siteCovs$Canopy_Height_m <- scale(unmarkedFrame2@siteCovs$Canopy_Height_m)
-unmarkedFrame2@siteCovs$mean_bioma <- scale(unmarkedFrame2@siteCovs$mean_bioma)
-unmarkedFrame2@siteCovs$mean_NDVI <- scale(unmarkedFrame2@siteCovs$mean_NDVI)
+#Agoti
+unmarkedFrameA@siteCovs$Canopy_Height_m <- scale(unmarkedFrameA@siteCovs$Canopy_Height_m)
+unmarkedFrameA@siteCovs$mean_bioma <- scale(unmarkedFrameA@siteCovs$mean_bioma)
+unmarkedFrameA@siteCovs$mean_NDVI <- scale(unmarkedFrameA@siteCovs$mean_NDVI)
 
-#tapir
-unmarkedFrame3@siteCovs$Canopy_Height_m <- scale(unmarkedFrame3@siteCovs$Canopy_Height_m)
-unmarkedFrame3@siteCovs$mean_bioma <- scale(unmarkedFrame3@siteCovs$mean_bioma)
-unmarkedFrame3@siteCovs$mean_NDVI <- scale(unmarkedFrame3@siteCovs$mean_NDVI)
+#GC
+unmarkedFrameGC@siteCovs$Canopy_Height_m <- scale(unmarkedFrameGC@siteCovs$Canopy_Height_m)
+unmarkedFrameGC@siteCovs$mean_bioma <- scale(unmarkedFrameGC@siteCovs$mean_bioma)
+unmarkedFrameGC@siteCovs$mean_NDVI <- scale(unmarkedFrameGC@siteCovs$mean_NDVI)
 
 #start modeling
 modlist <- list()
 
 
-modlist[["null"]] <- f <- occu(data = unmarkedFrame, formula = ~1 ~1)
+modlist[["null"]] <- f <- occu(data = unmarkedFrameOT, formula = ~1 ~1)
 
-modlist[["noNDVI"]] <- f2 <- occu(data = unmarkedFrame, formula = ~1 ~Canopy_Height_m + mean_bioma + Logging)
+modlist[["noNDVI"]] <- f2 <- occu(data = unmarkedFrameOT, formula = ~1 ~Canopy_Height_m + Logging + mean_bioma + FL)
 
-modlist[["NDVI"]] <- f3 <- occu(data = unmarkedFrame, formula =  ~1 ~Canopy_Height_m + mean_bioma + Logging + mean_NDVI)
+modlist[["NDVI"]] <- f3 <- occu(data = unmarkedFrameOT, formula =  ~1 ~Canopy_Height_m + Logging + mean_bioma + FL + mean_NDVI)
 
 summary(f)
 summary(f2)
 summary(f3)
 
-aictab(modlist) #month is best (probably bc of Hessuian error)
+aictab(modlist) #no NDVI is best
+
+#Agoti model
+modlist2 <- list()
 
 
+modlist2[["null"]] <- a <- occu(data = unmarkedFrameA, formula = ~1 ~1)
 
+modlist2[["noNDVI"]] <- a2 <- occu(data = unmarkedFrameA, formula = ~1 ~Canopy_Height_m + Logging + mean_bioma + FL)
+
+modlist2[["NDVI"]] <- a3 <- occu(data = unmarkedFrameA, formula =  ~1 ~Canopy_Height_m + Logging + mean_bioma + FL + mean_NDVI)
+
+summary(a)
+summary(a2)
+summary(a3)
+
+aictab(modlist2) #NDVI is best
+
+#model
+modlist3 <- list()
+
+
+modlist3[["null"]] <- g <- occu(data = unmarkedFrameGC, formula = ~1 ~1)
+
+modlist3[["noNDVI"]] <- g2 <- occu(data = unmarkedFrameGC, formula = ~1 ~Canopy_Height_m + Logging + mean_bioma + FL)
+
+modlist3[["NDVI"]] <- g3 <- occu(data = unmarkedFrameGC, formula =  ~1 ~Canopy_Height_m + Logging + mean_bioma + FL + mean_NDVI)
+
+summary(g)
+summary(g2)
+summary(g3)
+
+aictab(modlist3) #no NDVI is best (depends on the species) > 1 difference in AIC
+#both much better than the null
+
+#################################################################
 ##predict
 #To get real estimate of occupancy (with 95% CI)
 
