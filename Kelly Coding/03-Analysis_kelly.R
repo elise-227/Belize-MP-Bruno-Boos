@@ -178,24 +178,169 @@ modlist3[["noNDVI"]] <- g2 <- occu(data = unmarkedFrameGC, formula = ~1 ~Canopy_
 
 modlist3[["NDVI"]] <- g3 <- occu(data = unmarkedFrameGC, formula =  ~1 ~Canopy_Height_m + Logging + mean_bioma + FL + mean_NDVI)
 
+modlist3[["log"]] <- g4 <- occu(data = unmarkedFrameGC, formula =  ~1 ~Logging)
+
+modlist3[["FL"]] <- g5 <- occu(data = unmarkedFrameGC, formula =  ~1 ~FL)
+
+
 summary(g)
 summary(g2)
 summary(g3)
+summary(g4)
+summary(g5)
 
 aictab(modlist3) #no NDVI is best (depends on the species) > 1 difference in AIC
 #both much better than the null
 
+##mod list for pred
+modlist4 <- list()
+
+modlist4[["noNDVI"]] <- g8 <- occu(data = unmarkedFrameGC, formula = ~1 ~Canopy_Height_m + mean_bioma)
+
+modlist4[["noFL/log"]] <- g9 <- occu(data = unmarkedFrameGC, formula =  ~1 ~Canopy_Height_m + mean_bioma + mean_NDVI)
+
 #################################################################
 ##predict
 #To get real estimate of occupancy (with 95% CI)
+#fix this - check black bear code
+predict(g4, 
+        newdata = data.frame(Logging = "Yes"),
+        type = "state") # 0.79
+predict(g4, 
+        newdata = data.frame(Logging = "No"),
+        type = "state") #0.81 Higher without logging
+#predict FL
+predict(g5, 
+        newdata = data.frame(FL = "Loss"),
+        type = "state") # 0.51
+predict(g5, 
+        newdata = data.frame(FL = "No Loss"),
+        type = "state") #0.82 Much higher
 
-predict(fm4, 
-        newdata = data.frame(Active_Log = "Yes"),
-        type = "state")
-predict(fm4, 
-        newdata = data.frame(Active_Log = "No"),
-        type = "state")
-#not working
+###quick graphs
+
+scaleNDVI <- scale(covs_all$mean_NDVI)
+
+covs_all2 <- covs_all
+
+covs_all2 <- covs_all2[-c(338),]
+
+#join data
+indices <- read.csv("indices.csv")
+
+covs_all3 <- left_join(covs_all, indices, by = c("site" = "Name"))
+
+#p1 <- ggplot(data = covs_all2, aes(x = scale(mean_bioma), y = scale(mean_NDVI), color = Logging)) +
+#  geom_line() +
+#  geom_point()
+
+cbbPalette <- c("#D55E00", "#0072B2")
+
+#save NDVI
+#jpeg("NDVI.jpeg")
+p <- ggplot(data = covs_all2, aes(x = mean_bioma, y = mean_NDVI, color = Logging)) +
+  #  geom_line() +
+  geom_point() +
+  scale_colour_manual(values = cbbPalette)
+#dev.off()
+
+#ARVI
+#jpeg("ARVI.jpeg")
+p2 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_ARVI, color = Logging)) +
+  #  geom_line() +
+  geom_point() +
+  scale_colour_manual(values = cbbPalette)
+#dev.off()
+
+#PRI
+#jpeg("PRI.jpeg")
+p3 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_PRI, color = Logging)) +
+  #  geom_line() +
+  geom_point() +
+  scale_colour_manual(values = cbbPalette)
+#dev.off()
+
+#RGRI
+#jpeg("RGRI.jpeg")
+p4 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_RGRI, color = Logging)) +
+  #  geom_line() +
+  geom_point() +
+  scale_colour_manual(values = cbbPalette)
+#dev.off()
+
+#SIPI
+#jpeg("SIPI.jpeg")
+p5 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_SIPI, color = Logging)) +
+  #  geom_line() +
+  geom_point() +
+  scale_colour_manual(values = cbbPalette)
+#dev.off()
+
+#SR
+#jpeg("SR.jpeg")
+p6 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_SR, color = Logging)) +
+  #  geom_line() +
+  geom_point() +
+  scale_colour_manual(values = cbbPalette)
+#dev.off()
+
+require(ggpubr)
+tiff("indices.tiff", width=6.83, height= 5, units="in", res = 300)
+ggarrange(p, p2, p3, p4, p5, p6,
+                    ncol = 2, nrow = 4)
+dev.off()
+
+
+#################################################################
+#t-tests
+#var.test(covs_all3$mean_NDVI100, covs_all3$mean_NDVI.x, alternative = "two.sided")
+t.test(covs_all3$mean_NDVI.x, covs_all3$mean_NDVI100, paired = TRUE) #fail to reject, not sign. different
+
+t.test(covs_all3$mean_ARVI, covs_all3$mean_ARVI100, paired = T) #fail to rejct
+
+t.test(covs_all3$mean_PRI, covs_all3$mean_PRI100, paired = T) #fail to reject
+
+t.test(covs_all3$mean_RGRI, covs_all3$mean_RGRI100, paired = T) #fail to reject
+
+t.test(covs_all3$mean_SIPI, covs_all3$mean_SIPI100, paired = T) #fail to reject
+
+t.test(covs_all3$mean_SR, covs_all3$mean_SR100, paired = T) #fail to reject
+
+
+###########################################################
+# First, set-up a new dataframe to predict along a sequence of the covariate.
+# Predicting requires all covariates, so let's hold the other covariates constant at their mean value
+occu_forest_newdata <- data.frame(ndvi = seq(min(covs_all$mean_NDVI), 
+                                               max(covs_all$mean_NDVI), by = 0.05),
+                                  canopy = mean(covs_all$Canopy_Height_m), # hold other variables constant
+                                  bio = mean(covs_all$mean_bioma))
+
+# Model-averaged prediction of occupancy and confidence interval
+occu_forest_pred <- modavgPred(modlist4,
+                               # c.hat =    # to change variance inflation factor, default = 1) 
+                               parm.type = "psi", # psi = occupancy
+                               newdata = occu_forest_newdata)[c("mod.avg.pred",
+                                                                "lower.CL",
+                                                                "upper.CL")]
+
+# Put prediction, confidence interval, and covariate values together in a data frame
+occu_forest_pred_df <- data.frame(Predicted = occu_forest_pred$mod.avg.pred,
+                                  lower = occu_forest_pred$lower.CL,
+                                  upper = occu_forest_pred$upper.CL,
+                                  occu_forest_newdata)
+
+# Plot the relationship
+occu_forest_pred_plot <- ggplot(occu_forest_pred_df, aes(x = forest, y = Predicted)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.5, linetype = "dashed") +
+  geom_path(size = 1) +
+  labs(x = "Forest cover (standardized)", y = "Occupancy probability") +
+  theme_classic() +
+  coord_cartesian(ylim = c(0,1)) +
+  theme(text = element_text(family = "HelveticaNeue", colour = "black"),
+        axis.text = element_text(colour = "black"))
+occu_forest_pred_plot
+
+######################################################################
 
 
 #To get real estimate of detection (with 95% CI)
