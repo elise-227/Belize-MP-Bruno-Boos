@@ -142,7 +142,7 @@ modlist <- list()
 
 modlist[["null"]] <- f <- occu(data = unmarkedFrameOT, formula = ~1 ~1)
 
-modlist[["noNDVI"]] <- f2 <- occu(data = unmarkedFrameOT, formula = ~1 ~Canopy_Height_m + Logging + mean_bioma + FL)
+modlist[["log_can"]] <- f2 <- occu(data = unmarkedFrameOT, formula = ~1 ~Canopy_Height_m + Logging)
 
 modlist[["NDVI"]] <- f3 <- occu(data = unmarkedFrameOT, formula =  ~1 ~Canopy_Height_m + Logging + mean_bioma + FL + mean_NDVI)
 
@@ -158,7 +158,7 @@ modlist2 <- list()
 
 modlist2[["null"]] <- a <- occu(data = unmarkedFrameA, formula = ~1 ~1)
 
-modlist2[["noNDVI"]] <- a2 <- occu(data = unmarkedFrameA, formula = ~1 ~Canopy_Height_m + Logging + mean_bioma + FL)
+modlist2[["log_can"]] <- a2 <- occu(data = unmarkedFrameA, formula = ~1 ~Canopy_Height_m + Logging)
 
 modlist2[["NDVI"]] <- a3 <- occu(data = unmarkedFrameA, formula =  ~1 ~Canopy_Height_m + Logging + mean_bioma + FL + mean_NDVI)
 
@@ -174,23 +174,22 @@ modlist3 <- list()
 
 modlist3[["null"]] <- g <- occu(data = unmarkedFrameGC, formula = ~1 ~1)
 
-modlist3[["noNDVI"]] <- g2 <- occu(data = unmarkedFrameGC, formula = ~1 ~Canopy_Height_m + Logging + mean_bioma + FL)
+modlist3[["log_can"]] <- g2 <- occu(data = unmarkedFrameGC, formula = ~1 ~Canopy_Height_m + Logging)
 
 modlist3[["NDVI"]] <- g3 <- occu(data = unmarkedFrameGC, formula =  ~1 ~Canopy_Height_m + Logging + mean_bioma + FL + mean_NDVI)
 
-modlist3[["log"]] <- g4 <- occu(data = unmarkedFrameGC, formula =  ~1 ~Logging)
+#modlist3[["log"]] <- g4 <- occu(data = unmarkedFrameGC, formula =  ~1 ~Logging)
 
-modlist3[["FL"]] <- g5 <- occu(data = unmarkedFrameGC, formula =  ~1 ~FL)
+#modlist3[["FL"]] <- g5 <- occu(data = unmarkedFrameGC, formula =  ~1 ~FL)
 
 
 summary(g)
 summary(g2)
 summary(g3)
-summary(g4)
-summary(g5)
+#summary(g4)
+#summary(g5)
 
-aictab(modlist3) #no NDVI is best (depends on the species) > 1 difference in AIC
-#both much better than the null
+aictab(modlist3) #NDVI
 
 ##mod list for pred
 modlist4 <- list()
@@ -244,6 +243,13 @@ p <- ggplot(data = covs_all2, aes(x = mean_bioma, y = mean_NDVI, color = Logging
   scale_colour_manual(values = cbbPalette)
 #dev.off()
 
+require(ggplot2)
+#FOREST LOSS
+ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_NDVI.x, color = FL)) +
+  #  geom_line() +
+  geom_point() +
+  scale_colour_manual(values = cbbPalette)
+
 #ARVI
 #jpeg("ARVI.jpeg")
 p2 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_ARVI, color = Logging)) +
@@ -251,6 +257,11 @@ p2 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_ARVI, color = Loggin
   geom_point() +
   scale_colour_manual(values = cbbPalette)
 #dev.off()
+
+ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_ARVI, color = FL)) +
+  #  geom_line() +
+  geom_point() +
+  scale_colour_manual(values = cbbPalette)
 
 #PRI
 #jpeg("PRI.jpeg")
@@ -260,6 +271,11 @@ p3 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_PRI, color = Logging
   scale_colour_manual(values = cbbPalette)
 #dev.off()
 
+ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_PRI, color = FL)) +
+  #  geom_line() +
+  geom_point() +
+  scale_colour_manual(values = cbbPalette)
+
 #RGRI
 #jpeg("RGRI.jpeg")
 p4 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_RGRI, color = Logging)) +
@@ -267,6 +283,11 @@ p4 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_RGRI, color = Loggin
   geom_point() +
   scale_colour_manual(values = cbbPalette)
 #dev.off()
+
+ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_RGRI, color = FL)) +
+  #  geom_line() +
+  geom_point() +
+  scale_colour_manual(values = cbbPalette)
 
 #SIPI
 #jpeg("SIPI.jpeg")
@@ -276,6 +297,11 @@ p5 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_SIPI, color = Loggin
   scale_colour_manual(values = cbbPalette)
 #dev.off()
 
+ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_SIPI, color = FL)) +
+  #  geom_line() +
+  geom_point() +
+  scale_colour_manual(values = cbbPalette)
+
 #SR
 #jpeg("SR.jpeg")
 p6 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_SR, color = Logging)) +
@@ -283,6 +309,11 @@ p6 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_SR, color = Logging)
   geom_point() +
   scale_colour_manual(values = cbbPalette)
 #dev.off()
+
+ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_SR, color = FL)) +
+  #  geom_line() +
+  geom_point() +
+  scale_colour_manual(values = cbbPalette)
 
 require(ggpubr)
 tiff("indices.tiff", width=6.83, height= 5, units="in", res = 300)
