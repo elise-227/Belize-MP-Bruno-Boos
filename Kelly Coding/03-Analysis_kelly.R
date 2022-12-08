@@ -150,7 +150,7 @@ summary(f)
 summary(f2)
 summary(f3)
 
-aictab(modlist) #no NDVI is best
+aictab(modlist) #NDVI is best
 
 #Agoti model
 modlist2 <- list()
@@ -245,7 +245,7 @@ p <- ggplot(data = covs_all2, aes(x = mean_bioma, y = mean_NDVI, color = Logging
 
 require(ggplot2)
 #FOREST LOSS
-ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_NDVI.x, color = FL)) +
+p7 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_NDVI.x, color = FL)) +
   #  geom_line() +
   geom_point() +
   scale_colour_manual(values = cbbPalette)
@@ -258,7 +258,7 @@ p2 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_ARVI, color = Loggin
   scale_colour_manual(values = cbbPalette)
 #dev.off()
 
-ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_ARVI, color = FL)) +
+p8 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_ARVI, color = FL)) +
   #  geom_line() +
   geom_point() +
   scale_colour_manual(values = cbbPalette)
@@ -271,7 +271,7 @@ p3 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_PRI, color = Logging
   scale_colour_manual(values = cbbPalette)
 #dev.off()
 
-ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_PRI, color = FL)) +
+p9 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_PRI, color = FL)) +
   #  geom_line() +
   geom_point() +
   scale_colour_manual(values = cbbPalette)
@@ -284,7 +284,7 @@ p4 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_RGRI, color = Loggin
   scale_colour_manual(values = cbbPalette)
 #dev.off()
 
-ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_RGRI, color = FL)) +
+p10 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_RGRI, color = FL)) +
   #  geom_line() +
   geom_point() +
   scale_colour_manual(values = cbbPalette)
@@ -297,7 +297,7 @@ p5 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_SIPI, color = Loggin
   scale_colour_manual(values = cbbPalette)
 #dev.off()
 
-ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_SIPI, color = FL)) +
+p11 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_SIPI, color = FL)) +
   #  geom_line() +
   geom_point() +
   scale_colour_manual(values = cbbPalette)
@@ -310,7 +310,7 @@ p6 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_SR, color = Logging)
   scale_colour_manual(values = cbbPalette)
 #dev.off()
 
-ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_SR, color = FL)) +
+p12 <- ggplot(data = covs_all3, aes(x = mean_bioma, y = mean_SR, color = FL)) +
   #  geom_line() +
   geom_point() +
   scale_colour_manual(values = cbbPalette)
@@ -321,6 +321,10 @@ ggarrange(p, p2, p3, p4, p5, p6,
                     ncol = 2, nrow = 4)
 dev.off()
 
+tiff("forestloss.tiff", width=6.83, height= 5, units="in", res = 300)
+ggarrange(p7, p8, p9, p10, p11, p12,
+          ncol = 2, nrow = 4)
+dev.off()
 
 #################################################################
 #t-tests
