@@ -78,12 +78,22 @@ dat <- dat[-c(1557,4439,4743,6066,13493,15059),]
 
 ```{r mod list}
 #species vector 
-mammals <- dat[dat$Mammal == "Yes",]
-unique(mammals$Species)
-count <- summary(mammals$Species)
-list <- subset(count, count > 10)
-species_list <- names(list)
+#mammals <- dat[dat$Mammal == "Yes",]
+#unique(mammals$Species)
+#count <- summary(mammals$Species)
+#list <- subset(count, count > 10)
+#species_list <- names(list)
 #print(species_list, quote=F)
+
+count <- summary(dat$Species)
+count
+list <- subset(count, count > 40)
+list
+species_list <- names(list)
+
+#JUST GRAY FOX 
+species_list <- "Gray Fox"
+
 #start modeling
 modlist <- list()
 ```
@@ -108,9 +118,9 @@ for (species in species_list){
     unmarkedFrame@siteCovs$mean_NDVI <- scale(unmarkedFrame@siteCovs$mean_NDVI)
   
     
-    modlist[[paste0(species,"null")]] <-stan_occu(data = unmarkedFrame, formula = ~1 ~1, chains = 4, iter = 50000)
-    modlist[[paste0(species,"ANTHRO")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging + NEAR_DIST_ROAD + FL + mean_bioma + Canopy_Height_m + (1|site), chains = 4, iter = 50000)
-    modlist[[paste0(species,"ENVR")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~ NEAR_DIST_STRM + mean_NDVI + Season + Nat_Dist + (1|site), chains = 4, iter = 50000)
+    modlist[[paste0(species,"null")]] <-stan_occu(data = unmarkedFrame, formula = ~1 ~1, chains = 4, iter = 100000)
+    modlist[[paste0(species,"ANTHRO")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging + NEAR_DIST_ROAD + mean_bioma + (1|site), chains = 4, iter = 100000)
+    modlist[[paste0(species,"ENVR")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~ NEAR_DIST_STRM + mean_NDVI + Season + Nat_Dist + (1|site), chains = 4, iter = 100000)
 }
 
 ```
