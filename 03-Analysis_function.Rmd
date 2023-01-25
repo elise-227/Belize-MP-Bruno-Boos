@@ -34,9 +34,8 @@ library(ubms)
 ##load dfs
 load("dat.RData")
 load("camop.RData")
-load("covs_all.RData")
+covs_all <- read.csv("covs_fin.csv",stringsAsFactors = TRUE)
 
-write.csv(covs_all, file = "covs_fin.csv")
 ```
 
 ## FINAL CLEANING
@@ -92,9 +91,10 @@ count
 list <- subset(count, count > 40)
 list
 species_list <- names(list)
+species_list < species_list[1:15]
 
 #JUST GRAY FOX 
-species_list <- "Gray Fox"
+#species_list <- "Gray Fox"
 
 #start modeling
 modlist <- list()
@@ -123,30 +123,6 @@ for (species in species_list){
     modlist[[paste0(species,"null")]] <-stan_occu(data = unmarkedFrame, formula = ~1 ~1, chains = 4, iter = 100000)
     modlist[[paste0(species,"ANTHRO")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging + NEAR_DIST_ROAD + mean_bioma + (1|site), chains = 4, iter = 100000)
     modlist[[paste0(species,"ENVR")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~ NEAR_DIST_STRM + mean_NDVI + Season + Nat_Dist + (1|site), chains = 4, iter = 100000)
-}
-
-```
-
-```{r make function double model}
-for (species in species_list){
-    detect_hist <- detectionHistory(recordTable = dat, species = species, 
-                                       camOp = cam_op, output = "binary", stationCol = "site", 
-                                       speciesCol = "Species", day1 ="station", 
-                                       recordDateTimeCol = "date_time_obs", 
-                                       recordDateTimeFormat =  "%Y-%m-%d %H.%M", 
-                                       timeZone = "UTC", occasionLength = 1, 
-                                       includeEffort = TRUE, scaleEffort = FALSE, 
-                                       writecsv = FALSE)
-    
-    unmarkedFrame <- unmarkedFrameOccu(y = detect_hist$detection_history, siteCovs = covs_all)
-    
-    unmarkedFrame@siteCovs$Canopy_Height_m <- scale(unmarkedFrame@siteCovs$Canopy_Height_m)
-    unmarkedFrame@siteCovs$mean_bioma <- scale(unmarkedFrame@siteCovs$mean_bioma)
-    unmarkedFrame@siteCovs$NEAR_DIST_ROAD <- scale(unmarkedFrame@siteCovs$NEAR_DIST_ROAD)
-    unmarkedFrame@siteCovs$NEAR_DIST_STRM <- scale(unmarkedFrame@siteCovs$NEAR_DIST_STRM)
-    unmarkedFrame@siteCovs$mean_NDVI <- scale(unmarkedFrame@siteCovs$mean_NDVI)
-  
-    
     modlist[[paste0(species,"ANTHRO+ENVR")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging + NEAR_DIST_ROAD + mean_bioma + NEAR_DIST_STRM + mean_NDVI + Season + Nat_Dist + (1|site), chains = 4, iter = 100000)
 }
 
@@ -155,14 +131,14 @@ for (species in species_list){
 
 
 ```{r examine}
-grayfoxmodels_2_null <- modlist$`Gray Foxnull`
-grayfoxmodels_2_anthro <- modlist$`Gray FoxANTHRO`
-grayfoxmodels_2_envr <- modlist$`Gray FoxENVR`
-grayfoxmodels_2_anthro_envr <- modlist$`Gray FoxANTHRO+ENVR`
-save(grayfoxmodels_2_null, file = "grayfoxmodels_2_null.RData")
-save(grayfoxmodels_2_anthro, file = "grayfoxmodels_2_anthro.RData")
-save(grayfoxmodels_2_envr, file = "grayfoxmodels_2_envr.RData")
-save(grayfoxmodels_2_anthro_envr, file = "grayfoxmodels_2_anthro_envr.RData")
+# grayfoxmodels_2_null <- modlist$`Gray Foxnull`
+# grayfoxmodels_2_anthro <- modlist$`Gray FoxANTHRO`
+# grayfoxmodels_2_envr <- modlist$`Gray FoxENVR`
+# grayfoxmodels_2_anthro_envr <- modlist$`Gray FoxANTHRO+ENVR`
+# save(grayfoxmodels_2_null, file = "grayfoxmodels_2_null.RData")
+# save(grayfoxmodels_2_anthro, file = "grayfoxmodels_2_anthro.RData")
+# save(grayfoxmodels_2_envr, file = "grayfoxmodels_2_envr.RData")
+# save(grayfoxmodels_2_anthro_envr, file = "grayfoxmodels_2_anthro_envr.RData")
   # Agoutinull <- modlist$Agoutinull
   # AgoutiANTHRO <- modlist$AgoutiANTHRO
   # AgoutiENVR <- modlist$AgoutiENVR
@@ -181,23 +157,23 @@ save(grayfoxmodels_2_anthro_envr, file = "grayfoxmodels_2_anthro_envr.RData")
   # list <- subset(count, count > 10)
   # species_list <- names(list)
 
-load("ocelotmodels.RData")
-load("agouti_models.RData")
-load("grayfoxmodels.RData")
-load("whitetaileddeermodels.RData")
-load("pumamodels.RData")
+# load("ocelotmodels.RData")
+# load("agouti_models.RData")
+# load("grayfoxmodels.RData")
+# load("whitetaileddeermodels.RData")
+# load("pumamodels.RData")
 
-grayfoxmodels_2_anthro_envr
+# grayfoxmodels_2_anthro_envr
 ```
 
 ```{r posteriors etc}
-plot_posteriors(grayfoxmodels_2_anthro)
-plot_residuals(grayfoxmodels_2_anthro, "state")
-plot_marginal(grayfoxmodels_2_anthro, "state")
-
-plot_posteriors(grayfoxmodels_2_envr)
-plot_residuals(grayfoxmodels_2_envr, "state")
-plot_marginal(grayfoxmodels_2_envr, "state")
+# plot_posteriors(grayfoxmodels_2_anthro)
+# plot_residuals(grayfoxmodels_2_anthro, "state")
+# plot_marginal(grayfoxmodels_2_anthro, "state")
+# 
+# plot_posteriors(grayfoxmodels_2_envr)
+# plot_residuals(grayfoxmodels_2_envr, "state")
+# plot_marginal(grayfoxmodels_2_envr, "state")
 ```
 
 
