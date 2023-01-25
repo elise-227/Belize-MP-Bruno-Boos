@@ -35,6 +35,8 @@ library(ubms)
 load("dat.RData")
 load("camop.RData")
 load("covs_all.RData")
+
+write.csv(covs_all, file = "covs_fin.csv")
 ```
 
 ## FINAL CLEANING
