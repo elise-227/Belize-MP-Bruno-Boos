@@ -1,0 +1,66 @@
+---
+title: "Results Analysis"
+author: "Kelly Bruno"
+date: "2023-02-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## SET UP 
+
+```{r set up }
+#clean space
+rm(list=ls())
+
+#load packages
+#packages
+require(tidyverse)
+require(dplyr)
+require(sf)
+require(leaflet)
+require(mapview)
+require(readxl)
+require(lubridate)
+require(readxl)
+library(unmarked)
+library(AICcmodavg)
+library(camtrapR)
+library(ubms)
+
+#set directory to location of models
+setwd("E:/Model Outputs")
+
+##load models
+load("greatcura_null.RData")
+load("greatcura_env.RData")
+load("greatcura_anthro.RData")
+load("greatcura_anthro_env.RData")
+
+fit_greatcura <- cbind(null = coef(greatcura_null), env = coef(greatcura_env), anthro = coef(greatcura_anthro), anthro_env = coef(greatcura_anthro_env))
+
+#save(fit_greatcura, file = "fit_greatCura.Rda")
+
+names(greatcura_anthro_env)
+
+#posterior for intercept
+occ_intercept <- extract(greatcura_anthro_env, "beta_state[(Intercept)]")[[1]]
+hist(occ_intercept, freq=FALSE)
+lines(density(occ_intercept), col='red', lwd=2)
+#posterior for logging
+occ_log <- extract(greatcura_anthro_env, "beta_state[LoggingYes]")[[1]]
+hist(occ_intercept, freq=FALSE)
+lines(density(occ_intercept), col='red', lwd=2)
+
+```
+
+```{r model comparison }
+#First we combine the models into a fitList
+mods_greatcura <- fitList(greatcura_null, greatcura_env, greatcura_anthro, greatcura_anthro_env)
+
+round(modSel(mods_greatcura), 3)
+#anthropogenic model preformed best
+
+```
