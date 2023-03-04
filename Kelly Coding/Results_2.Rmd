@@ -30,6 +30,9 @@ library(AICcmodavg)
 library(camtrapR)
 library(ubms)
 
+```
+
+```{r Great Curasow}
 #set directory to location of models
 setwd("D:/Model Outputs/Feb21")
 
@@ -42,6 +45,7 @@ load("greatcura_anthro_env.RData")
 #fit_greatcura <- cbind(null = coef(greatcura_null), env = coef(greatcura_env), anthro = coef(greatcura_anthro), anthro_env = coef(greatcura_anthro_env))
 
 #save(fit_greatcura, file = "fit_greatCura.Rda")
+load("fit_greatcura.Rda")
 
 names(greatcura_anthro_env)
 
@@ -53,7 +57,6 @@ lines(density(occ_intercept), col='red', lwd=2)
 occ_log <- extract(greatcura_anthro_env, "beta_state[LoggingYes]")[[1]]
 hist(occ_intercept, freq=FALSE)
 lines(density(occ_intercept), col='red', lwd=2)
-
 ```
 
 ```{r model comparison }
@@ -65,7 +68,7 @@ round(modSel(mods_greatcura), 3)
 #anthropogenic model preformed best, but very close to anthro_env
 
 #remove others
-rm(greatcura_env, greatcura_null)
+#rm(greatcura_env, greatcura_null)
 
 ```
 
@@ -92,9 +95,31 @@ residuals(fit_top)
 
 ```{r model inference}
 
-plot_marginal(fit_top, "state") #slighty greater psi with logging, 
-#both distance to road and mean biomass have a negative effect on occupancy probability, but both contain zero
-fit_top
+plot_marginal(fit_top, "state") #plot marginal effects of each covariate with others held at mean
+#slighty greater psi with logging, 
+#both distance to road and mean biomass have a negative effect on occupancy probability, and neither contain zero
 
 
+```
+
+```{r predictions}
+#head(predict(fit_top, submodel = "state")) #if you want predicted values for each site or obs
+
+#supply newdata as a data.frame to predict specific values
+nd <- data.frame(Logging = "No", NEAR_DIST_ROAD = 2.75, mean_bioma = 0, site = "403C")
+predict(fit_top, submodel = "state", newdata = nd)
+```
+
+```{r Agouti}
+#clean space
+rm(list=ls())
+
+#set directory to location of models
+setwd("D:/Model Outputs/Feb21")
+
+##load models
+load("agouti_null.RData")
+load("agouti_env.RData")
+load("agouti_anthro.RData")
+load("agouti_anthro_env.RData")
 ```
