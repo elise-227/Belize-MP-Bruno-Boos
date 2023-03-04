@@ -1,0 +1,100 @@
+---
+title: "Results_2"
+author: "KB"
+date: "2023-03-04"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## SET UP 
+
+```{r set up }
+#clean space
+rm(list=ls())
+
+#load packages
+#packages
+require(tidyverse)
+require(dplyr)
+require(sf)
+require(leaflet)
+require(mapview)
+require(readxl)
+require(lubridate)
+require(readxl)
+library(unmarked)
+library(AICcmodavg)
+library(camtrapR)
+library(ubms)
+
+#set directory to location of models
+setwd("D:/Model Outputs/Feb21")
+
+##load models
+load("greatcura_null.RData")
+load("greatcura_env.RData")
+load("greatcura_anthro.RData")
+load("greatcura_anthro_env.RData")
+
+#fit_greatcura <- cbind(null = coef(greatcura_null), env = coef(greatcura_env), anthro = coef(greatcura_anthro), anthro_env = coef(greatcura_anthro_env))
+
+#save(fit_greatcura, file = "fit_greatCura.Rda")
+
+names(greatcura_anthro_env)
+
+#posterior for intercept
+occ_intercept <- extract(greatcura_anthro_env, "beta_state[(Intercept)]")[[1]]
+hist(occ_intercept, freq=FALSE)
+lines(density(occ_intercept), col='red', lwd=2)
+#posterior for logging
+occ_log <- extract(greatcura_anthro_env, "beta_state[LoggingYes]")[[1]]
+hist(occ_intercept, freq=FALSE)
+lines(density(occ_intercept), col='red', lwd=2)
+
+```
+
+```{r model comparison }
+#First we combine the models into a fitList
+mods_greatcura <- fitList(greatcura_null, greatcura_env, greatcura_anthro, greatcura_anthro_env)
+#models are compared using leave-out-one cross-validation (LOO) via the loo package. Expected predictive accuracy (elpd) for each model is calculated & the model with the largest elpd performed best.
+
+round(modSel(mods_greatcura), 3)
+#anthropogenic model preformed best, but very close to anthro_env
+
+#remove others
+rm(greatcura_env, greatcura_null)
+
+```
+
+```{r diagnostics and model fit}
+
+fit_top <- greatcura_anthro
+fit_top
+#looking at summary: all chains have adequately converged based on R hat values (ideally R > 1.05)
+#effective sample size n_eff looks okay (generally want n_eff > (100*chains so 400))
+
+traceplot(fit_top) #visualize convergence (you can specify parameters here or it will show the first 10)
+
+#calculate residuals against covariate values
+plot_posteriors(fit_top)
+plot_residuals(fit_top, "state") #if model fit is good you expect 95% of binned residuals to fall within shaded area
+residuals(fit_top)
+
+#goodness-of-fit test (posterior predictive checks) M-B chi-square test via gof function. Proportion of draws where simulated stat is larger than actual stat should be near 0.5 if model fits well.
+#fit_top_gof <- gof(fit_top, quiet = TRUE) #don't have enough memory apparently?
+#plot(fit_top_gof)
+
+
+```
+
+```{r model inference}
+
+plot_marginal(fit_top, "state") #slighty greater psi with logging, 
+#both distance to road and mean biomass have a negative effect on occupancy probability, but both contain zero
+fit_top
+
+
+```
