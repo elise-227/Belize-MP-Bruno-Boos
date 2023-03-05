@@ -8,6 +8,7 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+#Results
 
 ## SET UP 
 
@@ -31,6 +32,8 @@ library(camtrapR)
 library(ubms)
 
 ```
+
+##Great Curassow
 
 ```{r Great Curasow}
 #set directory to location of models
@@ -70,6 +73,7 @@ round(modSel(mods_greatcura), 3)
 #remove others
 #rm(greatcura_env, greatcura_null)
 
+greatcura_anthro_env
 ```
 
 ```{r diagnostics and model fit}
@@ -110,6 +114,9 @@ nd <- data.frame(Logging = "No", NEAR_DIST_ROAD = 2.75, mean_bioma = 0, site = "
 predict(fit_top, submodel = "state", newdata = nd)
 ```
 
+##Agouti
+
+
 ```{r Agouti}
 #clean space
 rm(list=ls())
@@ -119,7 +126,242 @@ setwd("D:/Model Outputs/Feb21")
 
 ##load models
 load("agouti_null.RData")
-load("agouti_env.RData")
+#load("agouti_env.RData") missing
 load("agouti_anthro.RData")
 load("agouti_anthro_env.RData")
+```
+
+```{r model comparison }
+#First we combine the models into a fitList
+mods_agouti <- fitList(agouti_null, agouti_anthro, agouti_anthro_env)
+#models are compared using leave-out-one cross-validation (LOO) via the loo package. Expected predictive accuracy (elpd) for each model is calculated & the model with the largest elpd performed best.
+
+round(modSel(mods_agouti), 3)
+#anthro_env model preformed best
+
+```
+
+```{r diagnostics and model fit}
+
+fit_top <- agouti_anthro_env
+fit_top
+#looking at summary: all chains have adequately converged based on R hat values (ideally R > 1.05)
+#effective sample size n_eff looks okay (generally want n_eff > (100*chains so 400))
+
+#calculate residuals against covariate values
+#plot_posteriors(fit_top)
+plot_residuals(fit_top, "state") #if model fit is good you expect 95% of binned residuals to fall within shaded area
+
+#goodness-of-fit test (posterior predictive checks) M-B chi-square test via gof function. Proportion of draws where simulated stat is larger than actual stat should be near 0.5 if model fits well.
+#fit_top_gof <- gof(fit_top, quiet = TRUE) #don't have enough memory apparently?
+#plot(fit_top_gof)
+
+
+```
+
+```{r model inference}
+
+plot_marginal(fit_top, "state") #plot marginal effects of each covariate with others held at mean
+#slighty greater occupancy prob with logging, 
+#much higher occupancy prob without nat disturbance
+
+```
+
+```{r predictions}
+#head(predict(fit_top, submodel = "state")) #if you want predicted values for each site or obs
+
+#supply newdata as a data.frame to predict specific values
+# nd <- data.frame(Logging = "No", NEAR_DIST_ROAD = 2.75, mean_bioma = 0, site = "403C")
+# predict(fit_top, submodel = "state", newdata = nd)
+```
+
+##Gray Fox
+
+
+```{r GF}
+#clean space
+rm(list=ls())
+
+#set directory to location of models
+setwd("D:/Model Outputs/Feb21")
+
+##load models
+#load("grayfox_null.RData")
+#load("grayfox_env.RData")
+#load("grayfox_anthro.RData")
+load("grayfox_anthro_env.RData")
+
+grayfox_anthro_env
+```
+
+```{r model comparison }
+#First we combine the models into a fitList
+mods_grayfox <- fitList(grayfox_null, grayfox_env, grayfox_anthro, grayfox_anthro_env)
+#models are compared using leave-out-one cross-validation (LOO) via the loo package. Expected predictive accuracy (elpd) for each model is calculated & the model with the largest elpd performed best.
+
+round(modSel(mods_grayfox), 3)
+#anthro_env model preformed best
+
+```
+
+```{r diagnostics and model fit}
+
+fit_top <- grayfox_anthro_env
+fit_top
+#looking at summary: all chains have adequately converged based on R hat values (ideally R > 1.05)
+#effective sample size n_eff looks okay (generally want n_eff > (100*chains so 400))
+
+#calculate residuals against covariate values
+#plot_posteriors(fit_top)
+plot_residuals(fit_top, "state") #if model fit is good you expect 95% of binned residuals to fall within shaded area
+
+#goodness-of-fit test (posterior predictive checks) M-B chi-square test via gof function. Proportion of draws where simulated stat is larger than actual stat should be near 0.5 if model fits well.
+#fit_top_gof <- gof(fit_top, quiet = TRUE) #don't have enough memory apparently?
+#plot(fit_top_gof)
+
+
+```
+
+```{r model inference}
+
+plot_marginal(fit_top, "state") #plot marginal effects of each covariate with others held at mean
+#slighty greater occupancy prob with logging, 
+#much higher occupancy prob without nat disturbance
+
+```
+
+```{r predictions}
+#head(predict(fit_top, submodel = "state")) #if you want predicted values for each site or obs
+
+#supply newdata as a data.frame to predict specific values
+# nd <- data.frame(Logging = "No", NEAR_DIST_ROAD = 2.75, mean_bioma = 0, site = "403C")
+# predict(fit_top, submodel = "state", newdata = nd)
+```
+
+```{r Plotting}
+setwd("D:/")
+
+#effects plot
+CI <- read.csv("Critical_intv.csv")
+
+CI$Species <- as.factor(CI$Species)
+CI$Cov <- as.factor(CI$Cov)
+
+#cross zero?
+CI$pass <- ifelse(sign(CI$X2.5) < 0  & lag(sign(CI$X97.5)) >= 0, 0, 1) #double check these bc wrong in some places
+CI$pass <- as.factor(CI$pass)
+
+#Logging
+Logging <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Logging")
+
+
+Logging_plot <- ggplot(
+  Logging, 
+  aes(x = Effect.Size, y = Species, xmin = X2.5, xmax =X97.5)) +
+  geom_point(fill = Logging$pass,
+        shape = 21, 
+        size = 4) +
+  geom_errorbarh(aes(height=.2, colour = Species)) +
+  theme(legend.position = "none")
+
+#Distance to Roads
+Dist_Roads <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Roads")
+
+Roads_plot <- ggplot(
+  Dist_Roads, 
+  aes(x = Effect.Size, y = Species, xmin = X2.5, xmax =X97.5)) +
+  geom_point(fill = Dist_Roads$pass,
+        shape = 21, 
+        size = 4) +
+  geom_errorbarh(aes(height=.2, colour = Species)) +
+  theme(legend.position = "none")
+
+#Biomass
+Biomass <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Biomass")
+
+Biomass_plot <- ggplot(
+  Biomass, 
+  aes(x = Effect.Size, y = Species, xmin = X2.5, xmax =X97.5)) +
+  geom_point(fill = Biomass$pass,
+        shape = 21, 
+        size = 4) +
+  geom_errorbarh(aes(height=.2, colour = Species)) +
+  theme(legend.position = "none")
+
+#Streams
+Streams <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Streams")
+
+Streams_plot <- ggplot(
+  Streams, 
+  aes(x = Effect.Size, y = Species, xmin = X2.5, xmax =X97.5)) +
+  geom_point(fill = Streams$pass,
+        shape = 21, 
+        size = 4) +
+  geom_errorbarh(aes(height=.2, colour = Species)) +
+ theme(legend.position = "none")
+
+##NDVI
+NDVI <- CI %>% group_by(Species, Cov) %>% filter(Cov == "NDVI")
+
+NDVI_plot <- ggplot(
+  NDVI, 
+  aes(x = Effect.Size, y = Species, xmin = X2.5, xmax =X97.5)) +
+  geom_point(fill = NDVI$pass,
+        shape = 21, 
+        size = 4) +
+  geom_errorbarh(aes(height=.2, colour = Species)) +
+ theme(legend.position = "none")
+
+##Season
+Season <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Season")
+
+Season_plot <- ggplot(
+  Season, 
+  aes(x = Effect.Size, y = Species, xmin = X2.5, xmax =X97.5)) +
+  geom_point(fill = Season$pass,
+        shape = 21, 
+        size = 4) +
+  geom_errorbarh(aes(height=.2, colour = Species)) +
+  theme(legend.position = "none")
+
+##Natural Disturbance
+NatD <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Nat_Disturb")
+
+NatD_plot <- ggplot(
+  NatD, 
+  aes(x = Effect.Size, y = Species, xmin = X2.5, xmax =X97.5)) +
+  geom_point(fill = NatD$pass,
+        shape = 21, 
+        size = 4) +
+  geom_errorbarh(aes(height=.2, colour = Species)) +
+  theme(legend.position = "none")
+
+# Create plot with legend
+ggp1_legend <- ggplot(NatD, 
+  aes(x = Effect.Size, y = Species, xmin = X2.5, xmax =X97.5)) +
+  geom_point(fill = NatD$pass,
+        shape = 21, 
+        size = 4) +
+  geom_errorbarh(aes(height=.2, colour = Species))
+  theme(legend.position = "bottom")
+  
+# Create user-defined function, which extracts legends from ggplots
+extract_legend <- function(my_ggp) {
+  step1 <- ggplot_gtable(ggplot_build(my_ggp))
+  step2 <- which(sapply(step1$grobs, function(x) x$name) == "guide-box")
+  step3 <- step1$grobs[[step2]]
+  return(step3)
+}
+
+# Apply user-defined function to extract legend
+shared_legend <- extract_legend(ggp1_legend)
+
+##grid of plots
+#install.packages("gridExtra")
+setwd("D:/")
+library("gridExtra")
+tiff("draft_effectsplot.tiff", units = "in", width = 9, height = 9, res = 300)
+p <- grid.arrange(arrangeGrob(Logging_plot, Roads_plot, Biomass_plot, Streams_plot, NDVI_plot, Season_plot, NatD_plot, nrow = 4), shared_legend, ncol = 1, heights = c(10, 1))
+dev.off()
+
 ```
