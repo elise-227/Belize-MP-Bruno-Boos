@@ -30,6 +30,7 @@ library(unmarked)
 library(AICcmodavg)
 library(camtrapR)
 library(ubms)
+library(gridExtra)
 
 ```
 
@@ -239,7 +240,7 @@ plot_marginal(fit_top, "state") #plot marginal effects of each covariate with ot
 ```
 
 ```{r Plotting}
-setwd("D:/")
+#setwd("D:/")
 
 #effects plot
 CI <- read.csv("Critical_intv.csv")
@@ -247,8 +248,9 @@ CI <- read.csv("Critical_intv.csv")
 CI$Species <- as.factor(CI$Species)
 CI$Cov <- as.factor(CI$Cov)
 
-#cross zero?
-CI$pass <- ifelse(sign(CI$X2.5) < 0  & lag(sign(CI$X97.5)) >= 0, 0, 1) #double check these bc wrong in some places
+#does the value cross zero?
+CI$pass <- ifelse(CI$X2.5 < 0  & CI$X97.5 >= 0 | CI$X2.5 > 0  & CI$X97.5 <= 0, 0, 1)
+
 CI$pass <- as.factor(CI$pass)
 
 #Logging
@@ -262,7 +264,10 @@ Logging_plot <- ggplot(
         shape = 21, 
         size = 4) +
   geom_errorbarh(aes(height=.2, colour = Species)) +
-  theme(legend.position = "none")
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(axis.title.y=element_blank())
+Logging_plot <- Logging_plot + labs(title = "Logging")
 
 #Distance to Roads
 Dist_Roads <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Roads")
@@ -274,7 +279,10 @@ Roads_plot <- ggplot(
         shape = 21, 
         size = 4) +
   geom_errorbarh(aes(height=.2, colour = Species)) +
-  theme(legend.position = "none")
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(axis.title.y=element_blank())
+Roads_plot <- Roads_plot + labs(title = "Roads")
 
 #Biomass
 Biomass <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Biomass")
@@ -286,7 +294,10 @@ Biomass_plot <- ggplot(
         shape = 21, 
         size = 4) +
   geom_errorbarh(aes(height=.2, colour = Species)) +
-  theme(legend.position = "none")
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(axis.title.y=element_blank())
+Biomass_plot <- Biomass_plot + labs(title = "Biomass")
 
 #Streams
 Streams <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Streams")
@@ -298,7 +309,10 @@ Streams_plot <- ggplot(
         shape = 21, 
         size = 4) +
   geom_errorbarh(aes(height=.2, colour = Species)) +
- theme(legend.position = "none")
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(axis.title.y=element_blank())
+Streams_plot <- Streams_plot + labs(title = "Streams")
 
 ##NDVI
 NDVI <- CI %>% group_by(Species, Cov) %>% filter(Cov == "NDVI")
@@ -310,7 +324,10 @@ NDVI_plot <- ggplot(
         shape = 21, 
         size = 4) +
   geom_errorbarh(aes(height=.2, colour = Species)) +
- theme(legend.position = "none")
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(axis.title.y=element_blank())
+NDVI_plot <- NDVI_plot + labs(title = "NDVI")
 
 ##Season
 Season <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Season")
@@ -322,7 +339,10 @@ Season_plot <- ggplot(
         shape = 21, 
         size = 4) +
   geom_errorbarh(aes(height=.2, colour = Species)) +
-  theme(legend.position = "none")
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(axis.title.y=element_blank())
+Season_plot <- Season_plot + labs(title = "Season")
 
 ##Natural Disturbance
 NatD <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Nat_Disturb")
@@ -333,8 +353,11 @@ NatD_plot <- ggplot(
   geom_point(fill = NatD$pass,
         shape = 21, 
         size = 4) +
-  geom_errorbarh(aes(height=.2, colour = Species)) +
-  theme(legend.position = "none")
+  geom_errorbarh(aes(height=.2, colour = Species)) + 
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(axis.title.y=element_blank())
+NatD_plot <- NatD_plot + labs(title = "Disturbance")
 
 # Create plot with legend
 ggp1_legend <- ggplot(NatD, 
@@ -342,7 +365,9 @@ ggp1_legend <- ggplot(NatD,
   geom_point(fill = NatD$pass,
         shape = 21, 
         size = 4) +
-  geom_errorbarh(aes(height=.2, colour = Species))
+  geom_errorbarh(aes(height=.2, colour = Species)) +
+  theme_bw() +
+  theme(axis.title.y=element_blank()) +
   theme(legend.position = "bottom")
   
 # Create user-defined function, which extracts legends from ggplots
@@ -358,10 +383,10 @@ shared_legend <- extract_legend(ggp1_legend)
 
 ##grid of plots
 #install.packages("gridExtra")
-setwd("D:/")
-library("gridExtra")
-tiff("draft_effectsplot.tiff", units = "in", width = 9, height = 9, res = 300)
+tiff("draft_effectsplot2.tiff", units = "in", width = 9, height = 9, res = 300)
 p <- grid.arrange(arrangeGrob(Logging_plot, Roads_plot, Biomass_plot, Streams_plot, NDVI_plot, Season_plot, NatD_plot, nrow = 4), shared_legend, ncol = 1, heights = c(10, 1))
 dev.off()
+
+#labs = c("Logging","Roads", "Biomass", "Streams", "NDVI", "Season", "Disturbance")
 
 ```
