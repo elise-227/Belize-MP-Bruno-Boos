@@ -91,7 +91,7 @@ count
 list <- subset(count, count > 40)
 list
 species_list <- names(list)
-species_list < species_list[1:15]
+species_list <- species_list[16:20]
 
 #JUST GRAY FOX 
 #species_list <- "Gray Fox"
