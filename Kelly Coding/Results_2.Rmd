@@ -149,6 +149,9 @@ fit_top
 #looking at summary: all chains have adequately converged based on R hat values (ideally R > 1.05)
 #effective sample size n_eff looks okay (generally want n_eff > (100*chains so 400))
 
+
+
+
 #calculate residuals against covariate values
 #plot_posteriors(fit_top)
 plot_residuals(fit_top, "state") #if model fit is good you expect 95% of binned residuals to fall within shaded area
@@ -185,12 +188,12 @@ rm(list=ls())
 
 #set directory to location of models
 setwd("D:/Model Outputs/Feb21")
-
+load("grayfox_anthro_env.RData")
 ##load models
 #load("grayfox_null.RData")
 #load("grayfox_env.RData")
-#load("grayfox_anthro.RData")
-load("grayfox_anthro_env.RData")
+load("grayfox_anthro.RData")
+
 
 grayfox_anthro_env
 ```
@@ -237,6 +240,223 @@ plot_marginal(fit_top, "state") #plot marginal effects of each covariate with ot
 #supply newdata as a data.frame to predict specific values
 # nd <- data.frame(Logging = "No", NEAR_DIST_ROAD = 2.75, mean_bioma = 0, site = "403C")
 # predict(fit_top, submodel = "state", newdata = nd)
+```
+
+
+```{r modlists}
+#set directory to location of models
+setwd("D:/Model Outputs")
+
+##load models
+load("agouti_anthro_env.RData")
+load("btapir_anthro_env.RData")
+load("cguan_anthro_env.RData")
+#load("Common_Opossum_anthro_env.RData")
+load("GHDove_anthro_env.RData")
+load("grayfox_anthro_env.RData")
+load("greatcura_anthro_env.RData")
+load("jaguar_anthro_env.RData")
+load("ocellatedturkey_anthro_env.RData")
+load("ocelot_anthro_env.RData")
+load("Paca_anthro_env.RData")
+load("puma_anthro_env.RData")
+load("redbrockdeer_anthro_env.RData")
+load("wnosedcoati_anthro_env.RData")
+load("wtdeer_anthro_env.RData")
+
+#models_list will be a list of anthro_env models for the species
+#species with be the name of the model 
+
+#intercept
+modlist2 <- list()
+modlist2 <- c(agouti_anthro_env, btapir_anthro_env, cguan_anthro_env, GHDove_anthro_env, grayfox_anthro_env, greatcura_anthro_env, jaguar_anthro_env, ocellatedturkey_anthro_env, ocelot_anthro_env, Paca_anthro_env, puma_anthro_env, redbrockdeer_anthro_env, wnosedcoati_anthro_env, wtdeer_anthro_env)
+
+names(modlist2) <- c("Agouti", "Baird's tapir", "Crested Guan", "Gray-headed Dove", "Gray Fox", "Great Curassow", "Jaguar", "Ocellated Turkey", "Ocelot", "Paca", "Puma", "Red Brocket Deer", "White-nosed Coati", "White-tailed Deer")
+species <- names(modlist2)
+
+df_int <- data.frame(species)
+df_int$effect <- NA
+df_int$`2.5` <- NA
+df_int$`97.5` <- NA
+df_int$variable <- "Intercept"
+
+for (model in species){
+  fit_top <- modlist2[[model]]
+  sum <- summary(fit_top, "state")
+  coef <- sum$mean[1]
+  ci2 <- sum$`2.5%`[1]
+  ci9 <-sum$`97.5%`[1]
+  df_int[df_int$species == model,]$effect <- coef
+  df_int[df_int$species == model,]$`2.5` <- ci2
+  df_int[df_int$species == model,]$`97.5` <- ci9
+}
+
+save(df_int, file = "df_int.Rda")
+write.csv(df_int, file = "df_int.csv")
+
+
+#logging
+
+df_log <- data.frame(species)
+df_log$effect <- NA
+df_log$`2.5` <- NA
+df_log$`97.5` <- NA
+df_log$variable <- "Logging"
+
+
+for (model in species){
+  fit_top <- modlist2[[model]]
+  sum <- summary(fit_top, "state")
+  coef <- sum$mean[2]
+  ci2 <- sum$`2.5%`[2]
+  ci9 <-sum$`97.5%`[2]
+  df_log[df_log$species == model,]$effect <- coef
+  df_log[df_log$species == model,]$`2.5` <- ci2
+  df_log[df_log$species == model,]$`97.5` <- ci9
+}
+
+#Distance to Roads
+
+df_roads <- data.frame(species)
+df_roads$effect <- NA
+df_roads$`2.5` <- NA
+df_roads$`97.5` <- NA
+df_roads$variable <- "Distance to Roads"
+
+
+for (model in species){
+  fit_top <- modlist2[[model]]
+  sum <- summary(fit_top, "state")
+  coef <- sum$mean[3]
+  ci2 <- sum$`2.5%`[3]
+  ci9 <-sum$`97.5%`[3]
+ df_roads[df_roads$species == model,]$effect <- coef
+  df_roads[df_roads$species == model,]$`2.5` <- ci2
+  df_roads[df_roads$species == model,]$`97.5` <- ci9
+}
+
+#Mean Biomass
+
+df_bio <- data.frame(species)
+df_bio$effect <- NA
+df_bio$`2.5` <- NA
+df_bio$`97.5` <- NA
+df_bio$variable <- "Mean Biomass"
+
+
+for (model in species){
+  fit_top <- modlist2[[model]]
+  sum <- summary(fit_top, "state")
+  coef <- sum$mean[4]
+  ci2 <- sum$`2.5%`[4]
+  ci9 <-sum$`97.5%`[4]
+  df_bio[df_bio$species == model,]$effect <- coef
+  df_bio[df_bio$species == model,]$`2.5` <- ci2
+  df_bio[df_bio$species == model,]$`97.5` <- ci9
+}
+
+#Distance to Streams
+
+df_streams <- data.frame(species)
+df_streams$effect <- NA
+df_streams$`2.5` <- NA
+df_streams$`97.5` <- NA
+df_streams$variable <- "Distance to Streams"
+
+
+for (model in species){
+  fit_top <- modlist2[[model]]
+  sum <- summary(fit_top, "state")
+  coef <- sum$mean[5]
+  ci2 <- sum$`2.5%`[5]
+  ci9 <-sum$`97.5%`[5]
+  df_streams[df_streams$species == model,]$effect <- coef
+  df_streams[df_streams$species == model,]$`2.5` <- ci2
+  df_streams[df_streams$species == model,]$`97.5` <- ci9
+}
+
+#NDVI
+
+df_NDVI <- data.frame(species)
+df_NDVI$effect <- NA
+df_NDVI$`2.5` <- NA
+df_NDVI$`97.5` <- NA
+df_NDVI$variable <- "NDVI"
+
+
+for (model in species){
+  fit_top <- modlist2[[model]]
+  sum <- summary(fit_top, "state")
+  coef <- sum$mean[6]
+  ci2 <- sum$`2.5%`[6]
+  ci9 <-sum$`97.5%`[6]
+  df_NDVI[df_NDVI$species == model,]$effect <- coef
+  df_NDVI[df_NDVI$species == model,]$`2.5` <- ci2
+  df_NDVI[df_NDVI$species == model,]$`97.5` <- ci9
+}
+
+#Season (wet)
+
+df_season <- data.frame(species)
+df_season$effect <- NA
+df_season$`2.5` <- NA
+df_season$`97.5` <- NA
+df_season$variable <- "Season"
+
+
+for (model in species){
+  fit_top <- modlist2[[model]]
+  sum <- summary(fit_top, "state")
+  coef <- sum$mean[7]
+  ci2 <- sum$`2.5%`[7]
+  ci9 <-sum$`97.5%`[7]
+  df_season[df_season$species == model,]$effect <- coef
+  df_season[df_season$species == model,]$`2.5` <- ci2
+  df_season[df_season$species == model,]$`97.5` <- ci9
+}
+
+#Natural Disturbance
+
+df_dist <- data.frame(species)
+df_dist$effect <- NA
+df_dist$`2.5` <- NA
+df_dist$`97.5` <- NA
+df_dist$variable <- "Natural Disturbance"
+
+
+for (model in species){
+  fit_top <- modlist2[[model]]
+  sum <- summary(fit_top, "state")
+  coef <- sum$mean[8]
+  ci2 <- sum$`2.5%`[8]
+  ci9 <-sum$`97.5%`[8]
+  df_dist[df_dist$species == model,]$effect <- coef
+  df_dist[df_dist$species == model,]$`2.5` <- ci2
+  df_dist[df_dist$species == model,]$`97.5` <- ci9
+}
+
+#Site
+
+df_site <- data.frame(species)
+df_site$effect <- NA
+df_site$`2.5` <- NA
+df_site$`97.5` <- NA
+df_site$variable <- "Site"
+
+
+for (model in species){
+  fit_top <- modlist2[[model]]
+  sum <- summary(fit_top, "state")
+  coef <- sum$mean[9]
+  ci2 <- sum$`2.5%`[9]
+  ci9 <-sum$`97.5%`[9]
+  df_site[df_site$species == model,]$effect <- coef
+  df_site[df_site$species == model,]$`2.5` <- ci2
+  df_site[df_site$species == model,]$`97.5` <- ci9
+}
+
+CI <- rbind(df_int, df_log, df_roads, df_bio, df_streams, df_NDVI, df_season, df_dist, df_site)
+
 ```
 
 ```{r Plotting}
