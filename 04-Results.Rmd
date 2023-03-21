@@ -460,17 +460,26 @@ CI <- rbind(df_int, df_log, df_roads, df_bio, df_streams, df_NDVI, df_season, df
 ```
 
 ```{r Plotting}
-#setwd("D:/")
+
+setwd("C:/Users/Kelly/Documents/Belize-MP-Bruno-Boos/Effects")
 
 #effects plot
-CI <- read.csv("Critical_intv.csv")
+load("effects.Rda")
+
+colnames(CI)[1] <- "Species"
+colnames(CI)[2] <- "Effect.Size"
+colnames(CI)[3] <- "X2.5"
+colnames(CI)[4] <- "X97.5"
+colnames(CI)[5] <- "Cov"
 
 CI$Species <- as.factor(CI$Species)
 CI$Cov <- as.factor(CI$Cov)
 
+
+
 #does the value cross zero?
 CI$pass <- ifelse(CI$X2.5 < 0  & CI$X97.5 >= 0 | CI$X2.5 > 0  & CI$X97.5 <= 0, 0, 1)
-
+#0 means passes
 CI$pass <- as.factor(CI$pass)
 
 #Logging
@@ -486,11 +495,15 @@ Logging_plot <- ggplot(
   geom_errorbarh(aes(height=.2, colour = Species)) +
   theme_bw() +
   theme(legend.position = "none") +
-  theme(axis.title.y=element_blank())
+  theme(axis.title.y=element_blank())+
+  geom_vline(xintercept = 0, linetype="dashed")
 Logging_plot <- Logging_plot + labs(title = "Logging")
 
+ggsave("Logging_plot.png")
+
+
 #Distance to Roads
-Dist_Roads <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Roads")
+Dist_Roads <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Distance to Roads")
 
 Roads_plot <- ggplot(
   Dist_Roads, 
@@ -501,11 +514,14 @@ Roads_plot <- ggplot(
   geom_errorbarh(aes(height=.2, colour = Species)) +
   theme_bw() +
   theme(legend.position = "none") +
-  theme(axis.title.y=element_blank())
+  theme(axis.title.y=element_blank())+
+  geom_vline(xintercept = 0, linetype="dashed")
 Roads_plot <- Roads_plot + labs(title = "Roads")
 
+ggsave("Roads_plot.png")
+
 #Biomass
-Biomass <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Biomass")
+Biomass <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Mean Biomass")
 
 Biomass_plot <- ggplot(
   Biomass, 
@@ -516,11 +532,14 @@ Biomass_plot <- ggplot(
   geom_errorbarh(aes(height=.2, colour = Species)) +
   theme_bw() +
   theme(legend.position = "none") +
-  theme(axis.title.y=element_blank())
+  theme(axis.title.y=element_blank()) +
+  geom_vline(xintercept = 0, linetype="dashed")
 Biomass_plot <- Biomass_plot + labs(title = "Biomass")
 
+ggsave("Biomass_plot.png")
+
 #Streams
-Streams <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Streams")
+Streams <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Distance to Streams")
 
 Streams_plot <- ggplot(
   Streams, 
@@ -531,8 +550,11 @@ Streams_plot <- ggplot(
   geom_errorbarh(aes(height=.2, colour = Species)) +
   theme_bw() +
   theme(legend.position = "none") +
-  theme(axis.title.y=element_blank())
+  theme(axis.title.y=element_blank())+
+  geom_vline(xintercept = 0, linetype="dashed")
 Streams_plot <- Streams_plot + labs(title = "Streams")
+
+ggsave("Streams_plot.png")
 
 ##NDVI
 NDVI <- CI %>% group_by(Species, Cov) %>% filter(Cov == "NDVI")
@@ -546,8 +568,11 @@ NDVI_plot <- ggplot(
   geom_errorbarh(aes(height=.2, colour = Species)) +
   theme_bw() +
   theme(legend.position = "none") +
-  theme(axis.title.y=element_blank())
+  theme(axis.title.y=element_blank())+
+  geom_vline(xintercept = 0, linetype="dashed")
 NDVI_plot <- NDVI_plot + labs(title = "NDVI")
+
+ggsave("NDVI_plot.png")
 
 ##Season
 Season <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Season")
@@ -561,11 +586,14 @@ Season_plot <- ggplot(
   geom_errorbarh(aes(height=.2, colour = Species)) +
   theme_bw() +
   theme(legend.position = "none") +
-  theme(axis.title.y=element_blank())
+  theme(axis.title.y=element_blank())+
+  geom_vline(xintercept = 0, linetype="dashed")
 Season_plot <- Season_plot + labs(title = "Season")
 
+ggsave("Season_plot.png")
+
 ##Natural Disturbance
-NatD <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Nat_Disturb")
+NatD <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Natural Disturbance")
 
 NatD_plot <- ggplot(
   NatD, 
@@ -576,8 +604,11 @@ NatD_plot <- ggplot(
   geom_errorbarh(aes(height=.2, colour = Species)) + 
   theme_bw() +
   theme(legend.position = "none") +
-  theme(axis.title.y=element_blank())
+  theme(axis.title.y=element_blank())+
+  geom_vline(xintercept = 0, linetype="dashed")
 NatD_plot <- NatD_plot + labs(title = "Disturbance")
+
+ggsave("Dist_plot.png")
 
 # Create plot with legend
 ggp1_legend <- ggplot(NatD, 
