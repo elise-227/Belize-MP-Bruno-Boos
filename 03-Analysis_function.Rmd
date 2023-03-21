@@ -89,7 +89,7 @@ dat <- dat[-c(1557,4439,4743,6066,13493,15059),]
 count <- summary(dat$Species)
 count
 list <- subset(count, count > 40)
-list
+list #15991 obs >40
 species_list <- names(list)
 species_list <- species_list[16:20]
 
@@ -128,6 +128,43 @@ for (species in species_list){
 
 ```
 
+
+```{r predict}
+setwd("E:/Model Outputs")
+#load("agouti_anthro_env.RData")
+load("agouti_null.RData")
+
+predict(
+  agouti_null,
+  "state", #submodel
+  newdata = NULL,
+  transform = TRUE, #back-transform the predictions to their original scale
+  level = 0.95)
+#Predicted: 0.5134855	SD: 0.02673705 2.5:0.4612061 97.5: 0.5659112 (this is the same as backtransforming intercept (exp(value)) / 1 + exp(value))
+
+##check black bear predict
+
+predict(
+  agouti_anthro_env,
+  "det", #submodel
+  newdata = NULL,
+  transform = TRUE,
+  re.form = NULL,
+  level = 0.95)
+
+nd <- data.frame(Logging = "Yes", NEAR_DIST_ROADS = mean(NEAR_DIST_ROADS), mean_bioma = mean(mean_bioma), mean_NDVI = mean(NDVI), Season = "Rainy", Nat_Dist = Y, site = NULL)
+predict(fit_top, submodel="state", newdata=nd)
+
+predict(
+  agouti_anthro_env,
+  "state", #submodel
+  newdata = NULL,
+  transform = TRUE,
+  re.form = NULL, #NULL to include random effects, NA to ignore
+  level = 0.95)
+#
+
+```
 
 
 ```{r examine}
