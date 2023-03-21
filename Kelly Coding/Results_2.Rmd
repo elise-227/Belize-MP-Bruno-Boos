@@ -610,3 +610,51 @@ dev.off()
 #labs = c("Logging","Roads", "Biomass", "Streams", "NDVI", "Season", "Disturbance")
 
 ```
+
+
+
+```{r formatting}
+
+setwd("C:/Users/Kelly/Documents/Belize-MP-Bruno-Boos")
+load("dat.RData")
+img <- dat
+load("camop.RData")
+dep <- camop
+
+#using lubridate to format dates
+library(lubridate)
+#covert date columns from character strings to date objects
+# start dates
+dep$start_date <- ymd(dep$Date.Placement)
+
+# end dates
+dep$end_date   <- ymd(dep$Last.record)
+
+#create column called days and calculate the interval for deployments
+dep$days <- interval(dep$start_date, dep$end_date)/ddays(1)
+#minimum of 1 days, mean of 44.75 days, max of 143 days
+
+sum(dep$days) #18349 total so obs not correct, figure out how to calculate total deployment days
+
+summary(dep$days) #check for 0s (usually means camera malfunction), NAs and negative numbers (entry issue) We don't detect any issues
+
+#Now we need to convert the img timestamp column
+img$date_time_obs <- ymd_hm(img$date_time_obs)
+
+range(img$date_time_obs) #check range 3/18/14 (04:28:00) - 11/28/20 (04:45:00)
+
+table(is.na(img$date_time_obs)) #check for NAs
+#6 NAs need to be looked at 1557, 4439, 4743, 6066, 13493, 15059
+img <- img[-c(1557,4439,4743,6066,13493,15059),]
+
+```
+
+```{r basic summary}
+
+# Count the number of camera locations
+paste(length(unique(dep$site)), "locations"); paste(length(unique(dep$deployment_id)), "deployments");paste(nrow(img), "image labels"); paste(nrow(img[img$is_blank == TRUE,]), "blanks")
+
+#410 locations, 16,734 observations
+
+```
+13 locations, 37 deployments, 984 image labels, 0 blanks
