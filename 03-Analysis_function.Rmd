@@ -43,20 +43,26 @@ covs_all <- read.csv("covs_fin.csv",stringsAsFactors = TRUE)
 ```{r final cleaning}
 #fix logging column
 covs_all$Logging <- ifelse(covs_all$Logging == c("No", "No Logging"), "No", "Yes")
+#fix mean bioma
+covs_all$mean_bioma <- replace_na(covs_all$mean_bioma, 117.817)
 
-#look at biomass vs logging
-plot <- ggplot(covs_all, aes(x = Logging, y = mean_bioma, color = Logging)) +
-  geom_line() +
-  geom_point()
+#fix lat long 
+covs_all[covs_all$site =="908F",]$Lat <- 17.66851300
+covs_all[covs_all$site =="908F",]$Long <- -89.01283000
 
-#look at logging & FL columns
-plot2 <- ggplot(covs_all, aes(x = Logging, y = Forest_Los, color = Logging)) +
-  geom_line() +
-  geom_point()
+# #look at biomass vs logging
+# plot <- ggplot(covs_all, aes(x = Logging, y = mean_bioma, color = Logging)) +
+#   geom_line() +
+#   geom_point()
+# 
+# #look at logging & FL columns
+# plot2 <- ggplot(covs_all, aes(x = Logging, y = Forest_Los, color = Logging)) +
+#   geom_line() +
+#   geom_point()
 
-xtabs(~Logging + FL, data = covs_all) #noteworthy - we have much more logging sites than no logging sites
-#92 sites no logging, 318 sites yes logging
-apply(table(covs_all[, c("Logging", "FL")]), 1, prop.table)
+# xtabs(~Logging + FL, data = covs_all) #noteworthy - we have much more logging sites than no logging sites
+# #92 sites no logging, 318 sites yes logging
+# apply(table(covs_all[, c("Logging", "FL")]), 1, prop.table)
 
 #make camera_operation frame
 cam_op <- cameraOperation(camop, stationCol = "site", setupCol = "Date.Placement", 
@@ -87,10 +93,12 @@ dat <- dat[-c(1557,4439,4743,6066,13493,15059),]
 #print(species_list, quote=F)
 
 count <- summary(dat$Species)
-count
+#count
 list <- subset(count, count > 40)
-list #15991 obs >40
+#list #15991 obs >40
 species_list <- names(list)
+species_list
+#specify range to run
 species_list <- species_list[1:20]
 
 #JUST GRAY FOX 
@@ -119,10 +127,11 @@ for (species in species_list){
     unmarkedFrame@siteCovs$NEAR_DIST_STRM <- scale(unmarkedFrame@siteCovs$NEAR_DIST_STRM)
     unmarkedFrame@siteCovs$mean_NDVI <- scale(unmarkedFrame@siteCovs$mean_NDVI)
   
+    #UNCOMMENT MODELS TO RUN, FOR NOW JUST DOING FULL MODEL
     
-    modlist[[paste0(species,"null")]] <-stan_occu(data = unmarkedFrame, formula = ~1 ~1, chains = 4, iter = 100000)
-    modlist[[paste0(species,"ANTHRO")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging + NEAR_DIST_ROAD + mean_bioma + (1|site), chains = 4, iter = 100000)
-    modlist[[paste0(species,"ENVR")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~ NEAR_DIST_STRM + mean_NDVI + Season + Nat_Dist + (1|site), chains = 4, iter = 100000)
+    # modlist[[paste0(species,"null")]] <-stan_occu(data = unmarkedFrame, formula = ~1 ~1, chains = 4, iter = 100000)
+    # modlist[[paste0(species,"ANTHRO")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging + NEAR_DIST_ROAD + mean_bioma + (1|site), chains = 4, iter = 100000)
+    # modlist[[paste0(species,"ENVR")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~ NEAR_DIST_STRM + mean_NDVI + Season + Nat_Dist + (1|site), chains = 4, iter = 100000)
     modlist[[paste0(species,"ANTHRO+ENVR")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging + NEAR_DIST_ROAD + mean_bioma + NEAR_DIST_STRM + mean_NDVI + Season + Nat_Dist + (1|site), chains = 4, iter = 100000)
 }
 
