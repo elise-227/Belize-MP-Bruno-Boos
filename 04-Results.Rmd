@@ -499,7 +499,7 @@ Logging_plot <- ggplot(
   geom_vline(xintercept = 0, linetype="dashed")
 Logging_plot <- Logging_plot + labs(title = "Logging")
 
-ggsave("Logging_plot_bw.png")
+#ggsave("Logging_plot_bw.png")
 
 
 #Distance to Roads
@@ -510,7 +510,7 @@ Roads_plot <- ggplot(
   aes(x = Effect.Size, y = Species, xmin = X2.5, xmax =X97.5)) +
   geom_point(fill = Dist_Roads$pass,
         shape = 21, 
-        size = 4) +
+        size = 3) +
   geom_errorbarh(aes(height=.2)) + #colour = Species for fill color
   theme_bw() +
   theme(legend.position = "none") +
@@ -518,7 +518,7 @@ Roads_plot <- ggplot(
   geom_vline(xintercept = 0, linetype="dashed")
 Roads_plot <- Roads_plot + labs(title = "Roads")
 
-ggsave("Roads_plot_bw.png")
+#ggsave("Roads_plot_bw.png")
 
 #Biomass
 Biomass <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Mean Biomass")
@@ -528,7 +528,7 @@ Biomass_plot <- ggplot(
   aes(x = Effect.Size, y = Species, xmin = X2.5, xmax =X97.5)) +
   geom_point(fill = Biomass$pass,
         shape = 21, 
-        size = 4) +
+        size = 3) +
   geom_errorbarh(aes(height=.2)) +
   theme_bw() +
   theme(legend.position = "none") +
@@ -536,7 +536,7 @@ Biomass_plot <- ggplot(
   geom_vline(xintercept = 0, linetype="dashed")
 Biomass_plot <- Biomass_plot + labs(title = "Biomass")
 
-ggsave("Biomass_plot_bw.png")
+#ggsave("Biomass_plot_bw.png")
 
 #Streams
 Streams <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Distance to Streams")
@@ -546,7 +546,7 @@ Streams_plot <- ggplot(
   aes(x = Effect.Size, y = Species, xmin = X2.5, xmax =X97.5)) +
   geom_point(fill = Streams$pass,
         shape = 21, 
-        size = 4) +
+        size = 3) +
   geom_errorbarh(aes(height=.2)) +
   theme_bw() +
   theme(legend.position = "none") +
@@ -554,7 +554,7 @@ Streams_plot <- ggplot(
   geom_vline(xintercept = 0, linetype="dashed")
 Streams_plot <- Streams_plot + labs(title = "Streams")
 
-ggsave("Streams_plot_bw.png")
+#ggsave("Streams_plot_bw.png")
 
 ##NDVI
 NDVI <- CI %>% group_by(Species, Cov) %>% filter(Cov == "NDVI")
@@ -564,7 +564,7 @@ NDVI_plot <- ggplot(
   aes(x = Effect.Size, y = Species, xmin = X2.5, xmax =X97.5)) +
   geom_point(fill = NDVI$pass,
         shape = 21, 
-        size = 4) +
+        size = 3) +
   geom_errorbarh(aes(height=.2)) +
   theme_bw() +
   theme(legend.position = "none") +
@@ -572,7 +572,7 @@ NDVI_plot <- ggplot(
   geom_vline(xintercept = 0, linetype="dashed")
 NDVI_plot <- NDVI_plot + labs(title = "NDVI")
 
-ggsave("NDVI_plot_bw.png")
+#ggsave("NDVI_plot_bw.png")
 
 ##Season
 Season <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Season")
@@ -582,7 +582,7 @@ Season_plot <- ggplot(
   aes(x = Effect.Size, y = Species, xmin = X2.5, xmax =X97.5)) +
   geom_point(fill = Season$pass,
         shape = 21, 
-        size = 4) +
+        size = 3) +
   geom_errorbarh(aes(height=.2)) +
   theme_bw() +
   theme(legend.position = "none") +
@@ -590,7 +590,7 @@ Season_plot <- ggplot(
   geom_vline(xintercept = 0, linetype="dashed")
 Season_plot <- Season_plot + labs(title = "Season")
 
-ggsave("Season_plot_bw.png")
+#ggsave("Season_plot_bw.png")
 
 ##Natural Disturbance
 NatD <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Natural Disturbance")
@@ -600,27 +600,28 @@ NatD_plot <- ggplot(
   aes(x = Effect.Size, y = Species, xmin = X2.5, xmax =X97.5)) +
   geom_point(fill = NatD$pass,
         shape = 21, 
-        size = 4) +
+        size = 3) +
   geom_errorbarh(aes(height=.2)) + 
   theme_bw() +
-  theme(legend.position = "none") +
+  theme(legend.position = "bottom") +
   theme(axis.title.y=element_blank())+
   geom_vline(xintercept = 0, linetype="dashed")
 NatD_plot <- NatD_plot + labs(title = "Disturbance")
 
-ggsave("Dist_plot_bw.png")
+#ggsave("Dist_plot_bw.png")
 
 # Create plot with legend
+require("gridExtra")
 ggp1_legend <- ggplot(NatD, 
   aes(x = Effect.Size, y = Species, xmin = X2.5, xmax =X97.5)) +
   geom_point(fill = NatD$pass,
         shape = 21, 
-        size = 4) +
-  geom_errorbarh(aes(height=.2)) +
+        size = 3) +
+  geom_errorbarh(aes(height=.2, colour = Species)) +
   theme_bw() +
   theme(axis.title.y=element_blank()) +
-  theme(legend.position = "bottom") #+
-  #geom_vline(xintercept = 0, linetype="dashed")
+  geom_vline(xintercept = 0, linetype="dashed") +
+  theme(legend.position = "bottom")
   
 # Create user-defined function, which extracts legends from ggplots
 extract_legend <- function(my_ggp) {
@@ -635,9 +636,9 @@ shared_legend <- extract_legend(ggp1_legend)
 
 ##grid of plots
 #install.packages("gridExtra")
-#tiff("draft_effectsplot2.tiff", units = "in", width = 9, height = 9, res = 300)
-p <- grid.arrange(arrangeGrob(Roads_plot, Biomass_plot, Streams_plot, NDVI_plot, Season_plot, NatD_plot, nrow = 4), shared_legend, ncol = 1, heights = c(10, 1))
-#dev.off()
+tiff("effectsplotbw.tiff", units = "in", width = 8, height = 9, res = 300)
+p <- grid.arrange(arrangeGrob(Roads_plot, Biomass_plot, Streams_plot, NDVI_plot, Season_plot, NatD_plot, nrow = 3), ncol = 1, heights = c(10, 1))
+dev.off()
 
 #labs = c("Logging","Roads", "Biomass", "Streams", "NDVI", "Season", "Disturbance")
 
