@@ -158,14 +158,10 @@ for (species in species_list){
 
 
 ```{r predict}
-setwd("D:/Model Outputs")
+setwd("E:/Model Outputs")
 load("agouti_anthro_env.RData")
 load("agouti_null.RData")
 
-
-##try this
-backTransform(fm2, 'state')
-####
 
 predict(
   agouti_null,
@@ -227,18 +223,25 @@ predict(
 
 
 ##occupancy probability
+##ask john about this method
 agouti_fit <- data.frame(x = predict(agouti_anthro_env, "state", newdata = NULL, transform = TRUE, re.form = NULL, level = 0.95))
 
 #summarize prediction data
 p_agouti <- agouti_fit %>% summarise(psi = mean(x.Predicted), se = sd(x.Predicted, na.rm = TRUE)/sqrt(n())) %>% as.data.frame()
 
+p_agouti$psi + p_agouti$se
+p_agouti$psi - p_agouti$se
+
 ##detection probability
-agouti_det <- data.frame(x = predict(agouti_anthro_env, "det", newdata = NULL, transform = TRUE, re.form = NULL, level = 0.95))
+#agouti_det <- data.frame(x = predict(agouti_anthro_env, "det", newdata = NULL, transform = TRUE, re.form = NULL, level = 0.95))
 
 #summarize prediction data
-det_agouti <- agouti_fit %>% summarise(psi = mean(x.Predicted), se = sd(x.Predicted, na.rm = TRUE)/sqrt(n())) %>% as.data.frame()
+#det_agouti <- agouti_fit %>% summarise(psi = mean(x.Predicted), se = sd(x.Predicted, na.rm = TRUE)/sqrt(n())) %>% as.data.frame()
 
-save(p_agouti, file = "p_agouti.Rda")
+#save(p_agouti, file = "p_agouti.Rda")
+
+#setwd("C:/Users/Kelly/Documents/Belize-MP-Bruno-Boos/Kelly Coding")
+#load("p_agouti.Rda")
 
 ```
 
