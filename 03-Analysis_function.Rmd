@@ -249,54 +249,47 @@ p_agouti$psi - p_agouti$se
 
 
 ```{r loop to predict}
-# #set directory to location of models
-# setwd("D:/Model Outputs")
-# 
-# ##load models
-# load("agouti_anthro_env.RData")
-# load("btapir_anthro_env.RData")
-# load("cguan_anthro_env.RData")
-# #load("Common_Opossum_anthro_env.RData")
-# load("GHDove_anthro_env.RData")
-# load("grayfox_anthro_env.RData")
-# load("greatcura_anthro_env.RData")
-# load("jaguar_anthro_env.RData")
-# load("ocellatedturkey_anthro_env.RData")
-# load("ocelot_anthro_env.RData")
-# load("Paca_anthro_env.RData")
-# load("puma_anthro_env.RData")
-# load("redbrockdeer_anthro_env.RData")
-# load("wnosedcoati_anthro_env.RData")
-# load("wtdeer_anthro_env.RData")
-# 
-# #models_list will be a list of anthro_env models for the species
-# #species with be the name of the model 
-# 
-# #intercept
-# modlist2 <- list()
-# modlist2 <- c(agouti_anthro_env, btapir_anthro_env, cguan_anthro_env, GHDove_anthro_env, grayfox_anthro_env, greatcura_anthro_env, jaguar_anthro_env, ocellatedturkey_anthro_env, ocelot_anthro_env, Paca_anthro_env, puma_anthro_env, redbrockdeer_anthro_env, wnosedcoati_anthro_env, wtdeer_anthro_env)
-# 
-# names(modlist2) <- c("Agouti", "Baird's tapir", "Crested Guan", "Gray-headed Dove", "Gray Fox", "Great Curassow", "Jaguar", "Ocellated Turkey", "Ocelot", "Paca", "Puma", "Red Brocket Deer", "White-nosed Coati", "White-tailed Deer")
-# species <- names(modlist2)
-# 
-# ##Intercept
-# 
-# df_int <- data.frame(species)
-# df_int$effect <- NA
-# df_int$`2.5` <- NA
-# df_int$`97.5` <- NA
-# df_int$variable <- "Intercept"
-# 
-# for (model in species){
-#   fit_top <- modlist2[[model]]
-#   sum <- summary(fit_top, "state")
-#   coef <- sum$mean[1]
-#   ci2 <- sum$`2.5%`[1]
-#   ci9 <-sum$`97.5%`[1]
-#   df_int[df_int$species == model,]$effect <- coef
-#   df_int[df_int$species == model,]$`2.5` <- ci2
-#   df_int[df_int$species == model,]$`97.5` <- ci9
-# }
+#set directory to location of models
+setwd("E:/Model Outputs")
+
+##load models
+load("agouti_anthro_env.RData")
+load("btapir_anthro_env.RData")
+load("cguan_anthro_env.RData")
+#load("Common_Opossum_anthro_env.RData")
+load("GHDove_anthro_env.RData")
+load("grayfox_anthro_env.RData")
+load("greatcura_anthro_env.RData")
+load("jaguar_anthro_env.RData")
+load("ocellatedturkey_anthro_env.RData")
+load("ocelot_anthro_env.RData")
+load("Paca_anthro_env.RData")
+load("puma_anthro_env.RData")
+load("redbrockdeer_anthro_env.RData")
+load("wnosedcoati_anthro_env.RData")
+load("wtdeer_anthro_env.RData")
+
+#models_list will be a list of anthro_env models for the species
+#species with be the name of the model
+
+#intercept
+predlist <- list()
+predlist <- c(agouti_anthro_env, btapir_anthro_env, cguan_anthro_env, GHDove_anthro_env, grayfox_anthro_env, greatcura_anthro_env, jaguar_anthro_env, ocellatedturkey_anthro_env, ocelot_anthro_env, Paca_anthro_env, puma_anthro_env, redbrockdeer_anthro_env, wnosedcoati_anthro_env, wtdeer_anthro_env)
+
+names(predlist) <- c("Agouti", "Baird's tapir", "Crested Guan", "Gray-headed Dove", "Gray Fox", "Great Curassow", "Jaguar", "Ocellated Turkey", "Ocelot", "Paca", "Puma", "Red Brocket Deer", "White-nosed Coati", "White-tailed Deer")
+species <- names(predlist)
+
+##Intercept
+
+df_psi <- data.frame(species)
+df_psi$mean <- NA
+df_int$se <- NA
+
+for (model in species){
+  fit_top <- predlist[[model]]
+  df_pred <- data.frame(x = predict(fit_top, "state", newdata = NULL, transform = TRUE, re.form = NULL, level = 0.95))
+  df_psi <- df_pred %>% summarise(psi = mean(x.Predicted), se = sd(x.Predicted, na.rm = TRUE)/sqrt(n())) %>% as.data.frame()
+}
 # 
 # save(df_int, file = "df_int.Rda")
 # write.csv(df_int, file = "df_int.csv")
