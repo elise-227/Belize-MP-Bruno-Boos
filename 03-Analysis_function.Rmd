@@ -231,16 +231,20 @@ agouti_fit <- data.frame(x = predict(agouti_anthro_env, "state", newdata = NULL,
 #summarize prediction data
 p_agouti <- agouti_fit %>% summarise(psi = mean(x.Predicted), se = sd(x.Predicted, na.rm = TRUE)/sqrt(n())) %>% as.data.frame()
 
-p_agouti$psi + p_agouti$se
-p_agouti$psi - p_agouti$se
+####
+Gdove_fit <- data.frame(x = predict(GHDove_anthro_env, "state", newdata = NULL, transform = TRUE, re.form = NULL, level = 0.95))
 
+#summarize prediction data
+p_Gdove <- Gdove_fit %>% summarise(psi = mean(x.Predicted), se = sd(x.Predicted, na.rm = TRUE)/sqrt(n())) %>% as.data.frame()
+
+save(p_Gdove, file = "p_Gdove.Rda")
 ##detection probability
 #agouti_det <- data.frame(x = predict(agouti_anthro_env, "det", newdata = NULL, transform = TRUE, re.form = NULL, level = 0.95))
 
 #summarize prediction data
 #det_agouti <- agouti_fit %>% summarise(psi = mean(x.Predicted), se = sd(x.Predicted, na.rm = TRUE)/sqrt(n())) %>% as.data.frame()
 
-#save(p_agouti, file = "p_agouti.Rda")
+
 
 #setwd("C:/Users/Kelly/Documents/Belize-MP-Bruno-Boos/Kelly Coding")
 #load("p_agouti.Rda")
@@ -257,6 +261,7 @@ load("agouti_anthro_env.RData")
 load("btapir_anthro_env.RData")
 load("cguan_anthro_env.RData")
 #load("Common_Opossum_anthro_env.RData")
+setwd("E:/Model Outputs")
 load("GHDove_anthro_env.RData")
 load("grayfox_anthro_env.RData")
 load("greatcura_anthro_env.RData")
@@ -274,21 +279,24 @@ load("wtdeer_anthro_env.RData")
 
 #intercept
 predlist <- list()
-predlist <- c(agouti_anthro_env, btapir_anthro_env, cguan_anthro_env, GHDove_anthro_env, grayfox_anthro_env, greatcura_anthro_env, jaguar_anthro_env, ocellatedturkey_anthro_env, ocelot_anthro_env, Paca_anthro_env, puma_anthro_env, redbrockdeer_anthro_env, wnosedcoati_anthro_env, wtdeer_anthro_env)
+predlist <- c(agouti_anthro_env, btapir_anthro_env, cguan_anthro_env)
+              
+              #, GHDove_anthro_env, grayfox_anthro_env, greatcura_anthro_env, jaguar_anthro_env, ocellatedturkey_anthro_env, ocelot_anthro_env, Paca_anthro_env, puma_anthro_env, redbrockdeer_anthro_env, wnosedcoati_anthro_env, wtdeer_anthro_env)
 
-names(predlist) <- c("Agouti", "Baird's tapir", "Crested Guan", "Gray-headed Dove", "Gray Fox", "Great Curassow", "Jaguar", "Ocellated Turkey", "Ocelot", "Paca", "Puma", "Red Brocket Deer", "White-nosed Coati", "White-tailed Deer")
+names(predlist) <- c("Agouti", "Baird's tapir", "Crested Guan")
+                     #, "Gray-headed Dove", "Gray Fox", "Great Curassow", "Jaguar", "Ocellated Turkey", "Ocelot", "Paca", "Puma", "Red Brocket Deer", "White-nosed Coati", "White-tailed Deer")
 species <- names(predlist)
 
 ##Intercept
 
 df_psi <- data.frame(species)
 df_psi$mean <- NA
-df_int$se <- NA
+df_psi$se <- NA
 
 for (model in species){
   fit_top <- predlist[[model]]
   df_pred <- data.frame(x = predict(fit_top, "state", newdata = NULL, transform = TRUE, re.form = NULL, level = 0.95))
-  df_psi <- df_pred %>% summarise(psi = mean(x.Predicted), se = sd(x.Predicted, na.rm = TRUE)/sqrt(n())) %>% as.data.frame()
+  df_psi <- df_pred %>% summarise(mean = mean(x.Predicted), se = sd(x.Predicted, na.rm = TRUE)/sqrt(n())) %>% as.data.frame()
 }
 # 
 # save(df_int, file = "df_int.Rda")
