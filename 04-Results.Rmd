@@ -245,33 +245,42 @@ plot_marginal(fit_top, "state") #plot marginal effects of each covariate with ot
 
 ```{r modlists}
 #set directory to location of models
-setwd("D:/Model Outputs")
+setwd("E:/Model Outputs/March 27")
 
 ##load models
-load("agouti_anthro_env.RData")
-load("btapir_anthro_env.RData")
-load("cguan_anthro_env.RData")
-#load("Common_Opossum_anthro_env.RData")
-load("GHDove_anthro_env.RData")
-load("grayfox_anthro_env.RData")
-load("greatcura_anthro_env.RData")
-load("jaguar_anthro_env.RData")
-load("ocellatedturkey_anthro_env.RData")
-load("ocelot_anthro_env.RData")
-load("Paca_anthro_env.RData")
-load("puma_anthro_env.RData")
-load("redbrockdeer_anthro_env.RData")
-load("wnosedcoati_anthro_env.RData")
-load("wtdeer_anthro_env.RData")
+# load("agouti_anthro_env.RData")
+# load("btapir_anthro_env.RData")
+# load("cguan_anthro_env.RData")
+# #load("Common_Opossum_anthro_env.RData")
+# load("GHDove_anthro_env.RData")
+# load("grayfox_anthro_env.RData")
+# load("greatcura_anthro_env.RData")
+# load("jaguar_anthro_env.RData")
+# load("ocellatedturkey_anthro_env.RData")
+# load("ocelot_anthro_env.RData")
+# load("Paca_anthro_env.RData")
+# load("puma_anthro_env.RData")
+# load("redbrockdeer_anthro_env.RData")
+# load("wnosedcoati_anthro_env.RData")
+# load("wtdeer_anthro_env.RData")
+load("collaredpeccary_anthro_env.RData")
+load("greattina_anthro_env.RData")
+load("margay_anthro_env.RData")
+load("ruddyqd_anthro_env.RData")
+load("stripedskunk_anthro_env.RData")
+load("tayra_anthro_env.RData")
+load("tigerheron_anthro_env.RData")
+load("wlippedpeccary_anthro_env.RData")
 
 #models_list will be a list of anthro_env models for the species
 #species with be the name of the model 
 
 #intercept
 modlist2 <- list()
-modlist2 <- c(agouti_anthro_env, btapir_anthro_env, cguan_anthro_env, GHDove_anthro_env, grayfox_anthro_env, greatcura_anthro_env, jaguar_anthro_env, ocellatedturkey_anthro_env, ocelot_anthro_env, Paca_anthro_env, puma_anthro_env, redbrockdeer_anthro_env, wnosedcoati_anthro_env, wtdeer_anthro_env)
+#modlist2 <- c(agouti_anthro_env, btapir_anthro_env, cguan_anthro_env, GHDove_anthro_env, grayfox_anthro_env, greatcura_anthro_env, jaguar_anthro_env, ocellatedturkey_anthro_env, ocelot_anthro_env, Paca_anthro_env, puma_anthro_env, redbrockdeer_anthro_env, wnosedcoati_anthro_env, wtdeer_anthro_env)
+modlist2 <- c(collaredpeccary_anthro_env, greattina_anthro_env, margay_anthro_env, ruddyqd_anthro_env, stripedskunk_anthro_env, tayra_anthro_env, tigerheron_anthro_env, wlippedpeccary_anthro_env)
 
-names(modlist2) <- c("Agouti", "Baird's tapir", "Crested Guan", "Gray-headed Dove", "Gray Fox", "Great Curassow", "Jaguar", "Ocellated Turkey", "Ocelot", "Paca", "Puma", "Red Brocket Deer", "White-nosed Coati", "White-tailed Deer")
+names(modlist2) <- c("Collared peccary", "Great tinamou", "Margay", "Ruddy quail-dove", "Striped hog-nosed skunk", "Tayra", "Bare-throated tiger heron", "White-lipped peccary")
 species <- names(modlist2)
 
 df_int <- data.frame(species)
@@ -291,8 +300,8 @@ for (model in species){
   df_int[df_int$species == model,]$`97.5` <- ci9
 }
 
-save(df_int, file = "df_int.Rda")
-write.csv(df_int, file = "df_int.csv")
+#save(df_int, file = "df_int.Rda")
+#write.csv(df_int, file = "df_int.csv")
 
 
 #logging
@@ -455,7 +464,9 @@ for (model in species){
   df_site[df_site$species == model,]$`97.5` <- ci9
 }
 
-CI <- rbind(df_int, df_log, df_roads, df_bio, df_streams, df_NDVI, df_season, df_dist, df_site)
+CI2 <- rbind(df_int, df_log, df_roads, df_bio, df_streams, df_NDVI, df_season, df_dist, df_site)
+
+save(CI2, file = "effects2.Rda")
 
 ```
 
@@ -639,8 +650,6 @@ shared_legend <- extract_legend(ggp1_legend)
 tiff("effectsplotbw.tiff", units = "in", width = 8, height = 9, res = 300)
 p <- grid.arrange(arrangeGrob(Roads_plot, Biomass_plot, Streams_plot, NDVI_plot, Season_plot, NatD_plot, nrow = 3), ncol = 1, heights = c(10, 1))
 dev.off()
-
-#labs = c("Logging","Roads", "Biomass", "Streams", "NDVI", "Season", "Disturbance")
 
 ```
 
