@@ -269,10 +269,10 @@ setwd("D:/Model Outputs")
 # load("wtdeer_anthro_env.RData")
 #Tapir
 
-#models_list will be a list of anthro_env models for the species
+#predlist will be a list of anthro_env models for the species
 #species with be the name of the model
 
-#intercept
+#prediction list
 predlist <- list()
 predlist <- c(agouti_anthro_env, btapir_anthro_env, cguan_anthro_env, GHDove_anthro_env, grayfox_anthro_env)
   #,greatcura_anthro_env, jaguar_anthro_env, ocellatedturkey_anthro_env, ocelot_anthro_env, Paca_anthro_env, puma_anthro_env, redbrockdeer_anthro_env, wnosedcoati_anthro_env, wtdeer_anthro_env)
@@ -282,7 +282,7 @@ names(predlist) <- c("Agouti", "Baird's tapir", "Crested Guan", "Gray-headed Dov
 
 species <- names(predlist)
 
-##Intercept
+##loop to predict occupancy
 
 df_psi <- data.frame(species)
 df_psi$mean <- NA
@@ -321,10 +321,10 @@ load("redbrockdeer_anthro_env.RData")
 load("wnosedcoati_anthro_env.RData")
 load("wtdeer_anthro_env.RData")
 
-#models_list will be a list of anthro_env models for the species
+#predlist will be a list of anthro_env models for the species
 #species with be the name of the model
 
-#intercept
+#prediction list
 predlist <- list()
 predlist <- c(agouti_anthro_env, btapir_anthro_env, cguan_anthro_env, GHDove_anthro_env, grayfox_anthro_env, greatcura_anthro_env, jaguar_anthro_env) #, ocellatedturkey_anthro_env, ocelot_anthro_env, Paca_anthro_env, puma_anthro_env, redbrockdeer_anthro_env, wnosedcoati_anthro_env, wtdeer_anthro_env)
 
@@ -332,7 +332,7 @@ names(predlist) <- c("Agouti", "Baird's tapir", "Crested Guan", "Gray-headed Dov
 
 species <- names(predlist)
 
-##Intercept
+##loop to predict detection
 
 df_p <- data.frame(species)
 df_p$mean <- NA
