@@ -242,6 +242,64 @@ plot_marginal(fit_top, "state") #plot marginal effects of each covariate with ot
 # predict(fit_top, submodel = "state", newdata = nd)
 ```
 
+##Baird's Tapir
+
+
+```{r tapir}
+#clean space
+rm(list=ls())
+
+#set directory to location of models
+setwd("E:/Model Outputs")
+#load models
+load("Tapir_anthro_envr.RData")
+
+#model summary
+Tapir_anthro_env
+```
+
+```{r model comparison }
+#First we combine the models into a fitList
+mods_tapir <- fitList(Tapir_null, Tapir_envr, Tapir_anthro, Tapir_anthro_env)
+#models are compared using leave-out-one cross-validation (LOO) via the loo package. Expected predictive accuracy (elpd) for each model is calculated & the model with the largest elpd performed best.
+
+round(modSel(mods_tapir), 3)
+#anthro_env model preformed best
+
+```
+
+```{r diagnostics and model fit}
+
+fit_top <- Tapir_anthro_env
+fit_top
+#looking at summary: all chains have adequately converged based on R hat values (ideally R > 1.05)
+#effective sample size n_eff looks okay (generally want n_eff > (100*chains so 400))
+
+#calculate residuals against covariate values
+#plot_posteriors(fit_top)
+plot_residuals(fit_top, "state") #if model fit is good you expect 95% of binned residuals to fall within shaded area
+
+#goodness-of-fit test (posterior predictive checks) M-B chi-square test via gof function. Proportion of draws where simulated stat is larger than actual stat should be near 0.5 if model fits well.
+#fit_top_gof <- gof(fit_top, quiet = TRUE) #don't have enough memory apparently?
+#plot(fit_top_gof)
+
+
+```
+
+```{r model inference}
+
+plot_marginal(fit_top, "state") #plot marginal effects of each covariate with others held at mean
+
+```
+
+```{r predictions}
+#head(predict(fit_top, submodel = "state")) #if you want predicted values for each site or obs
+
+#supply newdata as a data.frame to predict specific values
+# nd <- data.frame(Logging = "No", NEAR_DIST_ROAD = 2.75, mean_bioma = 0, site = "403C")
+# predict(fit_top, submodel = "state", newdata = nd)
+```
+
 
 ```{r modlists}
 #set directory to location of models
@@ -263,14 +321,14 @@ setwd("E:/Model Outputs/March 27")
 # load("redbrockdeer_anthro_env.RData")
 # load("wnosedcoati_anthro_env.RData")
 # load("wtdeer_anthro_env.RData")
-load("collaredpeccary_anthro_env.RData")
-load("greattina_anthro_env.RData")
-load("margay_anthro_env.RData")
-load("ruddyqd_anthro_env.RData")
-load("stripedskunk_anthro_env.RData")
-load("tayra_anthro_env.RData")
-load("tigerheron_anthro_env.RData")
-load("wlippedpeccary_anthro_env.RData")
+# load("collaredpeccary_anthro_env.RData")
+# load("greattina_anthro_env.RData")
+# load("margay_anthro_env.RData")
+# load("ruddyqd_anthro_env.RData")
+# load("stripedskunk_anthro_env.RData")
+# load("tayra_anthro_env.RData")
+# load("tigerheron_anthro_env.RData")
+# load("wlippedpeccary_anthro_env.RData")
 
 #models_list will be a list of anthro_env models for the species
 #species with be the name of the model 
@@ -283,6 +341,7 @@ modlist2 <- c(collaredpeccary_anthro_env, greattina_anthro_env, margay_anthro_en
 names(modlist2) <- c("Collared peccary", "Great tinamou", "Margay", "Ruddy quail-dove", "Striped hog-nosed skunk", "Tayra", "Bare-throated tiger heron", "White-lipped peccary")
 species <- names(modlist2)
 
+
 df_int <- data.frame(species)
 df_int$effect <- NA
 df_int$`2.5` <- NA
@@ -294,7 +353,7 @@ for (model in species){
   sum <- summary(fit_top, "state")
   coef <- sum$mean[1]
   ci2 <- sum$`2.5%`[1]
-  ci9 <-sum$`97.5%`[1]
+  ci9 <- sum$`97.5%`[1]
   df_int[df_int$species == model,]$effect <- coef
   df_int[df_int$species == model,]$`2.5` <- ci2
   df_int[df_int$species == model,]$`97.5` <- ci9
@@ -466,7 +525,7 @@ for (model in species){
 
 CI2 <- rbind(df_int, df_log, df_roads, df_bio, df_streams, df_NDVI, df_season, df_dist, df_site)
 
-save(CI2, file = "effects2.Rda")
+#save(CI2, file = "effects2.Rda")
 
 ```
 

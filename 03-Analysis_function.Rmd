@@ -252,11 +252,11 @@ save(p_Gdove, file = "p_Gdove.Rda")
 
 ##load models
 setwd("D:/Model Outputs")
-load("agouti_anthro_env.RData")
-load("btapir_anthro_env.RData")
-load("cguan_anthro_env.RData")
-#load("Common_Opossum_anthro_env.RData")
-load("GHDove_anthro_env.RData")
+# load("agouti_anthro_env.RData")
+# load("btapir_anthro_env.RData")
+# load("cguan_anthro_env.RData")
+# #load("Common_Opossum_anthro_env.RData")
+# load("GHDove_anthro_env.RData")
 # load("grayfox_anthro_env.RData")
 # load("greatcura_anthro_env.RData")
 # load("jaguar_anthro_env.RData")
@@ -267,6 +267,7 @@ load("GHDove_anthro_env.RData")
 # load("redbrockdeer_anthro_env.RData")
 # load("wnosedcoati_anthro_env.RData")
 # load("wtdeer_anthro_env.RData")
+#Tapir
 
 #models_list will be a list of anthro_env models for the species
 #species with be the name of the model
