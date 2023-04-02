@@ -294,8 +294,9 @@ for (model in species){
   df_psi[df_psi$species == model,] <- df_pred %>% summarise(mean = mean(x.Predicted), se = sd(x.Predicted, na.rm = TRUE)/sqrt(n())) %>% as.data.frame()
 }
 # 
-# save(df_int, file = "df_int.Rda")
-# write.csv(df_int, file = "df_int.csv")
+
+# save(df_psi, file = "df_psi.Rda")
+# write.csv(df_psi, file = "df_psi.csv")
 
 ```
 
