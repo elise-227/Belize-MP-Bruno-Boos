@@ -302,11 +302,11 @@ for (model in species){
 ```{r loop to predict det}
 #set directory to location of models
 #setwd("E:/Model Outputs")
+require(boot)
 
 ##load models
 setwd("D:/Model Outputs")
 load("agouti_anthro_env.RData")
-load("btapir_anthro_env.RData")
 load("cguan_anthro_env.RData")
 #load("Common_Opossum_anthro_env.RData")
 load("GHDove_anthro_env.RData")
@@ -320,32 +320,41 @@ load("puma_anthro_env.RData")
 load("redbrockdeer_anthro_env.RData")
 load("wnosedcoati_anthro_env.RData")
 load("wtdeer_anthro_env.RData")
+#tapir
+#others
 
-#predlist will be a list of anthro_env models for the species
+
+#modlist will be a list of anthro_env models for the species
 #species with be the name of the model
 
 #prediction list
-predlist <- list()
-predlist <- c(agouti_anthro_env, btapir_anthro_env, cguan_anthro_env, GHDove_anthro_env, grayfox_anthro_env, greatcura_anthro_env, jaguar_anthro_env) #, ocellatedturkey_anthro_env, ocelot_anthro_env, Paca_anthro_env, puma_anthro_env, redbrockdeer_anthro_env, wnosedcoati_anthro_env, wtdeer_anthro_env)
+modlist <- list()
+modlist <- c(agouti_anthro_env, cguan_anthro_env, GHDove_anthro_env, grayfox_anthro_env, greatcura_anthro_env, jaguar_anthro_env, ocellatedturkey_anthro_env, ocelot_anthro_env, Paca_anthro_env, puma_anthro_env, redbrockdeer_anthro_env, wnosedcoati_anthro_env, wtdeer_anthro_env)
 
-names(predlist) <- c("Agouti", "Baird's tapir", "Crested Guan", "Gray-headed Dove", "Gray Fox","Great Curassow", "Jaguar") #, "Ocellated Turkey", "Ocelot", "Paca", "Puma", "Red Brocket Deer", "White-nosed Coati", "White-tailed Deer")
+names(modlist) <- c("Agouti", "Crested Guan", "Gray-headed Dove", "Gray Fox","Great Curassow", "Jaguar", "Ocellated Turkey", "Ocelot", "Paca", "Puma", "Red Brocket Deer", "White-nosed Coati", "White-tailed Deer")
 
-species <- names(predlist)
+species <- names(modlist)
 
 ##loop to predict detection
 
 df_p <- data.frame(species)
 df_p$mean <- NA
-df_p$se <- NA
+df_p$sd <- NA
 
 for (model in species){
-  fit_top <- predlist[[model]]
-  df_pred <- data.frame(x = predict(fit_top, "det", newdata = NULL, transform = TRUE, re.form = NULL, level = 0.95))
-  df_p[df_p$species == model,] <- df_pred %>% summarise(mean = mean(x.Predicted), se = sd(x.Predicted, na.rm = TRUE)/sqrt(n())) %>% as.data.frame()
+  fit_top <- modlist[[model]]
+  sum <- summary(fit_top, "det")
+  meanodds <- exp(sum$mean)
+  meanprob <- meanodds / (1 + meanodds)
+  sdodds <- exp(sum$sd)
+  sdprob <- sdodds / (1 + sdodds)
+ df_p[df_p$species == model,]$mean <- meanprob
+  df_p[df_p$species == model,]$sd <- sdprob
 }
+
 # 
-# save(df_int, file = "df_int.Rda")
-# write.csv(df_int, file = "df_int.csv")
+save(df_p, file = "detprobs.Rda")
+write.csv(df_p, file = "detprobs.csv")
 
 ```
 
