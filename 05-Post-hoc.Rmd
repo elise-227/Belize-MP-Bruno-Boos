@@ -1,0 +1,61 @@
+---
+title: "ANCOVA"
+author: "Kelly Bruno"
+date: "2023-04-03"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## SET UP 
+
+```{r set up }
+#clean space
+rm(list=ls())
+
+#load packages
+#packages
+require(tidyverse)
+require(dplyr)
+require(ggpubr)
+require(rstatix)
+require(broom)
+require(datarium)
+```
+
+
+## Load Files
+
+```{r files}
+
+load("~/Belize-MP-Bruno-Boos/Effects/effects2.Rda")
+load("~/Belize-MP-Bruno-Boos/Effects/effects.Rda")
+load("~/Belize-MP-Bruno-Boos/Effects/effects_tapir.Rda")
+
+#remove old results
+CI <- subset(CI, species != "Baird's tapir")
+
+#bind effects
+effect_sizes <- rbind(CI, CI2, CI_tap)
+
+effect_sizes$species <- as.factor(effect_sizes$species)
+```
+
+#ANCOVA prep
+
+ANCOVA assumes: 
+- linearity between covariate and outcome variable
+- homogeneity of regression slopes formed by covariate and outcome variable
+- outcome variable approx. normally distributed
+- homoscedasticity of residuals variance
+- no significant outliers
+
+```{r ANCOVA prep}
+
+
+
+```
+
+
