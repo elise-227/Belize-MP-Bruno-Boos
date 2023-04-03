@@ -43,7 +43,7 @@ effect_sizes <- rbind(CI, CI2, CI_tap)
 effect_sizes$species <- as.factor(effect_sizes$species)
 ```
 
-#ANCOVA prep
+#2-way ANCOVA prep
 
 ANCOVA assumes: 
 - linearity between covariate and outcome variable
@@ -52,8 +52,24 @@ ANCOVA assumes:
 - homoscedasticity of residuals variance
 - no significant outliers
 
-```{r ANCOVA prep}
+```{r ANCOVA prep logging}
 
+effect_logging <- effect_sizes %>% filter(variable == "Logging")
+
+#create groups
+effect_logging <- effect_logging %>% mutate(class = ifelse(species %in% c("	
+Crested Guan", "Gray-headed Dove", "Great Curassow", "Ocellated Turkey", "Crested Guan"), "Aves", "Mammalia"))
+
+#linearity assumption: scatter plot between covariate (logging) and outcome variable (effect size) for each combination of groups
+
+
+#these should probably be logging yes or logging no with different effect sizes....need to rework
+ggscatter(
+  effect_logging, x = "variable", y = "effect",
+  facet.by  = c("class", "logging_YorN"), 
+  short.panel.labs = FALSE
+  )+
+  stat_smooth(method = "loess", span = 0.9)
 
 
 ```
