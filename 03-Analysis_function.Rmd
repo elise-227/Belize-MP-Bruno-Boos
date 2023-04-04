@@ -251,7 +251,7 @@ save(p_Gdove, file = "p_Gdove.Rda")
 #setwd("E:/Model Outputs")
 
 ##load models
-setwd("D:/Model Outputs")
+setwd("D:/Model Outputs/April 3")
 # load("agouti_anthro_env.RData")
 # load("btapir_anthro_env.RData")
 # load("cguan_anthro_env.RData")
@@ -267,18 +267,20 @@ setwd("D:/Model Outputs")
 # load("redbrockdeer_anthro_env.RData")
 # load("wnosedcoati_anthro_env.RData")
 # load("wtdeer_anthro_env.RData")
-#Tapir
+load("BfourOpossum_anthro_env.RData")
+load("CommonOpossum_anthro_env.RData")
+load("NbArmadillo_anthro_env.RData")
+load("RnWoodrail_anthro_env.RData")
+load("Wthrush_anthro_env.RData")
 
 #predlist will be a list of anthro_env models for the species
 #species with be the name of the model
 
 #prediction list
 predlist <- list()
-predlist <- c(agouti_anthro_env, btapir_anthro_env, cguan_anthro_env, GHDove_anthro_env, grayfox_anthro_env)
-  #,greatcura_anthro_env, jaguar_anthro_env, ocellatedturkey_anthro_env, ocelot_anthro_env, Paca_anthro_env, puma_anthro_env, redbrockdeer_anthro_env, wnosedcoati_anthro_env, wtdeer_anthro_env)
+predlist <- c(BfourOpossum_anthro_env, CommonOpossum_anthro_env, NbArmadillo_anthro_env, RnWoodrail_anthro_env, Wthrush_anthro_env) #agouti_anthro_env, btapir_anthro_env, cguan_anthro_env, GHDove_anthro_env, grayfox_anthro_env, greatcura_anthro_env, jaguar_anthro_env, ocellatedturkey_anthro_env, ocelot_anthro_env, Paca_anthro_env, puma_anthro_env, redbrockdeer_anthro_env, wnosedcoati_anthro_env, wtdeer_anthro_env)
 
-names(predlist) <- c("Agouti", "Baird's tapir", "Crested Guan", "Gray-headed Dove", "Gray Fox") 
-  #,"Great Curassow", "Jaguar", "Ocellated Turkey", "Ocelot", "Paca", "Puma", "Red Brocket Deer", "White-nosed Coati", "White-tailed Deer")
+names(predlist) <- c("Brown four-eyed opossum", "Common opossum", "Nine-banded armadillo", "Russet-naped woodrail", "Wood thrush") #"Agouti", "Baird's tapir", "Crested Guan", "Gray-headed Dove", "Gray Fox","Great Curassow", "Jaguar", "Ocellated Turkey", "Ocelot", "Paca", "Puma", "Red Brocket Deer", "White-nosed Coati", "White-tailed Deer")
 
 species <- names(predlist)
 
@@ -294,17 +296,25 @@ for (model in species){
   df_psi[df_psi$species == model,] <- df_pred %>% summarise(mean = mean(x.Predicted), se = sd(x.Predicted, na.rm = TRUE)/sqrt(n())) %>% as.data.frame()
 }
 
-p_cguan$Speciesname <- "Crested guan"
-p_fox$Speciesname <- "Gray fox"
-p_Gdove$Speciesname <- "Gray-headed dove"
-p_tapir$Speciesname <- "Baird's tapir"
+df_psi$Speciesname <- c("Brown four-eyed opossum", "Common opossum", "Nine-banded armadillo", "Russet-naped woodrail", "Wood thrush")
+colnames(df_psi) <- c("psi", "se", "NA", "Speciesname")
+df_psi <- df_psi[,-3]
+df_psi3 <- df_psi
 
-df_psi1 <- select(df_psi, "psi" = species,"se" = mean, Speciesname = "Speciesname")
+setwd("D:/Model Outputs/April 3")
+save(df_psi3, file = "df_psi3.Rda")
 
-df_psi2 <- rbind(df_psi1, p_cguan, p_fox, p_Gdove, p_tapir)
-
-save(df_psi2, file = "df_psi.Rda")
-write.csv(df_psi2, file = "df_psi.csv")
+# p_cguan$Speciesname <- "Crested guan"
+# p_fox$Speciesname <- "Gray fox"
+# p_Gdove$Speciesname <- "Gray-headed dove"
+# p_tapir$Speciesname <- "Baird's tapir"
+# 
+# df_psi1 <- select(df_psi, "psi" = species,"se" = mean, Speciesname = "Speciesname")
+# 
+# df_psi2 <- rbind(df_psi1, p_cguan, p_fox, p_Gdove, p_tapir)
+# 
+# save(df_psi2, file = "df_psi.Rda")
+# write.csv(df_psi2, file = "df_psi.csv")
 
 ```
 
@@ -314,21 +324,21 @@ write.csv(df_psi2, file = "df_psi.csv")
 require(boot)
 
 ##load models
-setwd("D:/Model Outputs")
-load("agouti_anthro_env.RData")
-load("cguan_anthro_env.RData")
-#load("Common_Opossum_anthro_env.RData")
-load("GHDove_anthro_env.RData")
-load("grayfox_anthro_env.RData")
-load("greatcura_anthro_env.RData")
-load("jaguar_anthro_env.RData")
-load("ocellatedturkey_anthro_env.RData")
-load("ocelot_anthro_env.RData")
-load("Paca_anthro_env.RData")
-load("puma_anthro_env.RData")
-load("redbrockdeer_anthro_env.RData")
-load("wnosedcoati_anthro_env.RData")
-load("wtdeer_anthro_env.RData")
+# setwd("D:/Model Outputs")
+# load("agouti_anthro_env.RData")
+# load("cguan_anthro_env.RData")
+# #load("Common_Opossum_anthro_env.RData")
+# load("GHDove_anthro_env.RData")
+# load("grayfox_anthro_env.RData")
+# load("greatcura_anthro_env.RData")
+# load("jaguar_anthro_env.RData")
+# load("ocellatedturkey_anthro_env.RData")
+# load("ocelot_anthro_env.RData")
+# load("Paca_anthro_env.RData")
+# load("puma_anthro_env.RData")
+# load("redbrockdeer_anthro_env.RData")
+# load("wnosedcoati_anthro_env.RData")
+# load("wtdeer_anthro_env.RData")
 #tapir
 #others
 

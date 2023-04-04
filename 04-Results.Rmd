@@ -336,9 +336,11 @@ setwd("E:/Model Outputs/March 27")
 #intercept
 modlist2 <- list()
 #modlist2 <- c(agouti_anthro_env, btapir_anthro_env, cguan_anthro_env, GHDove_anthro_env, grayfox_anthro_env, greatcura_anthro_env, jaguar_anthro_env, ocellatedturkey_anthro_env, ocelot_anthro_env, Paca_anthro_env, puma_anthro_env, redbrockdeer_anthro_env, wnosedcoati_anthro_env, wtdeer_anthro_env)
-modlist2 <- c(collaredpeccary_anthro_env, greattina_anthro_env, margay_anthro_env, ruddyqd_anthro_env, stripedskunk_anthro_env, tayra_anthro_env, tigerheron_anthro_env, wlippedpeccary_anthro_env)
+modlist2 <- c(BfourOpossum_anthro_env, CommonOpossum_anthro_env, NbArmadillo_anthro_env, RnWoodrail_anthro_env, Wthrush_anthro_env)
+#c(collaredpeccary_anthro_env, greattina_anthro_env, margay_anthro_env, ruddyqd_anthro_env, stripedskunk_anthro_env, tayra_anthro_env, tigerheron_anthro_env, wlippedpeccary_anthro_env)
 
-names(modlist2) <- c("Collared peccary", "Great tinamou", "Margay", "Ruddy quail-dove", "Striped hog-nosed skunk", "Tayra", "Bare-throated tiger heron", "White-lipped peccary")
+names(modlist2) <- c("Brown four-eyed opossum", "Common opossum", "Nine-banded armadillo", "Russet-naped woodrail", "Wood thrush")
+  #c("Collared peccary", "Great tinamou", "Margay", "Ruddy quail-dove", "Striped hog-nosed skunk", "Tayra", "Bare-throated tiger heron", "White-lipped peccary")
 species <- names(modlist2)
 
 
@@ -523,9 +525,9 @@ for (model in species){
   df_site[df_site$species == model,]$`97.5` <- ci9
 }
 
-CI2 <- rbind(df_int, df_log, df_roads, df_bio, df_streams, df_NDVI, df_season, df_dist, df_site)
+CI3 <- rbind(df_int, df_log, df_roads, df_bio, df_streams, df_NDVI, df_season, df_dist, df_site)
 
-#save(CI2, file = "effects2.Rda")
+save(CI3, file = "effects3.Rda")
 
 ```
 
