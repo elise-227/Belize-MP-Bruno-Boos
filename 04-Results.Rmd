@@ -555,16 +555,29 @@ CI3$species <- as.factor(CI3$species)
 CI_tap$species <- as.factor(CI_tap$species)
 
 CI <- rbind(CI, CI2, CI3, CI_tap)
+CI$species <- recode_factor(CI$species, "Great Curassow" = "Great curassow*",
+                            "Jaguar" = "Jaguar*",
+                            "Ocellated Turkey" = "Ocellated turkey*",
+                            "Ocelot" = "Ocelot*",
+                            "Puma" = "Puma*",
+                            "Red Brocket Deer" = "Red brocket*",
+                            "Margay" = "Margay*",
+                            "Baird's Tapir" = "Baird's tapir*",
+                            "Russet-naped woodrail" = "Russet-naped wood rail",
+                            "Crested Guan" = "Crested guan",
+                            "Gray-headed Dove" = "Gray-headed dove",
+                            "Gray Fox" = "Gray fox",
+                            "White-nosed Coati" = "White-nosed coati",
+                            "White-tailed Deer" = "White-tailed deer")
 
 colnames(CI)[1] <- "Species"
-colnames(CI)[2] <- "Effect.Size"
+colnames(CI)[2] <- "Effect Size"
 colnames(CI)[3] <- "X2.5"
 colnames(CI)[4] <- "X97.5"
 colnames(CI)[5] <- "Cov"
 
 CI$Species <- as.factor(CI$Species)
 CI$Cov <- as.factor(CI$Cov)
-
 
 
 #does the value cross zero?
@@ -575,9 +588,11 @@ CI$pass <- as.factor(CI$pass)
 #Logging
 Logging <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Logging")
 
+Logging$Species <- factor(Logging$Species, levels = c("Russet-naped wood rail","Red brocket*","White-tailed deer","White-lipped peccary","Collared peccary","Gray fox","Jaguar*","Ocelot*", "Puma*","Margay*","Striped hog-nosed skunk","Tayra","White-nosed coati","Nine-banded armadillo","Gray-headed dove","Ruddy quail-dove","Common opossum","Brown four-eyed opossum","Crested guan", "Great curassow*", "Ocellated turkey*","Wood thrush","Bare-throated tiger heron","Baird's tapir*","Paca","Agouti","Great tinamou"))
+
 Logging_plot <- ggplot(
   Logging, 
-  aes(x = Effect.Size, y = Species, xmin = X2.5, xmax =X97.5)) +
+  aes(x = `Effect Size`, y = Species, xmin = X2.5, xmax =X97.5)) +
   geom_point(fill = Logging$pass,
         shape = 21, 
         size = 4) +
@@ -596,7 +611,7 @@ Dist_Roads <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Distance to Roads
 
 Roads_plot <- ggplot(
   Dist_Roads, 
-  aes(x = Effect.Size, y = Species, xmin = X2.5, xmax =X97.5)) +
+  aes(x = `Effect Size`, y = Species, xmin = X2.5, xmax =X97.5)) +
   geom_point(fill = Dist_Roads$pass,
         shape = 21, 
         size = 3) +
@@ -614,7 +629,7 @@ Biomass <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Mean Biomass")
 
 Biomass_plot <- ggplot(
   Biomass, 
-  aes(x = Effect.Size, y = Species, xmin = X2.5, xmax =X97.5)) +
+  aes(x = `Effect Size`, y = Species, xmin = X2.5, xmax =X97.5)) +
   geom_point(fill = Biomass$pass,
         shape = 21, 
         size = 3) +
@@ -632,7 +647,7 @@ Streams <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Distance to Streams"
 
 Streams_plot <- ggplot(
   Streams, 
-  aes(x = Effect.Size, y = Species, xmin = X2.5, xmax =X97.5)) +
+  aes(x = `Effect Size`, y = Species, xmin = X2.5, xmax =X97.5)) +
   geom_point(fill = Streams$pass,
         shape = 21, 
         size = 3) +
@@ -650,7 +665,7 @@ NDVI <- CI %>% group_by(Species, Cov) %>% filter(Cov == "NDVI")
 
 NDVI_plot <- ggplot(
   NDVI, 
-  aes(x = Effect.Size, y = Species, xmin = X2.5, xmax =X97.5)) +
+  aes(x = `Effect Size`, y = Species, xmin = X2.5, xmax =X97.5)) +
   geom_point(fill = NDVI$pass,
         shape = 21, 
         size = 3) +
@@ -668,7 +683,7 @@ Season <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Season")
 
 Season_plot <- ggplot(
   Season, 
-  aes(x = Effect.Size, y = Species, xmin = X2.5, xmax =X97.5)) +
+  aes(x = `Effect Size`, y = Species, xmin = X2.5, xmax =X97.5)) +
   geom_point(fill = Season$pass,
         shape = 21, 
         size = 3) +
@@ -686,7 +701,7 @@ NatD <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Natural Disturbance")
 
 NatD_plot <- ggplot(
   NatD, 
-  aes(x = Effect.Size, y = Species, xmin = X2.5, xmax =X97.5)) +
+  aes(x = `Effect Size`, y = Species, xmin = X2.5, xmax =X97.5)) +
   geom_point(fill = NatD$pass,
         shape = 21, 
         size = 3) +
@@ -695,14 +710,14 @@ NatD_plot <- ggplot(
   theme(legend.position = "bottom") +
   theme(axis.title.y=element_blank())+
   geom_vline(xintercept = 0, linetype="dashed")
-NatD_plot <- NatD_plot + labs(title = "Disturbance")
+NatD_plot <- NatD_plot + labs(title = "Natural Disturbance")
 
 #ggsave("Dist_plot_bw.png")
 
 # Create plot with legend
 require("gridExtra")
 ggp1_legend <- ggplot(NatD, 
-  aes(x = Effect.Size, y = Species, xmin = X2.5, xmax =X97.5)) +
+  aes(x = `Effect Size`, y = Species, xmin = X2.5, xmax =X97.5)) +
   geom_point(fill = NatD$pass,
         shape = 21, 
         size = 3) +
@@ -725,8 +740,8 @@ shared_legend <- extract_legend(ggp1_legend)
 
 ##grid of plots
 #install.packages("gridExtra")
-tiff("effectsplotbw3.tiff", units = "in", width = 8, height = 12, res = 300)
-p <- grid.arrange(arrangeGrob(Roads_plot, Biomass_plot, Streams_plot, NDVI_plot, Season_plot, NatD_plot, nrow = 3), ncol = 1, heights = c(10, 1))
+tiff("effectsplotbw3.tiff", units = "in", width = 10, height = 14, res = 300)
+p <- grid.arrange(arrangeGrob(Roads_plot, Biomass_plot, Streams_plot, NDVI_plot, Season_plot, NatD_plot, nrow = 3), ncol = 1, heights = c(14, 1))
 dev.off()
 
 ```
