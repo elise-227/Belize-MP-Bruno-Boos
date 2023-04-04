@@ -538,11 +538,23 @@ setwd("C:/Users/Kelly/Documents/Belize-MP-Bruno-Boos/Effects")
 #effects plot
 load("effects.Rda")
 load("effects2.Rda")
+load("effects3.Rda")
+load("effects_tapir.Rda")
+
+#remove old tapir data
+CI <- subset(CI, species != "Baird's tapir")
 
 CI$variable <- as.factor(CI$variable)
 CI2$variable <- as.factor(CI2$variable)
+CI3$variable <- as.factor(CI3$variable)
+CI_tap$variable <- as.factor(CI_tap$variable)
 
-CI <- rbind(CI, CI2)
+CI$species <- as.factor(CI$species)
+CI2$species <- as.factor(CI2$species)
+CI3$species <- as.factor(CI3$species)
+CI_tap$species <- as.factor(CI_tap$species)
+
+CI <- rbind(CI, CI2, CI3, CI_tap)
 
 colnames(CI)[1] <- "Species"
 colnames(CI)[2] <- "Effect.Size"
@@ -576,7 +588,7 @@ Logging_plot <- ggplot(
   theme_bw()
 Logging_plot <- Logging_plot + labs(title = "Logging")
 
-ggsave("Logging_plot_bw2.png", units = "in", width = 8, height = 9)
+ggsave("Logging_plot_bw3.png", units = "in", width = 8, height = 9)
 
 
 #Distance to Roads
@@ -713,7 +725,7 @@ shared_legend <- extract_legend(ggp1_legend)
 
 ##grid of plots
 #install.packages("gridExtra")
-tiff("effectsplotbw2.tiff", units = "in", width = 8, height = 12, res = 300)
+tiff("effectsplotbw3.tiff", units = "in", width = 8, height = 12, res = 300)
 p <- grid.arrange(arrangeGrob(Roads_plot, Biomass_plot, Streams_plot, NDVI_plot, Season_plot, NatD_plot, nrow = 3), ncol = 1, heights = c(10, 1))
 dev.off()
 
