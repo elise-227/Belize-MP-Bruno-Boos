@@ -765,8 +765,11 @@ psi$Speciesname <- as.factor(psi$Speciesname)
 
 #p
 load("~/Belize-MP-Bruno-Boos/detprobs.Rda")
+load("~/Belize-MP-Bruno-Boos/detprobs2.Rda")
 
-x <- det_probs
+p <- rbind(df_p, df_p2)
+
+x <- p$mean
 y <- psi$psi
 
 cor.test(x, y, method = "pearson")
