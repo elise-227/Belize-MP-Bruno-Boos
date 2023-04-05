@@ -320,7 +320,7 @@ save(df_psi3, file = "df_psi3.Rda")
 
 ```{r loop to predict det}
 #set directory to location of models
-#setwd("E:/Model Outputs")
+setwd("E:/Model Outputs/April 3")
 require(boot)
 
 ##load models
@@ -339,8 +339,12 @@ require(boot)
 # load("redbrockdeer_anthro_env.RData")
 # load("wnosedcoati_anthro_env.RData")
 # load("wtdeer_anthro_env.RData")
-#tapir
-#others
+load("BfourOpossum_anthro_env.RData")
+load("CommonOpossum_anthro_env.RData")
+load("NbArmadillo_anthro_env.RData")
+load("RnWoodrail_anthro_env.RData")
+load("Wthrush_anthro_env.RData")
+load("Tapir_anthro_envr.RData")
 
 
 #modlist will be a list of anthro_env models for the species
@@ -348,9 +352,11 @@ require(boot)
 
 #prediction list
 modlist <- list()
-modlist <- c(agouti_anthro_env, cguan_anthro_env, GHDove_anthro_env, grayfox_anthro_env, greatcura_anthro_env, jaguar_anthro_env, ocellatedturkey_anthro_env, ocelot_anthro_env, Paca_anthro_env, puma_anthro_env, redbrockdeer_anthro_env, wnosedcoati_anthro_env, wtdeer_anthro_env)
+modlist <- c(BfourOpossum_anthro_env, CommonOpossum_anthro_env, NbArmadillo_anthro_env, RnWoodrail_anthro_env, Wthrush_anthro_env)
+  #c(agouti_anthro_env, cguan_anthro_env, GHDove_anthro_env, grayfox_anthro_env, greatcura_anthro_env, jaguar_anthro_env, ocellatedturkey_anthro_env, ocelot_anthro_env, Paca_anthro_env, puma_anthro_env, redbrockdeer_anthro_env, wnosedcoati_anthro_env, wtdeer_anthro_env)
 
-names(modlist) <- c("Agouti", "Crested Guan", "Gray-headed Dove", "Gray Fox","Great Curassow", "Jaguar", "Ocellated Turkey", "Ocelot", "Paca", "Puma", "Red Brocket Deer", "White-nosed Coati", "White-tailed Deer")
+names(modlist) <- c("Brown four-eyed opossum", "Common opossum", "Nine-banded armadillo", "Russet-naped woodrail", "Wood thrush")
+  #c("Agouti", "Crested Guan", "Gray-headed Dove", "Gray Fox","Great Curassow", "Jaguar", "Ocellated Turkey", "Ocelot", "Paca", "Puma", "Red Brocket Deer", "White-nosed Coati", "White-tailed Deer")
 
 species <- names(modlist)
 
@@ -371,9 +377,10 @@ for (model in species){
   df_p[df_p$species == model,]$sd <- sdprob
 }
 
-# 
-save(df_p, file = "detprobs.Rda")
-write.csv(df_p, file = "detprobs.csv")
+df_p2 <- df_p
+
+save(df_p2, file = "detprobs2.Rda")
+write.csv(df_p2, file = "detprobs2.csv")
 
 ```
 
