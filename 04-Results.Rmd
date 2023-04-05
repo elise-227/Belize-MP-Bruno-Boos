@@ -740,13 +740,37 @@ shared_legend <- extract_legend(ggp1_legend)
 
 ##grid of plots
 #install.packages("gridExtra")
-tiff("effectsplotbw3.tiff", units = "in", width = 10, height = 14, res = 300)
+tiff("effectsplotbw_compressed.tiff", units = "in", width = 10, height = 14, res = 200)
 p <- grid.arrange(arrangeGrob(Roads_plot, Biomass_plot, Streams_plot, NDVI_plot, Season_plot, NatD_plot, nrow = 3), ncol = 1, heights = c(14, 1))
 dev.off()
 
 ```
 
 
+```{r correlation test}
+#do this!!!
+load("~/Belize-MP-Bruno-Boos/df_psi3.Rda")
+load("~/Belize-MP-Bruno-Boos/df_psi_secondspecies.Rda")
+load("~/Belize-MP-Bruno-Boos/df_psi.Rda")
+
+colnames(df_psi)[1] <- "psi"
+colnames(df_psi)[2] <- "se"
+
+df_psi <- df_psi[,-3]
+
+df_psi4 <- data.frame(psi = c(0.51,	0.29, 0.80, 0.52, 0.67,	0.70, 0.37, 0.71, 0.32, 0.44, 0.69), se = c(0.015, 0.012, 0.008, 0.013, 0.011, 0.011, 0.013, 0.009, 0.009, 0.011, 0.01), Speciesname = c("Agouti", "Gray-headed dove", "Great curassow", "Jaguar", "Ocellated turkey", "Ocelot", "Paca", "Puma", "Red brocket", "White-nosed coati", "White-tailed deer"))
+
+psi <- rbind(df_psi, df_psi2, df_psi3, df_psi4)
+psi$Speciesname <- as.factor(psi$Speciesname)
+
+#p
+load("~/Belize-MP-Bruno-Boos/detprobs.Rda")
+
+x <- det_probs
+y <- psi$psi
+
+cor.test(x, y, method = "pearson")
+```
 
 ```{r formatting}
 
