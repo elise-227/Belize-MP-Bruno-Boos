@@ -748,7 +748,7 @@ dev.off()
 
 
 ```{r correlation test}
-#do this!!!
+
 load("~/Belize-MP-Bruno-Boos/df_psi3.Rda")
 load("~/Belize-MP-Bruno-Boos/df_psi_secondspecies.Rda")
 load("~/Belize-MP-Bruno-Boos/df_psi.Rda")
@@ -766,6 +766,8 @@ psi$Speciesname <- as.factor(psi$Speciesname)
 #p
 load("~/Belize-MP-Bruno-Boos/detprobs.Rda")
 load("~/Belize-MP-Bruno-Boos/detprobs2.Rda")
+
+#need to run "Bare-throated tiger heron", "Collared Peccary", "Great tinamou", "Margay", "Ruddy quail-dove" "Striped hog-nosed skunk", "Tayra", "White-lipped Peccary"
 
 p <- rbind(df_p, df_p2)
 
