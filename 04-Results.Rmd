@@ -750,31 +750,46 @@ dev.off()
 ```{r correlation test}
 
 load("~/Belize-MP-Bruno-Boos/df_psi3.Rda")
-load("~/Belize-MP-Bruno-Boos/df_psi_secondspecies.Rda")
+#load("~/Belize-MP-Bruno-Boos/df_psi_secondspecies.Rda")
 load("~/Belize-MP-Bruno-Boos/df_psi.Rda")
 
-colnames(df_psi)[1] <- "psi"
-colnames(df_psi)[2] <- "se"
+# colnames(df_psi)[1] <- "psi"
+# colnames(df_psi)[2] <- "se"
 
-df_psi <- df_psi[,-3]
+df_psi4 <- data.frame(psi = c(0.51, 0.80, 0.52, 0.67,	0.70, 0.37, 0.71, 0.32, 0.44, 0.69), se = c(0.015, 0.008, 0.013, 0.011, 0.011, 0.013, 0.009, 0.009, 0.011, 0.01), Speciesname = c("Agouti", "Great curassow", "Jaguar", "Ocellated turkey", "Ocelot", "Paca", "Puma", "Red brocket", "White-nosed coati", "White-tailed deer"))
 
-df_psi4 <- data.frame(psi = c(0.51,	0.29, 0.80, 0.52, 0.67,	0.70, 0.37, 0.71, 0.32, 0.44, 0.69), se = c(0.015, 0.012, 0.008, 0.013, 0.011, 0.011, 0.013, 0.009, 0.009, 0.011, 0.01), Speciesname = c("Agouti", "Gray-headed dove", "Great curassow", "Jaguar", "Ocellated turkey", "Ocelot", "Paca", "Puma", "Red brocket", "White-nosed coati", "White-tailed deer"))
-
-psi <- rbind(df_psi, df_psi2, df_psi3, df_psi4)
+psi <- rbind(df_psi2, df_psi3, df_psi4)
 psi$Speciesname <- as.factor(psi$Speciesname)
 
 #p
 load("~/Belize-MP-Bruno-Boos/detprobs.Rda")
 load("~/Belize-MP-Bruno-Boos/detprobs2.Rda")
+load("~/Belize-MP-Bruno-Boos/detprobs3.Rda")
 
-#need to run "Bare-throated tiger heron", "Collared Peccary", "Great tinamou", "Margay", "Ruddy quail-dove" "Striped hog-nosed skunk", "Tayra", "White-lipped Peccary"
+p <- rbind(df_p, df_p2, df_p3)
+p$species <- as.factor(p$species)
 
-p <- rbind(df_p, df_p2)
+psi$psi <- as.numeric(psi$psi)
 
-x <- p$mean
-y <- psi$psi
+p$species <- recode_factor(p$species, "Gray-headed Dove" = "Gray-headed dove",
+                           "Gray Fox" = "Gray fox",
+                           "Great Curassow" = "Great curassow",
+                           "Ocellated Turkey" = "Ocellated turkey",
+                           "Red Brocket Deer" = "Red brocket",
+                           "White-nosed Coati" = "White-nosed coati",
+                           "White-tailed Deer" = "White-tailed deer")
 
-cor.test(x, y, method = "pearson")
+df <- left_join(p, psi, by = c("species" = "Speciesname"))
+
+x <- df$mean
+y <- df$psi
+
+cor_results <- cor.test(x, y, method = "pearson")
+
+save(p, file = "detection_probs.Rda")
+save(psi, file = "occupancy_probs.Rda")
+
+#close (0.078), but fail to reject null - true correlation is equal to 0
 ```
 
 ```{r formatting}
