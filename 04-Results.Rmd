@@ -599,11 +599,11 @@ Logging_plot <- ggplot(
   geom_errorbarh(aes(height=.2)) +
   theme(legend.position = "none") +
   theme(axis.title.y=element_blank()) +
-  geom_vline(xintercept = 0, linetype="dashed") +
+  geom_vline(xintercept = 0, linetype="dashed", color = "tomato1") +
   theme_bw()
-Logging_plot <- Logging_plot + labs(title = "Logging")
+Logging_plot <- Logging_plot + labs(title = "Logging", size = 15) + theme(axis.title = element_text(size= 15))
 
-ggsave("Logging_plot_bw3.png", units = "in", width = 8, height = 9)
+ggsave("Logging_plot_red.png", units = "in", width = 8, height = 9)
 
 
 #Distance to Roads
