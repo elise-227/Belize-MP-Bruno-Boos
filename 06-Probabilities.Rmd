@@ -94,9 +94,9 @@ setwd("D:/Model Outputs/April 3")
 
 #prediction list
 predlist <- list()
-predlist <- c(BfourOpossum_anthro_env, CommonOpossum_anthro_env, NbArmadillo_anthro_env, RnWoodrail_anthro_env, Wthrush_anthro_env) #agouti_anthro_env, btapir_anthro_env, cguan_anthro_env, GHDove_anthro_env, grayfox_anthro_env, greatcura_anthro_env, jaguar_anthro_env, ocellatedturkey_anthro_env, ocelot_anthro_env, Paca_anthro_env, puma_anthro_env, redbrockdeer_anthro_env, wnosedcoati_anthro_env, wtdeer_anthro_env)
+predlist <- c(agouti_anthro_env, gcurassow_anthro_env, gfox_anthro_env, ghdove_anthro_env, ocelot_anthro_env, oturkey_anthro_env, paca_anthro_env, puma_anthro_env, rbdeer_anthro_env, wtdeer_anthro_env)
 
-names(predlist) <- c("Brown four-eyed opossum", "Common opossum", "Nine-banded armadillo", "Russet-naped woodrail", "Wood thrush") #"Agouti", "Baird's tapir", "Crested Guan", "Gray-headed Dove", "Gray Fox","Great Curassow", "Jaguar", "Ocellated Turkey", "Ocelot", "Paca", "Puma", "Red Brocket Deer", "White-nosed Coati", "White-tailed Deer")
+names(predlist) <- c("Agouti", "Great curassow", "Gray fox", "Gray-headed dove", "Ocelot", "Ocellated turkey", "Paca", "Puma", "Red brocket", "White-tailed deer")
 
 species <- names(predlist)
 
@@ -112,24 +112,13 @@ for (model in species){
   df_psi[df_psi$species == model,] <- df_pred %>% summarise(mean = mean(x.Predicted), se = sd(x.Predicted, na.rm = TRUE)/sqrt(n())) %>% as.data.frame()
 }
 
-df_psi$Speciesname <- c("Brown four-eyed opossum", "Common opossum", "Nine-banded armadillo", "Russet-naped woodrail", "Wood thrush")
+#fix issue with species name
+df_psi$Speciesname <- c("Agouti", "Great curassow", "Gray fox", "Gray-headed dove", "Ocelot", "Ocellated turkey", "Paca", "Puma", "Red brocket", "White-tailed deer")
 colnames(df_psi) <- c("psi", "se", "NA", "Speciesname")
 df_psi <- df_psi[,-3]
-df_psi3 <- df_psi
+df_psinew_1 <- df_psi
 
-save(df_psi3, file = "df_psi3.Rda")
-
-# p_cguan$Speciesname <- "Crested guan"
-# p_fox$Speciesname <- "Gray fox"
-# p_Gdove$Speciesname <- "Gray-headed dove"
-# p_tapir$Speciesname <- "Baird's tapir"
-# 
-# df_psi1 <- select(df_psi, "psi" = species,"se" = mean, Speciesname = "Speciesname")
-# 
-# df_psi2 <- rbind(df_psi1, p_cguan, p_fox, p_Gdove, p_tapir)
-# 
-# save(df_psi2, file = "df_psi.Rda")
-# write.csv(df_psi2, file = "df_psi.csv")
+save(df_psinew_1, file = "df_psi_new1.Rda")
 
 ```
 
@@ -167,11 +156,9 @@ require(boot)
 
 #prediction list
 modlist <- list()
-modlist <- c(BfourOpossum_anthro_env, CommonOpossum_anthro_env, NbArmadillo_anthro_env, RnWoodrail_anthro_env, Wthrush_anthro_env)
-  #c(agouti_anthro_env, cguan_anthro_env, GHDove_anthro_env, grayfox_anthro_env, greatcura_anthro_env, jaguar_anthro_env, ocellatedturkey_anthro_env, ocelot_anthro_env, Paca_anthro_env, puma_anthro_env, redbrockdeer_anthro_env, wnosedcoati_anthro_env, wtdeer_anthro_env)
+modlist <- c(agouti_anthro_env, gcurassow_anthro_env, gfox_anthro_env, ghdove_anthro_env, ocelot_anthro_env, oturkey_anthro_env, paca_anthro_env, puma_anthro_env, rbdeer_anthro_env, wtdeer_anthro_env)
 
-names(modlist) <- c("Brown four-eyed opossum", "Common opossum", "Nine-banded armadillo", "Russet-naped woodrail", "Wood thrush")
-  #c("Agouti", "Crested Guan", "Gray-headed Dove", "Gray Fox","Great Curassow", "Jaguar", "Ocellated Turkey", "Ocelot", "Paca", "Puma", "Red Brocket Deer", "White-nosed Coati", "White-tailed Deer")
+names(modlist) <- c("Agouti", "Great curassow", "Gray fox", "Gray-headed dove", "Ocelot", "Ocellated turkey", "Paca", "Puma", "Red brocket", "White-tailed deer")
 
 species <- names(modlist)
 
@@ -192,9 +179,9 @@ for (model in species){
   df_p[df_p$species == model,]$sd <- sdprob
 }
 
-df_p2 <- df_p
+df_pnew1 <- df_p
 
-save(df_p2, file = "detprobs2.Rda")
-write.csv(df_p2, file = "detprobs2.csv")
+save(df_pnew1, file = "detprobsnew1.Rda")
+write.csv(df_pnew1, file = "detprobsnew1.csv")
 
 ```
