@@ -37,132 +37,9 @@ library(AICcmodavg)
 library(camtrapR)
 library(ubms)
 
-
-##load dfs
-load("dat.RData")
-load("camop.RData")
-covs_all <- read.csv("covs_fin.csv",stringsAsFactors = TRUE)
-
 ```
 
-## FINAL CLEANING
-
-```{r final cleaning}
-#fix logging column
-covs_all$Logging <- ifelse(covs_all$Logging == c("No", "No Logging"), "No", "Yes")
-#fix mean bioma
-covs_all$mean_bioma <- replace_na(covs_all$mean_bioma, 117.817)
-
-#fix lat long 
-covs_all[covs_all$site =="908F",]$Lat <- 17.66851300
-covs_all[covs_all$site =="908F",]$Long <- -89.01283000
-
-# #look at biomass vs logging
-# plot <- ggplot(covs_all, aes(x = Logging, y = mean_bioma, color = Logging)) +
-#   geom_line() +
-#   geom_point()
-# 
-# #look at logging & FL columns
-# plot2 <- ggplot(covs_all, aes(x = Logging, y = Forest_Los, color = Logging)) +
-#   geom_line() +
-#   geom_point()
-
-# xtabs(~Logging + FL, data = covs_all) #noteworthy - we have much more logging sites than no logging sites
-# #92 sites no logging, 318 sites yes logging
-# apply(table(covs_all[, c("Logging", "FL")]), 1, prop.table)
-
-#make camera_operation frame
-cam_op <- cameraOperation(camop, stationCol = "site", setupCol = "Date.Placement", 
-                             retrievalCol = "Last.record", occasionStartTime = 0 , 
-                             dateFormat = "%Y-%m-%d", writecsv = FALSE)
-
-
-#detection history for gray fox
-
-#getting an error for date_time_obs so checking it
-IsDate <- function(mydate, date.format = "%Y-%m-%d %H.%M") {
-  tryCatch(!is.na(as.Date(mydate, date.format)),  
-           error = function(err) {FALSE})  
-}
-
-datecheck <- data.frame(IsDate(dat$date_time_obs))
-#issues with row 1557, 4439, 4743, 6066, 13493, 15059
-dat <- dat[-c(1557,4439,4743,6066,13493,15059),]
-```
-
-```{r mod list}
-#species vector 
-#mammals <- dat[dat$Mammal == "Yes",]
-#unique(mammals$Species)
-#count <- summary(mammals$Species)
-#list <- subset(count, count > 10)
-#species_list <- names(list)
-#print(species_list, quote=F)
-
-count <- summary(dat$Species)
-#count
-list <- subset(count, count > 40)
-#list #15991 obs >40
-species_list <- names(list)
-species_list
-#specify range to run
-species_list <- species_list[1:20]
-
-#JUST GRAY FOX 
-#species_list <- "Gray Fox"
-
-#start modeling
-modlist <- list()
-```
-
-```{r detections}
-#loop to make det histories so that we can add to results
-
-unmarkedlist <- list()
-
-for (species in species_list){
-    detect_hist <- detectionHistory(recordTable = dat, species = species, 
-                                       camOp = cam_op, output = "binary", stationCol = "site", 
-                                       speciesCol = "Species", day1 ="station", 
-                                       recordDateTimeCol = "date_time_obs", 
-                                       recordDateTimeFormat =  "%Y-%m-%d %H.%M", 
-                                       timeZone = "UTC", occasionLength = 1, 
-                                       includeEffort = TRUE, scaleEffort = FALSE, 
-                                       writecsv = FALSE)
-    
-    unmarkedlist[[paste0(species,"unmarkedFrame")]] <- unmarkedFrameOccu(y = detect_hist$detection_history, siteCovs = covs_all)
-}
-```
-
-```{r make function}
-for (species in species_list){
-    detect_hist <- detectionHistory(recordTable = dat, species = species, 
-                                       camOp = cam_op, output = "binary", stationCol = "site", 
-                                       speciesCol = "Species", day1 ="station", 
-                                       recordDateTimeCol = "date_time_obs", 
-                                       recordDateTimeFormat =  "%Y-%m-%d %H.%M", 
-                                       timeZone = "UTC", occasionLength = 1, 
-                                       includeEffort = TRUE, scaleEffort = FALSE, 
-                                       writecsv = FALSE)
-    
-    unmarkedFrame <- unmarkedFrameOccu(y = detect_hist$detection_history, siteCovs = covs_all)
-    
-    unmarkedFrame@siteCovs$Canopy_Height_m <- scale(unmarkedFrame@siteCovs$Canopy_Height_m)
-    unmarkedFrame@siteCovs$mean_bioma <- scale(unmarkedFrame@siteCovs$mean_bioma)
-    unmarkedFrame@siteCovs$NEAR_DIST_ROAD <- scale(unmarkedFrame@siteCovs$NEAR_DIST_ROAD)
-    unmarkedFrame@siteCovs$NEAR_DIST_STRM <- scale(unmarkedFrame@siteCovs$NEAR_DIST_STRM)
-    unmarkedFrame@siteCovs$mean_NDVI <- scale(unmarkedFrame@siteCovs$mean_NDVI)
-  
-    #UNCOMMENT MODELS TO RUN, FOR NOW JUST DOING FULL MODEL
-    
-    # modlist[[paste0(species,"null")]] <-stan_occu(data = unmarkedFrame, formula = ~1 ~1, chains = 4, iter = 100000)
-    # modlist[[paste0(species,"ANTHRO")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging + NEAR_DIST_ROAD + mean_bioma + (1|site), chains = 4, iter = 100000)
-    # modlist[[paste0(species,"ENVR")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~ NEAR_DIST_STRM + mean_NDVI + Season + Nat_Dist + (1|site), chains = 4, iter = 100000)
-    modlist[[paste0(species,"ANTHRO+ENVR")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging + NEAR_DIST_ROAD + mean_bioma + NEAR_DIST_STRM + mean_NDVI + Season + Nat_Dist + (1|site), chains = 4, iter = 100000)
-}
-
-```
-
+## Predict test
 
 ```{r predict}
 setwd("E:/Model Outputs")
@@ -178,58 +55,6 @@ predict(
   newdata = NULL,
   transform = TRUE, #back-transform the predictions to their original scale
   level = 0.95)
-#Predicted: 0.5134855	SD: 0.02673705 2.5:0.4612061 97.5: 0.5659112 (this is the same as backtransforming intercept (exp(value)) / 1 + exp(value))
-
-# #create new data
-# minroads <- min(covs_all$NEAR_DIST_ROAD)
-# maxroads <- max(covs_all$NEAR_DIST_ROAD)
-# 
-# minbio <- min(covs_all$mean_bioma, na.rm=TRUE)
-# maxbio <- max(covs_all$mean_bioma, na.rm=TRUE)
-# 
-# minstreams <- min(covs_all$NEAR_DIST_STRM)
-# maxstreams <- max(covs_all$NEAR_DIST_STRM)
-# 
-# minNDVI <- min(covs_all$mean_NDVI)
-# maxNDVI <- min(covs_all$mean_NDVI)
-# 
-# newdata <- expand.grid(Logging = c("Yes", "No"),
-#                        NEAR_DIST_ROAD = seq(minroads, maxroads, length.out = 20),
-#                        mean_bioma = seq(minbio, maxbio, length.out = 20),
-#                        NEAR_DIST_STRM = seq(minstreams, maxstreams, length.out = 20),
-#                        mean_NDVI = seq(minNDVI, maxNDVI, length.out = 20),
-#                        Season = c("Rainy","Dry"),
-#                        Nat_Dist = c("Yes", "No"),
-#                        site = unique(covs_all$site))
-# 
-# #now predict
-# df_fit <- predict(agouti_anthro_env,
-#                       "state", #submodel
-#                       newdata = newdata,
-#                       transform = TRUE,
-#                       level = 0.95)
-# 
-# pdat <- data.frame(newdata, predicted = df_fit$x)
-
-##try a different way
-#create new data
-# meanroads <- mean(covs_all$NEAR_DIST_ROAD)
-# 
-# meanbio <- mean(covs_all$mean_bioma, na.rm=TRUE)
-# 
-# meanstreams <- mean(covs_all$NEAR_DIST_STRM)
-# 
-# mNDVI <- mean(covs_all$mean_NDVI)
-# 
-# newdata <- expand.grid(Logging = c("Yes", "No"),
-#                        NEAR_DIST_ROAD = meanroads,
-#                        mean_bioma = meanbio,
-#                        NEAR_DIST_STRM = meanstreams,
-#                        mean_NDVI = mNDVI,
-#                        Season = c("Rainy","Dry"),
-#                        Nat_Dist = c("Yes", "No"),
-#                        site = unique(covs_all$site))
-
 
 ##occupancy probability
 ##ask john about this method
@@ -239,16 +64,6 @@ Gdove_fit <- data.frame(x = predict(GHDove_anthro_env, "state", newdata = NULL, 
 p_Gdove <- Gdove_fit %>% summarise(psi = mean(x.Predicted), se = sd(x.Predicted, na.rm = TRUE)/sqrt(n())) %>% as.data.frame()
 
 save(p_Gdove, file = "p_Gdove.Rda")
-##detection probability
-#agouti_det <- data.frame(x = predict(agouti_anthro_env, "det", newdata = NULL, transform = TRUE, re.form = NULL, level = 0.95))
-
-#summarize prediction data
-#det_agouti <- agouti_fit %>% summarise(psi = mean(x.Predicted), se = sd(x.Predicted, na.rm = TRUE)/sqrt(n())) %>% as.data.frame()
-
-
-
-#setwd("C:/Users/Kelly/Documents/Belize-MP-Bruno-Boos/Kelly Coding")
-#load("p_agouti.Rda")
 
 ```
 
@@ -274,11 +89,11 @@ setwd("D:/Model Outputs/April 3")
 # load("redbrockdeer_anthro_env.RData")
 # load("wnosedcoati_anthro_env.RData")
 # load("wtdeer_anthro_env.RData")
-load("BfourOpossum_anthro_env.RData")
-load("CommonOpossum_anthro_env.RData")
-load("NbArmadillo_anthro_env.RData")
-load("RnWoodrail_anthro_env.RData")
-load("Wthrush_anthro_env.RData")
+# load("BfourOpossum_anthro_env.RData")
+# load("CommonOpossum_anthro_env.RData")
+# load("NbArmadillo_anthro_env.RData")
+# load("RnWoodrail_anthro_env.RData")
+# load("Wthrush_anthro_env.RData")
 
 #predlist will be a list of anthro_env models for the species
 #species with be the name of the model
@@ -308,7 +123,6 @@ colnames(df_psi) <- c("psi", "se", "NA", "Speciesname")
 df_psi <- df_psi[,-3]
 df_psi3 <- df_psi
 
-setwd("D:/Model Outputs/April 3")
 save(df_psi3, file = "df_psi3.Rda")
 
 # p_cguan$Speciesname <- "Crested guan"
@@ -346,12 +160,12 @@ require(boot)
 # load("redbrockdeer_anthro_env.RData")
 # load("wnosedcoati_anthro_env.RData")
 # load("wtdeer_anthro_env.RData")
-load("BfourOpossum_anthro_env.RData")
-load("CommonOpossum_anthro_env.RData")
-load("NbArmadillo_anthro_env.RData")
-load("RnWoodrail_anthro_env.RData")
-load("Wthrush_anthro_env.RData")
-load("Tapir_anthro_envr.RData")
+# load("BfourOpossum_anthro_env.RData")
+# load("CommonOpossum_anthro_env.RData")
+# load("NbArmadillo_anthro_env.RData")
+# load("RnWoodrail_anthro_env.RData")
+# load("Wthrush_anthro_env.RData")
+# load("Tapir_anthro_envr.RData")
 
 
 #modlist will be a list of anthro_env models for the species
@@ -390,51 +204,3 @@ save(df_p2, file = "detprobs2.Rda")
 write.csv(df_p2, file = "detprobs2.csv")
 
 ```
-
-
-```{r examine}
-# grayfoxmodels_2_null <- modlist$`Gray Foxnull`
-# grayfoxmodels_2_anthro <- modlist$`Gray FoxANTHRO`
-# grayfoxmodels_2_envr <- modlist$`Gray FoxENVR`
-# grayfoxmodels_2_anthro_envr <- modlist$`Gray FoxANTHRO+ENVR`
-# save(grayfoxmodels_2_null, file = "grayfoxmodels_2_null.RData")
-# save(grayfoxmodels_2_anthro, file = "grayfoxmodels_2_anthro.RData")
-# save(grayfoxmodels_2_envr, file = "grayfoxmodels_2_envr.RData")
-# save(grayfoxmodels_2_anthro_envr, file = "grayfoxmodels_2_anthro_envr.RData")
-  # Agoutinull <- modlist$Agoutinull
-  # AgoutiANTHRO <- modlist$AgoutiANTHRO
-  # AgoutiENVR <- modlist$AgoutiENVR
-  # modlist$`Ameiva undatanull`
-  # modlist$`Ameiva undataANTHRO`
-  # modlist$`Ameiva undataENVR`
-  # modlist$`Bare-throated Tiger Heronnull`
-  # modlist$`Bare-throated Tiger HeronANTHRO`
-  # modlist$`Bare-throated Tiger HeronENVR`
-  # 
-  # save(covs_all, file = "covs_all.RData")
-  # 
-  # mammals <- dat[dat$Mammal == "Yes",]
-  # unique(mammals$Species)
-  # count <- summary(mammals$Species)
-  # list <- subset(count, count > 10)
-  # species_list <- names(list)
-
-# load("ocelotmodels.RData")
-# load("agouti_models.RData")
-# load("grayfoxmodels.RData")
-# load("whitetaileddeermodels.RData")
-# load("pumamodels.RData")
-
-# grayfoxmodels_2_anthro_envr
-```
-
-```{r posteriors etc}
-# plot_posteriors(grayfoxmodels_2_anthro)
-# plot_residuals(grayfoxmodels_2_anthro, "state")
-# plot_marginal(grayfoxmodels_2_anthro, "state")
-# 
-# plot_posteriors(grayfoxmodels_2_envr)
-# plot_residuals(grayfoxmodels_2_envr, "state")
-# plot_marginal(grayfoxmodels_2_envr, "state")
-```
-

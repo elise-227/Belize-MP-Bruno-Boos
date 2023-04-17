@@ -1,5 +1,5 @@
 ---
-title: "Results_2"
+title: "Results"
 author: "KB"
 date: "2023-03-04"
 output: pdf_document
@@ -300,6 +300,7 @@ plot_marginal(fit_top, "state") #plot marginal effects of each covariate with ot
 # predict(fit_top, submodel = "state", newdata = nd)
 ```
 
+##Effect sizes
 
 ```{r modlists}
 #set directory to location of models
@@ -531,6 +532,8 @@ save(CI3, file = "effects3.Rda")
 
 ```
 
+##Plot effects
+
 ```{r Plotting}
 
 setwd("C:/Users/Kelly/Documents/Belize-MP-Bruno-Boos/Effects")
@@ -746,6 +749,7 @@ dev.off()
 
 ```
 
+##Corr Test
 
 ```{r correlation test}
 
