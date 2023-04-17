@@ -50,6 +50,16 @@ covs_all$mean_bioma <- replace_na(covs_all$mean_bioma, 117.817)
 covs_all[covs_all$site =="908F",]$Lat <- 17.66851300
 covs_all[covs_all$site =="908F",]$Long <- -89.01283000
 
+#remove 2016
+camop <- subset(camop, !(site %in% c("601H",  "601I",  "601J",  "602H",  "602I",  "602J",  "602K",  "603H",  "603J",  "603K",  "604H",  "604I","604J",  "605H",  "605I",  "605J",  "605K",  "606J",  "606K",  "607A",  "607C",  "608A",  "608B",  "608C",  "609A",  "609B",  "609C", "610A",  "610B",  "610C",  "611A",  "611B",  "611C",  "612A",  "612C",  "614H",  "614I",  "614J")))
+camop$site <- droplevels(camop$site)
+
+covs_all <- subset(covs_all, !(site %in% c("601H",  "601I",  "601J",  "602H",  "602I",  "602J",  "602K",  "603H",  "603J",  "603K",  "604H",  "604I","604J",  "605H",  "605I",  "605J",  "605K",  "606J",  "606K",  "607A",  "607C",  "608A",  "608B",  "608C",  "609A",  "609B",  "609C", "610A",  "610B",  "610C",  "611A",  "611B",  "611C",  "612A",  "612C",  "614H",  "614I",  "614J")))
+covs_all$site <- droplevels(covs_all$site)
+
+dat <- subset(dat, !(site %in% c("601H",  "601I",  "601J",  "602H",  "602I",  "602J",  "602K",  "603H",  "603J",  "603K",  "604H",  "604I","604J",  "605H",  "605I",  "605J",  "605K",  "606J",  "606K",  "607A",  "607C",  "608A",  "608B",  "608C",  "609A",  "609B",  "609C", "610A",  "610B",  "610C",  "611A",  "611B",  "611C",  "612A",  "612C",  "614H",  "614I",  "614J")))
+dat$site <- droplevels(dat$site)
+
 # #look at biomass vs logging
 # plot <- ggplot(covs_all, aes(x = Logging, y = mean_bioma, color = Logging)) +
 #   geom_line() +
@@ -79,8 +89,8 @@ IsDate <- function(mydate, date.format = "%Y-%m-%d %H.%M") {
 }
 
 datecheck <- data.frame(IsDate(dat$date_time_obs))
-#issues with row 1557, 4439, 4743, 6066, 13493, 15059
-dat <- dat[-c(1557,4439,4743,6066,13493,15059),]
+#issues with rows
+dat <- dat[-c(1557,4485, 11912, 13478),]
 ```
 
 ```{r mod list}
@@ -92,6 +102,8 @@ dat <- dat[-c(1557,4439,4743,6066,13493,15059),]
 #species_list <- names(list)
 #print(species_list, quote=F)
 
+
+
 count <- summary(dat$Species)
 #count
 list <- subset(count, count > 40)
@@ -99,32 +111,13 @@ list <- subset(count, count > 40)
 species_list <- names(list)
 species_list
 #specify range to run
-species_list <- species_list[1:20]
-
+species_list <- species_list[1:10]
+species_list
 #JUST GRAY FOX 
 #species_list <- "Gray Fox"
 
 #start modeling
 modlist <- list()
-```
-
-```{r detections}
-#loop to make det histories so that we can add to results
-
-unmarkedlist <- list()
-
-for (species in species_list){
-    detect_hist <- detectionHistory(recordTable = dat, species = species, 
-                                       camOp = cam_op, output = "binary", stationCol = "site", 
-                                       speciesCol = "Species", day1 ="station", 
-                                       recordDateTimeCol = "date_time_obs", 
-                                       recordDateTimeFormat =  "%Y-%m-%d %H.%M", 
-                                       timeZone = "UTC", occasionLength = 1, 
-                                       includeEffort = TRUE, scaleEffort = FALSE, 
-                                       writecsv = FALSE)
-    
-    unmarkedlist[[paste0(species,"unmarkedFrame")]] <- unmarkedFrameOccu(y = detect_hist$detection_history, siteCovs = covs_all)
-}
 ```
 
 ```{r make function}
@@ -148,7 +141,7 @@ for (species in species_list){
   
     #UNCOMMENT MODELS TO RUN, FOR NOW JUST DOING FULL MODEL
     
-    # modlist[[paste0(species,"null")]] <-stan_occu(data = unmarkedFrame, formula = ~1 ~1, chains = 4, iter = 100000)
+     modlist[[paste0(species,"null")]] <-stan_occu(data = unmarkedFrame, formula = ~1 ~1, chains = 4, iter = 100000)
     # modlist[[paste0(species,"ANTHRO")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging + NEAR_DIST_ROAD + mean_bioma + (1|site), chains = 4, iter = 100000)
     # modlist[[paste0(species,"ENVR")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~ NEAR_DIST_STRM + mean_NDVI + Season + Nat_Dist + (1|site), chains = 4, iter = 100000)
     modlist[[paste0(species,"ANTHRO+ENVR")]] <- stan_occu(data = unmarkedFrame, formula = ~1 ~Logging + NEAR_DIST_ROAD + mean_bioma + NEAR_DIST_STRM + mean_NDVI + Season + Nat_Dist + (1|site), chains = 4, iter = 100000)
@@ -158,12 +151,9 @@ for (species in species_list){
 
 
 ```{r predict}
-setwd("E:/Model Outputs")
+setwd("D:/Model Outputs")
 load("agouti_anthro_env.RData")
 load("agouti_null.RData")
-
-#test
-#posterior_predict(agouti_anthro_env, param = "y", draws = 1, re.form = NULL)
 
 predict(
   agouti_null,
@@ -225,167 +215,120 @@ predict(
 
 
 ##occupancy probability
-##ask john about this method
-Gdove_fit <- data.frame(x = predict(GHDove_anthro_env, "state", newdata = NULL, transform = TRUE, re.form = NULL, level = 0.95))
+agouti_fit <- data.frame(x = predict(agouti_anthro_env, "state", newdata = NULL, transform = TRUE, re.form = NULL, level = 0.95))
 
 #summarize prediction data
-p_Gdove <- Gdove_fit %>% summarise(psi = mean(x.Predicted), se = sd(x.Predicted, na.rm = TRUE)/sqrt(n())) %>% as.data.frame()
+p_agouti <- agouti_fit %>% summarise(psi = mean(x.Predicted), se = sd(x.Predicted, na.rm = TRUE)/sqrt(n())) %>% as.data.frame()
 
-save(p_Gdove, file = "p_Gdove.Rda")
 ##detection probability
-#agouti_det <- data.frame(x = predict(agouti_anthro_env, "det", newdata = NULL, transform = TRUE, re.form = NULL, level = 0.95))
+agouti_det <- data.frame(x = predict(agouti_anthro_env, "det", newdata = NULL, transform = TRUE, re.form = NULL, level = 0.95))
 
 #summarize prediction data
-#det_agouti <- agouti_fit %>% summarise(psi = mean(x.Predicted), se = sd(x.Predicted, na.rm = TRUE)/sqrt(n())) %>% as.data.frame()
+det_agouti <- agouti_fit %>% summarise(psi = mean(x.Predicted), se = sd(x.Predicted, na.rm = TRUE)/sqrt(n())) %>% as.data.frame()
 
-
-
-#setwd("C:/Users/Kelly/Documents/Belize-MP-Bruno-Boos/Kelly Coding")
-#load("p_agouti.Rda")
+save(p_agouti, file = "p_agouti.Rda")
 
 ```
 
 
-```{r loop to predict occ}
+```{r loop to predict}
 #set directory to location of models
-#setwd("E:/Model Outputs")
+setwd("D:/Model Outputs")
 
 ##load models
-setwd("D:/Model Outputs/April 3")
-# load("agouti_anthro_env.RData")
-# load("btapir_anthro_env.RData")
-# load("cguan_anthro_env.RData")
-# #load("Common_Opossum_anthro_env.RData")
-# load("GHDove_anthro_env.RData")
-# load("grayfox_anthro_env.RData")
-# load("greatcura_anthro_env.RData")
-# load("jaguar_anthro_env.RData")
-# load("ocellatedturkey_anthro_env.RData")
-# load("ocelot_anthro_env.RData")
-# load("Paca_anthro_env.RData")
-# load("puma_anthro_env.RData")
-# load("redbrockdeer_anthro_env.RData")
-# load("wnosedcoati_anthro_env.RData")
-# load("wtdeer_anthro_env.RData")
-load("BfourOpossum_anthro_env.RData")
-load("CommonOpossum_anthro_env.RData")
-load("NbArmadillo_anthro_env.RData")
-load("RnWoodrail_anthro_env.RData")
-load("Wthrush_anthro_env.RData")
+load("agouti_anthro_env.RData")
+load("btapir_anthro_env.RData")
+load("cguan_anthro_env.RData")
+#load("Common_Opossum_anthro_env.RData")
+load("GHDove_anthro_env.RData")
+load("grayfox_anthro_env.RData")
+load("greatcura_anthro_env.RData")
+load("jaguar_anthro_env.RData")
+load("ocellatedturkey_anthro_env.RData")
+load("ocelot_anthro_env.RData")
+load("Paca_anthro_env.RData")
+load("puma_anthro_env.RData")
+load("redbrockdeer_anthro_env.RData")
+load("wnosedcoati_anthro_env.RData")
+load("wtdeer_anthro_env.RData")
 
-#predlist will be a list of anthro_env models for the species
-#species with be the name of the model
+#models_list will be a list of anthro_env models for the species
+#species with be the name of the model 
 
-#prediction list
-predlist <- list()
-predlist <- c(BfourOpossum_anthro_env, CommonOpossum_anthro_env, NbArmadillo_anthro_env, RnWoodrail_anthro_env, Wthrush_anthro_env) #agouti_anthro_env, btapir_anthro_env, cguan_anthro_env, GHDove_anthro_env, grayfox_anthro_env, greatcura_anthro_env, jaguar_anthro_env, ocellatedturkey_anthro_env, ocelot_anthro_env, Paca_anthro_env, puma_anthro_env, redbrockdeer_anthro_env, wnosedcoati_anthro_env, wtdeer_anthro_env)
+#intercept
+modlist2 <- list()
+modlist2 <- c(agouti_anthro_env, btapir_anthro_env, cguan_anthro_env, GHDove_anthro_env, grayfox_anthro_env, greatcura_anthro_env, jaguar_anthro_env, ocellatedturkey_anthro_env, ocelot_anthro_env, Paca_anthro_env, puma_anthro_env, redbrockdeer_anthro_env, wnosedcoati_anthro_env, wtdeer_anthro_env)
 
-names(predlist) <- c("Brown four-eyed opossum", "Common opossum", "Nine-banded armadillo", "Russet-naped woodrail", "Wood thrush") #"Agouti", "Baird's tapir", "Crested Guan", "Gray-headed Dove", "Gray Fox","Great Curassow", "Jaguar", "Ocellated Turkey", "Ocelot", "Paca", "Puma", "Red Brocket Deer", "White-nosed Coati", "White-tailed Deer")
+names(modlist2) <- c("Agouti", "Baird's tapir", "Crested Guan", "Gray-headed Dove", "Gray Fox", "Great Curassow", "Jaguar", "Ocellated Turkey", "Ocelot", "Paca", "Puma", "Red Brocket Deer", "White-nosed Coati", "White-tailed Deer")
+species <- names(modlist2)
 
-species <- names(predlist)
+##Intercept
 
-##loop to predict occupancy
-
-df_psi <- data.frame(species)
-df_psi$mean <- NA
-df_psi$se <- NA
+df_int <- data.frame(species)
+df_int$effect <- NA
+df_int$`2.5` <- NA
+df_int$`97.5` <- NA
+df_int$variable <- "Intercept"
 
 for (model in species){
-  fit_top <- predlist[[model]]
-  df_pred <- data.frame(x = predict(fit_top, "state", newdata = NULL, transform = TRUE, re.form = NULL, level = 0.95))
-  df_psi[df_psi$species == model,] <- df_pred %>% summarise(mean = mean(x.Predicted), se = sd(x.Predicted, na.rm = TRUE)/sqrt(n())) %>% as.data.frame()
+  fit_top <- modlist2[[model]]
+  sum <- summary(fit_top, "state")
+  coef <- sum$mean[1]
+  ci2 <- sum$`2.5%`[1]
+  ci9 <-sum$`97.5%`[1]
+  df_int[df_int$species == model,]$effect <- coef
+  df_int[df_int$species == model,]$`2.5` <- ci2
+  df_int[df_int$species == model,]$`97.5` <- ci9
 }
 
-df_psi$Speciesname <- c("Brown four-eyed opossum", "Common opossum", "Nine-banded armadillo", "Russet-naped woodrail", "Wood thrush")
-colnames(df_psi) <- c("psi", "se", "NA", "Speciesname")
-df_psi <- df_psi[,-3]
-df_psi3 <- df_psi
-
-setwd("D:/Model Outputs/April 3")
-save(df_psi3, file = "df_psi3.Rda")
-
-# p_cguan$Speciesname <- "Crested guan"
-# p_fox$Speciesname <- "Gray fox"
-# p_Gdove$Speciesname <- "Gray-headed dove"
-# p_tapir$Speciesname <- "Baird's tapir"
-# 
-# df_psi1 <- select(df_psi, "psi" = species,"se" = mean, Speciesname = "Speciesname")
-# 
-# df_psi2 <- rbind(df_psi1, p_cguan, p_fox, p_Gdove, p_tapir)
-# 
-# save(df_psi2, file = "df_psi.Rda")
-# write.csv(df_psi2, file = "df_psi.csv")
-
-```
-
-```{r loop to predict det}
-#set directory to location of models
-setwd("E:/Model Outputs/April 3")
-require(boot)
-
-##load models
-# setwd("D:/Model Outputs")
-# load("agouti_anthro_env.RData")
-# load("cguan_anthro_env.RData")
-# #load("Common_Opossum_anthro_env.RData")
-# load("GHDove_anthro_env.RData")
-# load("grayfox_anthro_env.RData")
-# load("greatcura_anthro_env.RData")
-# load("jaguar_anthro_env.RData")
-# load("ocellatedturkey_anthro_env.RData")
-# load("ocelot_anthro_env.RData")
-# load("Paca_anthro_env.RData")
-# load("puma_anthro_env.RData")
-# load("redbrockdeer_anthro_env.RData")
-# load("wnosedcoati_anthro_env.RData")
-# load("wtdeer_anthro_env.RData")
-load("BfourOpossum_anthro_env.RData")
-load("CommonOpossum_anthro_env.RData")
-load("NbArmadillo_anthro_env.RData")
-load("RnWoodrail_anthro_env.RData")
-load("Wthrush_anthro_env.RData")
-load("Tapir_anthro_envr.RData")
-
-
-#modlist will be a list of anthro_env models for the species
-#species with be the name of the model
-
-#prediction list
-modlist <- list()
-modlist <- c(BfourOpossum_anthro_env, CommonOpossum_anthro_env, NbArmadillo_anthro_env, RnWoodrail_anthro_env, Wthrush_anthro_env)
-  #c(agouti_anthro_env, cguan_anthro_env, GHDove_anthro_env, grayfox_anthro_env, greatcura_anthro_env, jaguar_anthro_env, ocellatedturkey_anthro_env, ocelot_anthro_env, Paca_anthro_env, puma_anthro_env, redbrockdeer_anthro_env, wnosedcoati_anthro_env, wtdeer_anthro_env)
-
-names(modlist) <- c("Brown four-eyed opossum", "Common opossum", "Nine-banded armadillo", "Russet-naped woodrail", "Wood thrush")
-  #c("Agouti", "Crested Guan", "Gray-headed Dove", "Gray Fox","Great Curassow", "Jaguar", "Ocellated Turkey", "Ocelot", "Paca", "Puma", "Red Brocket Deer", "White-nosed Coati", "White-tailed Deer")
-
-species <- names(modlist)
-
-##loop to predict detection
-
-df_p <- data.frame(species)
-df_p$mean <- NA
-df_p$sd <- NA
-
-for (model in species){
-  fit_top <- modlist[[model]]
-  sum <- summary(fit_top, "det")
-  meanodds <- exp(sum$mean)
-  meanprob <- meanodds / (1 + meanodds)
-  sdodds <- exp(sum$sd)
-  sdprob <- sdodds / (1 + sdodds)
- df_p[df_p$species == model,]$mean <- meanprob
-  df_p[df_p$species == model,]$sd <- sdprob
-}
-
-df_p2 <- df_p
-
-save(df_p2, file = "detprobs2.Rda")
-write.csv(df_p2, file = "detprobs2.csv")
+save(df_int, file = "df_int.Rda")
+write.csv(df_int, file = "df_int.csv")
 
 ```
 
 
 ```{r examine}
+oturkey_null <- modlist$`Ocellated Turkeynull`
+save(oturkey_null, file = "oturkey_null.RData")
+oturkey_anthro_env <- modlist$`Ocellated TurkeyANTHRO+ENVR`
+save(oturkey_anthro_env, file = "oturkey_anthro_env.RData")
+gcurassow_null <- modlist$`Great Curassownull`
+save(gcurassow_null, file = "gcurassow_null.RData")
+gcurassow_anthro_env <- modlist$`Great CurassowANTHRO+ENVR`
+save(gcurassow_anthro_env, file = "gcurassow_anthro_env.RData")
+gfox_null <- modlist$`Gray Foxnull`
+save(gfox_null, file = "gfox_null.RData")
+gfox_anthro_env <- modlist$`Gray FoxANTHRO+ENVR`
+save(gfox_anthro_env , file = "gfox_anthro_env .RData")
+wtdeer_null <- modlist$`White-tailed Deernull`
+save(wtdeer_null, file = "wtdeer_null.RData")
+wtdeer_anthro_env <- modlist$`White-tailed DeerANTHRO+ENVR`
+save(wtdeer_anthro_env, file = "wtdeer_anthro_env.RData")
+agouti_null <- modlist$Agoutinull
+save(agouti_null, file = "agouti_null.RData")
+agouti_anthro_env <- modlist$`AgoutiANTHRO+ENVR`
+save(agouti_anthro_env , file = "agouti_anthro_env .RData")
+ocelot_null <- modlist$Ocelotnull
+save(ocelot_null, file = "ocelot_null.RData")
+ocelot_anthro_env <- modlist$`OcelotANTHRO+ENVR`
+save(ocelot_anthro_env, file = "ocelot_anthro_env.RData")
+puma_null <- modlist$Pumanull
+save(puma_null, file = "puma_null.RData")
+puma_anthro_env <- modlist$`PumaANTHRO+ENVR`
+save(puma_anthro_env, file = "puma_anthro_env.RData")
+paca_null <- modlist$Pacanull
+save(paca_null, file = "paca_null.RData")
+paca_anthro_env <- modlist$`PacaANTHRO+ENVR`
+save(paca_anthro_env, file = "paca_anthro_env.RData")
+ghdove_null <- modlist$`Gray-headed Dovenull`
+save(ghdove_null, file = "ghdove_null.RData")
+ghdove_anthro_env <- modlist$`Gray-headed DoveANTHRO+ENVR`
+save(ghdove_anthro_env, file = "ghdove_anthro_env.RData")
+rbdeer_null <- modlist$`Red Brocket Deernull`
+save(rbdeer_null, file = "rbdeer_null.RData")
+rbdeer_anthro_env <- modlist$`Red Brocket DeerANTHRO+ENVR`
+save(rbdeer_anthro_env, file = "rbdeer_anthro_env.RData")
+
 # grayfoxmodels_2_null <- modlist$`Gray Foxnull`
 # grayfoxmodels_2_anthro <- modlist$`Gray FoxANTHRO`
 # grayfoxmodels_2_envr <- modlist$`Gray FoxENVR`
