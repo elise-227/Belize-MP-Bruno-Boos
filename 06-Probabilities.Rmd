@@ -94,9 +94,9 @@ setwd("D:/Model Outputs/April 3")
 
 #prediction list
 predlist <- list()
-predlist <- c(agouti_anthro_env, gcurassow_anthro_env, gfox_anthro_env, ghdove_anthro_env, ocelot_anthro_env, oturkey_anthro_env, paca_anthro_env, puma_anthro_env, rbdeer_anthro_env, wtdeer_anthro_env)
+predlist <- c(cguan_anthro_env, gtinamou_anthro_env, jaguar_anthro_env, rqdove_anthro_env, wncoati_anthro_env)
 
-names(predlist) <- c("Agouti", "Great curassow", "Gray fox", "Gray-headed dove", "Ocelot", "Ocellated turkey", "Paca", "Puma", "Red brocket", "White-tailed deer")
+names(predlist) <- c("Crested guan", "Great tinamou", "Jaguar", "Ruddy quail-dove", "White-nosed coati")
 
 species <- names(predlist)
 
@@ -113,12 +113,12 @@ for (model in species){
 }
 
 #fix issue with species name
-df_psi$Speciesname <- c("Agouti", "Great curassow", "Gray fox", "Gray-headed dove", "Ocelot", "Ocellated turkey", "Paca", "Puma", "Red brocket", "White-tailed deer")
+df_psi$Speciesname <- c("Crested guan", "Great tinamou", "Jaguar", "Ruddy quail-dove", "White-nosed coati")
 colnames(df_psi) <- c("psi", "se", "NA", "Speciesname")
 df_psi <- df_psi[,-3]
-df_psinew_1 <- df_psi
+df_psinew_2 <- df_psi
 
-save(df_psinew_1, file = "df_psi_new1.Rda")
+save(df_psinew_2, file = "df_psi_new2.Rda")
 
 ```
 
@@ -156,9 +156,9 @@ require(boot)
 
 #prediction list
 modlist <- list()
-modlist <- c(agouti_anthro_env, gcurassow_anthro_env, gfox_anthro_env, ghdove_anthro_env, ocelot_anthro_env, oturkey_anthro_env, paca_anthro_env, puma_anthro_env, rbdeer_anthro_env, wtdeer_anthro_env)
+modlist <- c(cguan_anthro_env, gtinamou_anthro_env, jaguar_anthro_env, rqdove_anthro_env, wncoati_anthro_env)
 
-names(modlist) <- c("Agouti", "Great curassow", "Gray fox", "Gray-headed dove", "Ocelot", "Ocellated turkey", "Paca", "Puma", "Red brocket", "White-tailed deer")
+names(modlist) <- c("Crested guan", "Great tinamou", "Jaguar", "Ruddy quail-dove", "White-nosed coati")
 
 species <- names(modlist)
 
@@ -179,9 +179,8 @@ for (model in species){
   df_p[df_p$species == model,]$sd <- sdprob
 }
 
-df_pnew1 <- df_p
+df_pnew2 <- df_p
 
-save(df_pnew1, file = "detprobsnew1.Rda")
-write.csv(df_pnew1, file = "detprobsnew1.csv")
+save(df_pnew2, file = "detprobsnew2.Rda")
 
 ```
