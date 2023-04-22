@@ -307,26 +307,26 @@ plot_marginal(fit_top, "state") #plot marginal effects of each covariate with ot
 
 
 ##load models
-load("agouti_anthro_env .RData")
+setwd("D:/Model Outputs/April17")
+# load("agouti_anthro_env .RData")
 # load("btapir_anthro_env.RData")
-# load("cguan_anthro_env.RData")
-# load("Common_Opossum_anthro_env.RData")
-load("ghdove_anthro_env.RData")
-load("gcurassow_anthro_env.RData")
-setwd("D:/Model Outputs/April9")
-load("gfox_anthro_env .RData")
-# load("jaguar_anthro_env.RData")
-load("oturkey_anthro_env.RData")
-load("ocelot_anthro_env.RData")
-load("paca_anthro_env.RData")
-load("puma_anthro_env.RData")
-load("rbdeer_anthro_env.RData")
-# load("wnosedcoati_anthro_env.RData")
-load("wtdeer_anthro_env.RData")
+load("cguan_anthro_env.RData")
+# load("copossum_anthro_env.RData")
+# load("ghdove_anthro_env.RData")
+# load("gcurassow_anthro_env.RData")
+# load("gfox_anthro_env .RData")
+load("jaguar_anthro_env.RData")
+# load("oturkey_anthro_env.RData")
+# load("ocelot_anthro_env.RData")
+# load("paca_anthro_env.RData")
+# load("puma_anthro_env.RData")
+# load("rbdeer_anthro_env.RData")
+load("wncoati_anthro_env.RData")
+# load("wtdeer_anthro_env.RData")
 # load("collaredpeccary_anthro_env.RData")
-# load("greattina_anthro_env.RData")
+load("gtinamou_anthro_env.RData")
 # load("margay_anthro_env.RData")
-# load("ruddyqd_anthro_env.RData")
+load("rqdove_anthro_env.RData")
 # load("stripedskunk_anthro_env.RData")
 # load("tayra_anthro_env.RData")
 # load("tigerheron_anthro_env.RData")
@@ -338,9 +338,9 @@ load("wtdeer_anthro_env.RData")
 #intercept
 modlist2 <- list()
 
-modlist2 <- c(agouti_anthro_env, gcurassow_anthro_env, gfox_anthro_env, ghdove_anthro_env, ocelot_anthro_env, oturkey_anthro_env, paca_anthro_env, puma_anthro_env, rbdeer_anthro_env, wtdeer_anthro_env)
+modlist2 <- c(cguan_anthro_env, gtinamou_anthro_env, jaguar_anthro_env, rqdove_anthro_env, wncoati_anthro_env)
 
-names(modlist2) <- c("Agouti", "Great curassow", "Gray fox", "Gray-headed dove", "Ocelot", "Ocellated turkey", "Paca", "Puma", "Red brocket", "White-tailed deer")
+names(modlist2) <- c("Crested guan", "Great tinamou", "Jaguar", "Ruddy quail-dove", "White-nosed coati")
 
 species <- names(modlist2)
 
@@ -386,7 +386,7 @@ for (model in species){
   df_log[df_log$species == model,]$`97.5` <- ci9
 }
 
-save(df_log, file = 'df_logging1.Rda')
+save(df_log, file = 'df_logging2.Rda')
 
 #Distance to Roads
 
@@ -528,9 +528,10 @@ for (model in species){
   df_site[df_site$species == model,]$`97.5` <- ci9
 }
 
-CI_new1 <- rbind(df_int, df_log, df_roads, df_bio, df_streams, df_NDVI, df_season, df_dist, df_site)
+CI_new2 <- rbind(df_int, df_log, df_roads, df_bio, df_streams, df_NDVI, df_season, df_dist, df_site)
 
-save(CI_new1, file = "effects_new1.Rda")
+save(CI_new2, file = "effects_new2.Rda")
+
 
 ```
 
