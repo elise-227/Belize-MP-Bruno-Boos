@@ -541,13 +541,12 @@ save(CI_new1, file = "effects_new1.Rda")
 setwd("C:/Users/Kelly/Documents/Belize-MP-Bruno-Boos/Effects")
 
 #effects plot
-load("effects.Rda")
-load("effects2.Rda")
-load("effects3.Rda")
-load("effects_tapir.Rda")
+# load("effects.Rda")
+# load("effects2.Rda")
+# load("effects3.Rda")
+# load("effects_tapir.Rda")
+load("effects_new1.Rda")
 
-#remove old tapir data
-CI <- subset(CI, species != "Baird's tapir")
 
 CI$variable <- as.factor(CI$variable)
 CI2$variable <- as.factor(CI2$variable)
