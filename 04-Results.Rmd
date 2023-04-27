@@ -539,35 +539,35 @@ save(CI_new2, file = "effects_new2.Rda")
 
 ```{r Plotting}
 
-setwd("C:/Users/Kelly/Documents/Belize-MP-Bruno-Boos/Effects")
-
 #effects plot
-# load("effects.Rda")
-# load("effects2.Rda")
-# load("effects3.Rda")
-# load("effects_tapir.Rda")
 load("effects_new1.Rda")
+load("effects_new2.Rda")
+load("effects_new3.Rda")
+load("effects_new4.Rda")
+load("effects_new_margay.Rda")
 
 
-CI$variable <- as.factor(CI$variable)
-CI2$variable <- as.factor(CI2$variable)
-CI3$variable <- as.factor(CI3$variable)
-CI_tap$variable <- as.factor(CI_tap$variable)
+CI_new1$variable <- as.factor(CI_new1$variable)
+CI_new2$variable <- as.factor(CI_new2$variable)
+CI_new3$variable <- as.factor(CI_new3$variable)
+CI_new4$variable <- as.factor(CI_new4$variable)
+CI_new_margay$variable <- as.factor(CI_new_margay$variable)
 
-CI$species <- as.factor(CI$species)
-CI2$species <- as.factor(CI2$species)
-CI3$species <- as.factor(CI3$species)
-CI_tap$species <- as.factor(CI_tap$species)
+CI_new1$species <- as.factor(CI_new1$species)
+CI_new2$species <- as.factor(CI_new2$species)
+CI_new3$species <- as.factor(CI_new3$species)
+CI_new4$species <- as.factor(CI_new4$species)
+CI_new_margay$species <- as.factor(CI_new_margay$species)
 
-CI <- rbind(CI, CI2, CI3, CI_tap)
-CI$species <- recode_factor(CI$species, "Great Curassow" = "Great curassow*",
+CI <- rbind(CI_new1, CI_new2, CI_new3, CI_new4, CI_new_margay)
+CI$species <- recode_factor(CI$species, "Great curassow" = "Great curassow*",
                             "Jaguar" = "Jaguar*",
-                            "Ocellated Turkey" = "Ocellated turkey*",
+                            "Ocellated turkey" = "Ocellated turkey*",
                             "Ocelot" = "Ocelot*",
                             "Puma" = "Puma*",
-                            "Red Brocket Deer" = "Red brocket*",
+                            "Red brocket" = "Red brocket*",
                             "Margay" = "Margay*",
-                            "Baird's Tapir" = "Baird's tapir*",
+                            "Baird's tapir" = "Baird's tapir*",
                             "Russet-naped woodrail" = "Russet-naped wood rail",
                             "Crested Guan" = "Crested guan",
                             "Gray-headed Dove" = "Gray-headed dove",
@@ -614,6 +614,8 @@ ggsave("Logging_plot_red.png", units = "in", width = 8, height = 9)
 #Distance to Roads
 Dist_Roads <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Distance to Roads")
 
+Dist_Roads$Species <- factor(Dist_Roads$Species, levels = c("Russet-naped wood rail","Red brocket*","White-tailed deer","White-lipped peccary","Collared peccary","Gray fox","Jaguar*","Ocelot*", "Puma*","Margay*","Striped hog-nosed skunk","Tayra","White-nosed coati","Nine-banded armadillo","Gray-headed dove","Ruddy quail-dove","Common opossum","Brown four-eyed opossum","Crested guan", "Great curassow*", "Ocellated turkey*","Wood thrush","Bare-throated tiger heron","Baird's tapir*","Paca","Agouti","Great tinamou"))
+
 Roads_plot <- ggplot(
   Dist_Roads, 
   aes(x = `Effect Size`, y = Species, xmin = X2.5, xmax =X97.5)) +
@@ -631,6 +633,8 @@ Roads_plot <- Roads_plot + labs(title = "Roads")
 
 #Biomass
 Biomass <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Mean Biomass")
+
+Biomass$Species <- factor(Biomass$Species, levels = c("Russet-naped wood rail","Red brocket*","White-tailed deer","White-lipped peccary","Collared peccary","Gray fox","Jaguar*","Ocelot*", "Puma*","Margay*","Striped hog-nosed skunk","Tayra","White-nosed coati","Nine-banded armadillo","Gray-headed dove","Ruddy quail-dove","Common opossum","Brown four-eyed opossum","Crested guan", "Great curassow*", "Ocellated turkey*","Wood thrush","Bare-throated tiger heron","Baird's tapir*","Paca","Agouti","Great tinamou"))
 
 Biomass_plot <- ggplot(
   Biomass, 
@@ -650,6 +654,8 @@ Biomass_plot <- Biomass_plot + labs(title = "Biomass")
 #Streams
 Streams <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Distance to Streams")
 
+Streams$Species <- factor(Streams$Species, levels = c("Russet-naped wood rail","Red brocket*","White-tailed deer","White-lipped peccary","Collared peccary","Gray fox","Jaguar*","Ocelot*", "Puma*","Margay*","Striped hog-nosed skunk","Tayra","White-nosed coati","Nine-banded armadillo","Gray-headed dove","Ruddy quail-dove","Common opossum","Brown four-eyed opossum","Crested guan", "Great curassow*", "Ocellated turkey*","Wood thrush","Bare-throated tiger heron","Baird's tapir*","Paca","Agouti","Great tinamou"))
+
 Streams_plot <- ggplot(
   Streams, 
   aes(x = `Effect Size`, y = Species, xmin = X2.5, xmax =X97.5)) +
@@ -667,6 +673,8 @@ Streams_plot <- Streams_plot + labs(title = "Streams")
 
 ##NDVI
 NDVI <- CI %>% group_by(Species, Cov) %>% filter(Cov == "NDVI")
+
+NDVI$Species <- factor(NDVI$Species, levels = c("Russet-naped wood rail","Red brocket*","White-tailed deer","White-lipped peccary","Collared peccary","Gray fox","Jaguar*","Ocelot*", "Puma*","Margay*","Striped hog-nosed skunk","Tayra","White-nosed coati","Nine-banded armadillo","Gray-headed dove","Ruddy quail-dove","Common opossum","Brown four-eyed opossum","Crested guan", "Great curassow*", "Ocellated turkey*","Wood thrush","Bare-throated tiger heron","Baird's tapir*","Paca","Agouti","Great tinamou"))
 
 NDVI_plot <- ggplot(
   NDVI, 
@@ -686,6 +694,8 @@ NDVI_plot <- NDVI_plot + labs(title = "NDVI")
 ##Season
 Season <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Season")
 
+Season$Species <- factor(Season$Species, levels = c("Russet-naped wood rail","Red brocket*","White-tailed deer","White-lipped peccary","Collared peccary","Gray fox","Jaguar*","Ocelot*", "Puma*","Margay*","Striped hog-nosed skunk","Tayra","White-nosed coati","Nine-banded armadillo","Gray-headed dove","Ruddy quail-dove","Common opossum","Brown four-eyed opossum","Crested guan", "Great curassow*", "Ocellated turkey*","Wood thrush","Bare-throated tiger heron","Baird's tapir*","Paca","Agouti","Great tinamou"))
+
 Season_plot <- ggplot(
   Season, 
   aes(x = `Effect Size`, y = Species, xmin = X2.5, xmax =X97.5)) +
@@ -703,6 +713,8 @@ Season_plot <- Season_plot + labs(title = "Season")
 
 ##Natural Disturbance
 NatD <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Natural Disturbance")
+
+NatD$Species <- factor(NatD$Species, levels = c("Russet-naped wood rail","Red brocket*","White-tailed deer","White-lipped peccary","Collared peccary","Gray fox","Jaguar*","Ocelot*", "Puma*","Margay*","Striped hog-nosed skunk","Tayra","White-nosed coati","Nine-banded armadillo","Gray-headed dove","Ruddy quail-dove","Common opossum","Brown four-eyed opossum","Crested guan", "Great curassow*", "Ocellated turkey*","Wood thrush","Bare-throated tiger heron","Baird's tapir*","Paca","Agouti","Great tinamou"))
 
 NatD_plot <- ggplot(
   NatD, 
