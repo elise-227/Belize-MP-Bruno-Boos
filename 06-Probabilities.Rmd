@@ -184,3 +184,27 @@ df_pnew3 <- df_p
 save(df_pnew3, file = "detprobsnew3.Rda")
 
 ```
+
+
+```{r bind}
+load("detprobsnew1.Rda")
+load("detprobsnew2.Rda")
+load("detprobsnew3.Rda")
+load("detprobsnew4.Rda")
+load("detprobsnew_margay.Rda")
+
+df_p <- rbind(df_pnew1, df_pnew2, df_pnew3, df_pnew4, df_pnew_margay)
+
+save(df_p, file = "detection_probsnew.Rda")
+
+load("df_psi_new1.Rda")
+load("df_psi_new2.Rda")
+load("df_psi_new3.Rda")
+load("df_psi_new4.Rda")
+load("df_psi_new_margay.Rda")
+
+df_psi <- rbind(df_psinew_1, df_psinew_2, df_psinew_3, df_psinew_4, df_psinew_margay)
+
+save(df_psi, file = "occ_probsnew.Rda")
+```
+
