@@ -98,3 +98,31 @@ groups <- HSD.test(aov2, "Type", group = TRUE)
 print(groups)
 }
 ```
+
+###SAVEABLE RESULTS
+
+```{r func}
+#ANOVA RESULTS
+aovs <- function(var){
+  aov2 <- aov(effect ~ Type, data = alldat %>%
+  filter(variable == var))
+  summary(aov2)
+}
+results <- map(vars, aovs)
+names(results) <- vars
+
+results$Logging
+results
+
+# GROUPING RESULTS
+groups <- function(var){
+  aov2 <- aov(effect ~ Type, data = alldat %>%
+  filter(variable == var))
+  HSD.test(aov2, "Type", group = TRUE)
+}
+results2 <- map(vars, groups)
+names(results2) <- vars
+
+results2$Logging
+results2
+```
