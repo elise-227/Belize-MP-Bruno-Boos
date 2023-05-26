@@ -1,0 +1,113 @@
+---
+title: "Model Results Post-Hoc"
+author: "Elise Boos"
+date: "2023-05-26"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### MAKING MODEL TO UNDERSTAND RESULTS
+
+```{r effects}
+#load packagaes
+require(tidyverse)
+
+# #load files
+# load("effects_new1.Rda")
+# load("effects_new2.Rda")
+# load("effects_new3.Rda")
+# load("effects_new4.Rda")
+# load("effects_new_margay.Rda")
+# 
+# all <- rbind(CI_new_margay, CI_new1, CI_new2, CI_new3, CI_new4)
+# save(all, file = "all_effects.Rda")
+
+load("all_effects.RDa")
+st <- read.csv("species_traits.csv", stringsAsFactors = T, nrows= 27)
+
+st2 <- st %>% filter(Common.Name != "Common opossum")
+
+#LOGGING
+log <- alldat %>%
+  filter(variable == "Logging")
+
+unique(all$species)
+alldat <- full_join(all, st2, by = c("species" ="Common.Name") )
+unique(alldat$species)
+# road <- all %>%
+#   filter(variable == "Distance to Roads")
+# roaddf <- cbind(road, st2, by = c("species" ="Common.Name"))
+# 
+# bio <- all %>%
+#   filter(variable == "Mean Biomass")
+# biodf <- cbind(bio, st2, by = c("species" ="Common.Name"))
+# 
+# bio <- all %>%
+#   filter(variable == "Distance to Streams")
+# biodf <- cbind(bio, st2, by = c("species" ="Common.Name"))
+```
+
+### Model 
+
+```{r linear models}
+require(agricolae)
+
+#test on logging first 
+
+# BY ORDER 
+
+aov1 <- aov(effect ~ Order, data = alldat %>%
+  filter(variable == "Logging"))
+summary(aov1)
+TukeyHSD(aov1)
+
+groups <- HSD.test(aov1, "Order", group = TRUE)
+groups
+
+
+# BY MAMMAL OR BIRD 
+
+aov2 <- aov(effect ~ Type, data = alldat %>%
+  filter(variable == "Logging"))
+summary(aov2)
+TukeyHSD(aov2)
+
+groups <- HSD.test(aov2, "Type", group = TRUE)
+groups
+```
+
+
+
+```{r lm for loop}
+
+# BY ORDER
+for (var in vars) {
+aov1 <- aov(effect ~ Order, data = alldat %>%
+  filter(variable == var))
+summary(aov1)
+TukeyHSD(aov1)
+
+groups <- HSD.test(aov1, "Order", group = TRUE)
+
+print(var)
+print(groups)
+}
+
+# BY MAMMAL OR BIRD 
+for (var in vars) {
+aov2 <- aov(effect ~ Type, data = alldat %>%
+  filter(variable == var))
+
+print(var)
+
+print(summary(aov2))
+TukeyHSD(aov2)
+
+groups <- HSD.test(aov2, "Type", group = TRUE)
+
+print(groups)
+}
+```
