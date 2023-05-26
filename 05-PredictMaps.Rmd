@@ -1,0 +1,343 @@
+---
+title: "Ocellated Turkey Results"
+output: pdf_document
+date: "2023-02-16"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r load packages and data}
+library(ubms)
+library(tidyverse)
+library(raster)
+
+##### MAC
+load("camop.RData")
+sites <- sort(camop$site, decreasing = FALSE)
+site_list <- as.data.frame(sites)
+site_list$Nums <- c(1:410)
+#####
+
+# load("./Model Outputs/grayfox_null.RData")
+# load("./Model Outputs/grayfox_anthro.RData")
+# load("./Model Outputs/grayfox_env.RData")
+# load("./Model Outputs/grayfox_anthro_env.RData")
+# 
+# load("./Model Outputs/ocellatedturkey_null.RData")
+# load("./Model Outputs/ocellatedturkey_anthro.RData")
+# load("./Model Outputs/ocellatedturkey_env.RData")
+# load("./Model Outputs/ocellatedturkey_anthro_env.RData")
+# 
+# load("./Model Outputs/greatcura_null.RData")
+# load("./Model Outputs/greatcura_anthro.RData")
+# load("./Model Outputs/greatcura_env.RData")
+# load("./Model Outputs/greatcura_anthro_env.RData")
+# 
+# load("./Model Outputs/wtdeer_null.RData")
+# load("./Model Outputs/wtdeer_anthro.RData")
+# load("./Model Outputs/wtdeer_env.RData")
+# load("./Model Outputs/wtdeer_anthro_env.RData")
+
+load("./Model Outputs/new_mods/jaguar_anthro_env.RData")
+load("./Model Outputs/new_mods/wtdeer_anthro_env.RData")
+```
+
+
+## Null Model
+
+```{r null}
+ocellatedturkey_null
+grayfox_null
+greatcura_null
+wtdeer_null
+```
+
+## Anthropogenic
+
+```{r anth}
+ocellatedturkey_anthro
+
+plot_posteriors(ocellatedturkey_anthro)
+plot_residuals(ocellatedturkey_anthro, "state")
+plot_marginal(ocellatedturkey_anthro, "state")
+
+grayfox_anthro
+
+plot_posteriors(grayfox_anthro)
+plot_residuals(grayfox_anthro, "state")
+plot_marginal(grayfox_anthro, "state")
+
+greatcura_anthro
+
+plot_posteriors(greatcura_anthro)
+plot_residuals(greatcura_anthro, "state")
+plot_marginal(greatcura_anthro, "state")
+
+wtdeer_anthro
+
+plot_posteriors(wtdeer_anthro)
+plot_residuals(wtdeer_anthro, "state")
+plot_marginal(wtdeer_anthro, "state")
+```
+
+
+## Environmental
+
+```{r env}
+ocellatedturkey_env
+
+plot_posteriors(ocellatedturkey_env)
+plot_residuals(ocellatedturkey_env, "state")
+plot_marginal(ocellatedturkey_env, "state")
+
+grayfox_env
+
+plot_posteriors(grayfox_env)
+plot_residuals(grayfox_env, "state")
+plot_marginal(grayfox_env, "state")
+
+greatcura_env
+
+plot_posteriors(greatcura_env)
+plot_residuals(greatcura_env, "state")
+plot_marginal(greatcura_env, "state")
+
+wtdeer_env
+
+plot_posteriors(wtdeer_env)
+plot_residuals(wtdeer_env, "state")
+plot_marginal(wtdeer_env, "state")
+```
+
+## Anthropogenic + Environmental
+
+```{r anth and env}
+ocellatedturkey_anthro_envr
+
+plot_posteriors(ocellatedturkey_anthro_envr)
+plot_residuals(ocellatedturkey_anthro_envr, "state")
+plot_marginal(ocellatedturkey_anthro_envr, "state")
+
+grayfox_anthro_env
+
+plot_posteriors(grayfox_anthro_env)
+plot_residuals(grayfox_anthro_env, "state")
+plot_marginal(grayfox_anthro_env, "state")
+
+greatcura_anthro
+
+plot_posteriors(greatcura_anthro_env)
+plot_residuals(greatcura_anthro_env, "state")
+plot_marginal(greatcura_anthro_env, "state")
+
+wtdeer_anthro
+
+plot_posteriors(wtdeer_anthro_env)
+plot_residuals(wtdeer_anthro_env, "state")
+plot_marginal(wtdeer_anthro_env, "state")
+```
+
+## Model selection
+
+```{r model selection}
+mods <- fitList(ocellatedturkey_null, ocellatedturkey_anthro, ocellatedturkey_envr, ocellatedturkey_anthro_env)
+round(modSel(mods), 3)
+```
+
+## Predict
+
+```{r load rasters}
+
+biomass <- raster("./Rasters/Cropped1km/biomass1km_crop.tif")
+names(biomass) <- "mean_bioma"
+
+site <- raster("./Rasters/Cropped1km/sites_1km_crop.tif")
+
+log <- raster("./Rasters/Cropped1km/logging_1km_crop.tif")
+names(log) <- "Logging"
+
+road <- raster("./Rasters/Cropped1km/dist2road_1km_crop.tif")
+names(road) <- "NEAR_DIST_ROAD"
+
+river <- raster("./Rasters/outputmar5/dist2river2_1km.tif")
+names(river) <- "NEAR_DIST_STRM"
+
+natdist <- raster("./Rasters/outputmar5/natdist2_1km.tif")
+natdist <- raster("./Rasters/outputmar5/natdist6_1km.tif")
+names(natdist) <- "Nat_Dist"
+
+ndvi <- raster("./Rasters/outputmar5/ndvi_1km.tif")
+names(ndvi) <- "mean_NDVI"
+
+season <- raster("./Rasters/outputmar5/season2_1km.tif")
+names(season) <- "Season"
+
+extent(natdist) <- extent(road)
+extent(natdist)
+
+extent(ndvi) <- extent(road)
+extent(ndvi)
+extent(season) <- extent(road)
+extent(season)
+extent(river) <- extent(road)
+crs(river)
+plot(natdist)
+dim(road)
+dim(ndvi)
+dim(natdist)
+unique(site)
+
+stack <- stack(biomass,road, log, site, river, natdist, ndvi, season)
+plot(stack)
+```
+
+### Plot of predicted occupancy based on anthropogenic model
+```{r plot}
+
+sitedf <- site@data@attributes[[1]]
+#does not work on mac
+
+ef <- data.frame(coordinates(log),
+                 Logging=values(log),
+                 NEAR_DIST_ROAD=values(road),
+                 mean_bioma=values(biomass),
+                 site=values(site),
+                 Nat_Dist=values(natdist),
+                 Season=values(season),
+                 NEAR_DIST_STRM=values(river),
+                 mean_NDVI=values(ndvi)
+                 )
+
+###MAC STUFF
+# ef2 <- left_join(ef,site_list, by = c("site" = "Nums"))
+#####
+
+ef2 <- left_join(ef,sitedf, by = c("site" = "ID"))
+ef2$Logging[ef2$Logging == 1] <- "Yes" 
+ef2$Logging <- replace_na(ef2$Logging, "No")
+
+unique(natdist)
+
+ef2$Nat_Dist[ef2$Nat_Dist ==1] <- "Yes"
+ef2$Nat_Dist[ef2$Nat_Dist ==2] <- "No"
+#NEW ONE has 128 as no data
+ef2$Nat_Dist[ef2$Nat_Dist ==128] <- "No"
+
+
+ef2$Nat_Dist <- replace_na(ef2$Nat_Dist, "No")
+
+ef2$Season[ef2$Season ==1] <- "Dry"
+ef2$Season[ef2$Season ==2] <- "Rainy"
+
+
+ef2$Season <- replace_na(ef2$Season, "Rainy")
+
+
+
+colnames(ef2) <- c("x","y","Logging","NEAR_DIST_ROAD","mean_bioma","siteID","Nat_Dist","Season","NEAR_DIST_STRM", "mean_NDVI", "site")
+
+ef2$Logging<-as.factor(ef2$Logging)
+ef2$site <- as.factor(ef2$site)
+
+
+ef2$Nat_Dist<-as.factor(ef2$Nat_Dist)
+ef2$Season <- as.factor(ef2$Season)
+
+######
+
+pr_raster <- ubms::predict(jaguar_anthro_env, "state", newdata = ef2, transform = TRUE)
+
+pr_raster2 <- ubms::predict(wtdeer_anthro_env, "state", newdata = ef2, transform = TRUE)
+
+#summary(pr_raster$Predicted)
+
+E.psi.r <- rasterFromXYZ(cbind(ef2[,c("x","y")],pr_raster[,"Predicted"]))
+E.psi.r2 <-  rasterFromXYZ(cbind(ef2[,c("x","y")],pr_raster2[,"Predicted"]))
+
+#crs(E.psi.r) <- CRS('+init=EPSG:26716')
+
+require(sf)
+boundary <- read_sf("studyareaboundary.shp")
+crs(boundary)
+cams <- read_sf("correctcams_321.shp")
+cams_tf <- st_transform(cams,crs =26716)
+crs(cams_tf)
+plot(cams$geometry)
+
+#raster <- st_transform(E.psi.r, crs =26716)
+
+
+logged <- cams_tf[cams_tf$Logging == "Yes",]
+unlogged <- cams_tf[cams_tf$Logging == "No",]
+
+unloggedsub <- unlogged %>% filter(stringr::str_starts(site, '6'))
+unloggedsub <- unlogged %>% filter(!grepl('60',site))
+unloggedsub <- unloggedsub %>% filter(!grepl('61',site))
+
+par(mfrow = c(1,2))
+plot(E.psi.r)
+plot(boundary$geometry, bg="transparent", add=TRUE)
+plot(unloggedsub$geometry,col = "red", add = TRUE)
+plot(logged$geometry, col = "blue", add = TRUE)
+title(main = "A")
+
+plot(E.psi.r2)
+plot(boundary$geometry, bg="transparent", add=TRUE)
+plot(unloggedsub$geometry,col = "red", add = TRUE)
+plot(logged$geometry, col = "blue", add = TRUE)
+title(main = "B")
+
+# Importing the required library
+library(proxy)
+# creating a data frame
+
+
+
+
+print("Distance Matrix ")
+# creating a distance matrix
+matrix <- dist(logged$geometry, unlogged$geometry,
+     method="euclidean")
+matrix
+summary(matrix)
+
+
+
+
+ggplot()+
+  geom_raster(E.psi.r, aes(x=x,y=y))+
+  geom_sf(unloggedsub, col = "red")+
+  geom_sf(logged, col = "blue")
+  
+
+
+# 1. Open file
+tiff("predict_plots.tiff", width = 8, height = 5, units = "in", res = 300)
+# 2. Create the plot
+# plot(E.psi.r)
+# plot(boundary$geometry, bg="transparent", add=TRUE)
+# plot(unloggedsub$geometry,col = "red", add = TRUE)
+# plot(logged$geometry, col = "blue", add = TRUE)
+# title(main = "Jaguar*")
+# 3. Close the file
+#bottom, left, top , right
+par(mfrow = c(1,2), mar = c(3,5,3,4))
+plot(E.psi.r)
+plot(boundary$geometry, bg="transparent", add=TRUE)
+plot(unloggedsub$geometry,col = "red", cex=0.6, add = TRUE)
+plot(logged$geometry, col = "blue", cex = 0.6, add = TRUE)
+title(main = "A")
+
+plot(E.psi.r2)
+plot(boundary$geometry, bg="transparent", add=TRUE)
+plot(unloggedsub$geometry,col = "red", cex=0.6, add = TRUE)
+plot(logged$geometry, col = "blue", cex = 0.6, add = TRUE)
+title(main = "B")
+dev.off()
+```
