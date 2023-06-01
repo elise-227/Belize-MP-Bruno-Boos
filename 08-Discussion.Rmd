@@ -28,6 +28,7 @@ require(tidyverse)
 load("all_effects.RDa")
 st <- read.csv("species_traits.csv", stringsAsFactors = T, nrows= 27)
 
+#note - species of concern = belizean SOC or threatened on IUCN list
 
 ##DROPPING OPOSSUM FOR NOW 
 st2 <- st %>% filter(Common.Name != "Common opossum")
