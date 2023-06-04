@@ -98,6 +98,38 @@ groups <- HSD.test(aov2, "Type", group = TRUE)
 
 print(groups)
 }
+
+
+# BY GUILD
+for (var in vars) {
+aov2 <- aov(effect ~ Guild, data = alldat %>%
+  filter(variable == var))
+
+print(var)
+
+print(summary(aov2))
+TukeyHSD(aov2)
+
+groups <- HSD.test(aov2, "Guild", group = TRUE)
+
+print(groups)
+}
+
+
+# BY SOC
+for (var in vars) {
+aov2 <- aov(effect ~ Species_of_concern, data = alldat %>%
+  filter(variable == var))
+
+print(var)
+
+print(summary(aov2))
+TukeyHSD(aov2)
+
+groups <- HSD.test(aov2, "Species_of_concern", group = TRUE)
+
+print(groups)
+}
 ```
 
 ###SAVEABLE RESULTS
