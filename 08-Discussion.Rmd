@@ -14,6 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r effects}
 #load packagaes
 require(tidyverse)
+require(agricolae)
 
 # #load files
 # load("effects_new1.Rda")
@@ -38,36 +39,91 @@ alldat <- full_join(all, st2, by = c("species" ="Common.Name") )
 vars <- unique(alldat$variable)
 ```
 
-### Model 
+### Model test
 
 ```{r linear models}
-require(agricolae)
-
 #test on logging first 
 
 # BY ORDER 
 
-aov1 <- aov(effect ~ Order, data = alldat %>%
-  filter(variable == "Logging"))
-summary(aov1)
-TukeyHSD(aov1)
+# aov1 <- aov(effect ~ Order, data = alldat %>%
+#   filter(variable == "Logging"))
+# summary(aov1)
+# TukeyHSD(aov1)
+# 
+# groups <- HSD.test(aov1, "Order", group = TRUE)
+# groups
+# 
+# 
+# # BY MAMMAL OR BIRD 
+# 
+# aov2 <- aov(effect ~ Type, data = alldat %>%
+#   filter(variable == "Logging"))
+# summary(aov2)
+# TukeyHSD(aov2)
+# 
+# groups <- HSD.test(aov2, "Type", group = TRUE)
+# groups
+```
 
-groups <- HSD.test(aov1, "Order", group = TRUE)
-groups
+###SAVEABLE RESULTS
 
+##### DO NOT NEED TO RUN AGAIN ####
 
-# BY MAMMAL OR BIRD 
+```{r func}
+#ANOVA RESULTS
+# aovs <- function(var){
+#   aov2 <- aov(effect ~ Species_of_concern, data = alldat %>%
+#   filter(variable == var))
+#   summary(aov2)
+# }
+# results <- map(vars, aovs)
+# names(results) <- vars
+# 
+# results$Logging
+# #pull out p value 
+# pvals <- c(results$Intercept[[1]]$`Pr(>F)`[1],results$Logging[[1]]$`Pr(>F)`[1],results$`Distance to Roads`[[1]]$`Pr(>F)`[1], results$`Mean Biomass`[[1]]$`Pr(>F)`[1], results$`Distance to Streams`[[1]]$`Pr(>F)`[1], results$NDVI[[1]]$`Pr(>F)`[1], results$Season[[1]]$`Pr(>F)`[1], results$`Natural Disturbance`[[1]]$`Pr(>F)`[1], results$Site[[1]]$`Pr(>F)`[1])
+#            
+# pvaldf_soc <- as.data.frame(cbind(vars, pvals))
+# pvaldf_soc$pvals <- as.numeric(pvaldf_soc$pvals)
 
-aov2 <- aov(effect ~ Type, data = alldat %>%
-  filter(variable == "Logging"))
-summary(aov2)
-TukeyHSD(aov2)
+#save groupings 
+# save(pvaldf_soc, file = "pvaldf_soc.Rda")
+```
 
-groups <- HSD.test(aov2, "Type", group = TRUE)
-groups
+```{r}
+# p values for each grouping 
+load("pvaldf_type.Rda")
+load("pvaldf_guild.Rda")
+load("pvaldf_soc.Rda")
+
 ```
 
 
+### LOOK AT THE DIFFERENCES IN MEANS BETWEEN THE GORUPINGS
+
+```{r}
+# GROUPING RESULTS 
+
+#use this to see the differences in groups 
+groups <- function(var){
+  aov2 <- aov(effect ~ Guild, data = alldat %>%
+  filter(variable == var))
+  HSD.test(aov2, "Guild", group = TRUE)
+}
+results2 <- map(vars, groups)
+names(results2) <- vars
+
+results2$`Mean Biomass`
+results2$Season
+results2
+```
+
+
+
+#### EXTRA STUFF BELOW NOT NECESSARY 
+
+### USE JUST TO PRINT OUT *ALL* RESULTS FOR EXAMINING 
 
 ```{r lm for loop}
 
@@ -130,36 +186,4 @@ groups <- HSD.test(aov2, "Species_of_concern", group = TRUE)
 
 print(groups)
 }
-```
-
-###SAVEABLE RESULTS
-
-```{r func}
-#ANOVA RESULTS
-aovs <- function(var){
-  aov2 <- aov(effect ~ Type, data = alldat %>%
-  filter(variable == var))
-  summary(aov2)
-}
-results <- map(vars, aovs)
-names(results) <- vars
-
-results$Logging
-#pull out p value 
-pvals <- c(results$Intercept[[1]]$`Pr(>F)`[1],results$Logging[[1]]$`Pr(>F)`[1],results$`Distance to Roads`[[1]]$`Pr(>F)`[1], results$`Mean Biomass`[[1]]$`Pr(>F)`[1], results$`Distance to Streams`[[1]]$`Pr(>F)`[1], results$NDVI[[1]]$`Pr(>F)`[1], results$Season[[1]]$`Pr(>F)`[1], results$`Natural Disturbance`[[1]]$`Pr(>F)`[1], results$Site[[1]]$`Pr(>F)`[1])
-           
-pvaldf_type <- as.data.frame(cbind(vars, pvals))
-pvaldf_type$pvals <- as.numeric(pvaldf_type$pvals)
-
-# GROUPING RESULTS
-groups <- function(var){
-  aov2 <- aov(effect ~ Type, data = alldat %>%
-  filter(variable == var))
-  HSD.test(aov2, "Type", group = TRUE)
-}
-results2 <- map(vars, groups)
-names(results2) <- vars
-
-results2$Logging
-results2
 ```
