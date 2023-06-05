@@ -145,7 +145,11 @@ results <- map(vars, aovs)
 names(results) <- vars
 
 results$Logging
-results
+#pull out p value 
+pvals <- c(results$Intercept[[1]]$`Pr(>F)`[1],results$Logging[[1]]$`Pr(>F)`[1],results$`Distance to Roads`[[1]]$`Pr(>F)`[1], results$`Mean Biomass`[[1]]$`Pr(>F)`[1], results$`Distance to Streams`[[1]]$`Pr(>F)`[1], results$NDVI[[1]]$`Pr(>F)`[1], results$Season[[1]]$`Pr(>F)`[1], results$`Natural Disturbance`[[1]]$`Pr(>F)`[1], results$Site[[1]]$`Pr(>F)`[1])
+           
+pvaldf_type <- as.data.frame(cbind(vars, pvals))
+pvaldf_type$pvals <- as.numeric(pvaldf_type$pvals)
 
 # GROUPING RESULTS
 groups <- function(var){
