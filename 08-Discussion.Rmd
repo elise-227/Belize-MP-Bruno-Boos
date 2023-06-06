@@ -46,23 +46,23 @@ vars <- unique(alldat$variable)
 
 # BY ORDER 
 
-carn <- alldat %>%
-  filter(Guild == "Carnivore")
-
-# df_wider <- alldat %>%
-#  # mutate(sp_var = paste(species, variable)) %>%
-#   pivot_wider(names_from = variable, values_from = effect)
-
-
-
- aov1<- aov(effect ~ variable, data = carn)  #%>%
- #  filter(variable == "Logging"))
-summary(aov1)
-TukeyHSD(aov1)
+# carn <- alldat %>%
+#   filter(Guild == "Carnivore")
 # 
-
-groups <- HSD.test(aov1, "variable", group = TRUE)
-groups
+# # df_wider <- alldat %>%
+# #  # mutate(sp_var = paste(species, variable)) %>%
+# #   pivot_wider(names_from = variable, values_from = effect)
+# 
+# 
+# 
+#  aov1<- aov(effect ~ variable, data = carn)  #%>%
+#  #  filter(variable == "Logging"))
+# summary(aov1)
+# TukeyHSD(aov1)
+# # 
+# 
+# groups <- HSD.test(aov1, "variable", group = TRUE)
+# groups
 # 
 # 
 # # BY MAMMAL OR BIRD 
@@ -129,6 +129,31 @@ results2$Season
 results2
 ```
 
+## CORRECT WAY ?
+
+```{r}
+# GROUPING RESULTS 
+#use this to see the differences in groups 
+types <- unique(alldat$Type)
+
+groups <- function(type){
+  aov2 <- aov(effect ~ variable, data = alldat %>%
+  filter(Type == type))
+  HSD.test(aov2, "variable", group = TRUE)
+}
+results2 <- map(types, groups)
+names(results2) <- types
+
+# results2$`Mean Biomass`
+# results2$Season
+results2
+
+```
+
+
+
+
+
 
 
 #### EXTRA STUFF BELOW NOT NECESSARY 
@@ -167,16 +192,16 @@ print(groups)
 
 
 # BY GUILD
-for (var in vars) {
-aov2 <- aov(effect ~ Guild, data = alldat %>%
-  filter(variable == var))
+for (guild in guilds) {
+aov2 <- aov(effect ~ variable, data = alldat %>%
+  filter(Guild == guild))
 
-print(var)
+print(guild)
 
 print(summary(aov2))
 TukeyHSD(aov2)
 
-groups <- HSD.test(aov2, "Guild", group = TRUE)
+groups <- HSD.test(aov2, "variable", group = TRUE)
 
 print(groups)
 }
