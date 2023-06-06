@@ -46,20 +46,23 @@ vars <- unique(alldat$variable)
 
 # BY ORDER 
 
-df_wider <- alldat %>%
- # mutate(sp_var = paste(species, variable)) %>%
-  pivot_wider(names_from = variable, values_from = effect)
+carn <- alldat %>%
+  filter(Guild == "Carnivore")
+
+# df_wider <- alldat %>%
+#  # mutate(sp_var = paste(species, variable)) %>%
+#   pivot_wider(names_from = variable, values_from = effect)
 
 
 
-
- # aov1<- aov(effect ~ Order, data = alldat %>%
+ aov1<- aov(effect ~ variable, data = carn)  #%>%
  #  filter(variable == "Logging"))
-# summary(aov1)
-# TukeyHSD(aov1)
+summary(aov1)
+TukeyHSD(aov1)
 # 
-# groups <- HSD.test(aov1, "Order", group = TRUE)
-# groups
+
+groups <- HSD.test(aov1, "variable", group = TRUE)
+groups
 # 
 # 
 # # BY MAMMAL OR BIRD 
