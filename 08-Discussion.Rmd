@@ -46,8 +46,15 @@ vars <- unique(alldat$variable)
 
 # BY ORDER 
 
-# aov1 <- aov(effect ~ Order, data = alldat %>%
-#   filter(variable == "Logging"))
+df_wider <- alldat %>%
+ # mutate(sp_var = paste(species, variable)) %>%
+  pivot_wider(names_from = variable, values_from = effect)
+
+
+
+
+ # aov1<- aov(effect ~ Order, data = alldat %>%
+ #  filter(variable == "Logging"))
 # summary(aov1)
 # TukeyHSD(aov1)
 # 
