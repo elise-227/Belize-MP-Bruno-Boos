@@ -39,6 +39,18 @@ alldat <- full_join(all, st2, by = c("species" ="Common.Name") )
 vars <- unique(alldat$variable)
 ```
 
+```{r}
+alldat_bird <- alldat %>%
+  filter(Type == "Bird")
+
+alldat_mammal <- alldat %>%
+  filter(Type == "Mammal")
+install.packages("plotrix")
+library(plotrix)
+std.error(filter(alldat_bird, variable == "Logging")$effect)
+std.error(filter(alldat_mammal, variable == "Logging")$effect)
+```
+
 ### Model test
 
 ```{r linear models}
@@ -67,13 +79,13 @@ vars <- unique(alldat$variable)
 # 
 # # BY MAMMAL OR BIRD 
 # 
-# aov2 <- aov(effect ~ Type, data = alldat %>%
-#   filter(variable == "Logging"))
-# summary(aov2)
-# TukeyHSD(aov2)
+ aov2 <- aov(effect ~ Type, data = alldat %>%
+   filter(variable == "Logging"))
+ summary(aov2)
+ TukeyHSD(aov2)
 # 
-# groups <- HSD.test(aov2, "Type", group = TRUE)
-# groups
+ groups <- HSD.test(aov2, "Type", group = TRUE)
+ groups
 ```
 
 ###SAVEABLE RESULTS
@@ -117,9 +129,9 @@ load("pvaldf_soc.Rda")
 
 #use this to see the differences in groups 
 groups <- function(var){
-  aov2 <- aov(effect ~ Guild, data = alldat %>%
+  aov2 <- aov(effect ~ Species_of_concern, data = alldat %>%
   filter(variable == var))
-  HSD.test(aov2, "Guild", group = TRUE)
+  HSD.test(aov2, "Species_of_concern", group = TRUE)
 }
 results2 <- map(vars, groups)
 names(results2) <- vars
@@ -127,6 +139,8 @@ names(results2) <- vars
 results2$`Mean Biomass`
 results2$Season
 results2
+
+pvaldf_type
 ```
 
 ## CORRECT WAY ?
