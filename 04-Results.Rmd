@@ -307,30 +307,31 @@ plot_marginal(fit_top, "state") #plot marginal effects of each covariate with ot
 
 
 ##load models
-setwd("D:/Model Outputs/April17")
+setwd("F:/Model Outputs/April17")
 # load("agouti_anthro_env .RData")
 # load("btapir_anthro_env.RData")
-load("cguan_anthro_env.RData")
-# load("copossum_anthro_env.RData")
-# load("ghdove_anthro_env.RData")
-# load("gcurassow_anthro_env.RData")
-# load("gfox_anthro_env .RData")
-load("jaguar_anthro_env.RData")
-# load("oturkey_anthro_env.RData")
-# load("ocelot_anthro_env.RData")
-# load("paca_anthro_env.RData")
-# load("puma_anthro_env.RData")
-# load("rbdeer_anthro_env.RData")
-load("wncoati_anthro_env.RData")
-# load("wtdeer_anthro_env.RData")
-# load("collaredpeccary_anthro_env.RData")
-load("gtinamou_anthro_env.RData")
-# load("margay_anthro_env.RData")
-load("rqdove_anthro_env.RData")
+# load("cguan_anthro_env.RData")
+load("copossum_anthro_env.RData")
+# # load("ghdove_anthro_env.RData")
+# # load("gcurassow_anthro_env.RData")
+# # load("gfox_anthro_env .RData")
+# load("jaguar_anthro_env.RData")
+# # load("oturkey_anthro_env.RData")
+# # load("ocelot_anthro_env.RData")
+# # load("paca_anthro_env.RData")
+# # load("puma_anthro_env.RData")
+# # load("rbdeer_anthro_env.RData")
+# load("wncoati_anthro_env.RData")
+# # load("wtdeer_anthro_env.RData")
+# # load("collaredpeccary_anthro_env.RData")
+# load("gtinamou_anthro_env.RData")
+# # load("margay_anthro_env.RData")
+# load("rqdove_anthro_env.RData")
 # load("stripedskunk_anthro_env.RData")
 # load("tayra_anthro_env.RData")
 # load("tigerheron_anthro_env.RData")
 # load("wlippedpeccary_anthro_env.RData")
+##add other possum
 
 #models_list will be a list of anthro_env models for the species
 #species with be the name of the model 
@@ -338,9 +339,9 @@ load("rqdove_anthro_env.RData")
 #intercept
 modlist2 <- list()
 
-modlist2 <- c(cguan_anthro_env, gtinamou_anthro_env, jaguar_anthro_env, rqdove_anthro_env, wncoati_anthro_env)
+modlist2 <- c(copossum_anthro_env)
 
-names(modlist2) <- c("Crested guan", "Great tinamou", "Jaguar", "Ruddy quail-dove", "White-nosed coati")
+names(modlist2) <- c("Common Opossum")
 
 species <- names(modlist2)
 
@@ -528,9 +529,9 @@ for (model in species){
   df_site[df_site$species == model,]$`97.5` <- ci9
 }
 
-CI_new2 <- rbind(df_int, df_log, df_roads, df_bio, df_streams, df_NDVI, df_season, df_dist, df_site)
+CI_copossum <- rbind(df_int, df_log, df_roads, df_bio, df_streams, df_NDVI, df_season, df_dist, df_site)
 
-save(CI_new2, file = "effects_new2.Rda")
+save(CI_copossum, file = "effects_new_copossum.Rda")
 
 
 ```
@@ -545,6 +546,7 @@ load("effects_new2.Rda")
 load("effects_new3.Rda")
 load("effects_new4.Rda")
 load("effects_new_margay.Rda")
+load("effects_new_copossum.Rda")
 
 
 CI_new1$variable <- as.factor(CI_new1$variable)
@@ -552,14 +554,16 @@ CI_new2$variable <- as.factor(CI_new2$variable)
 CI_new3$variable <- as.factor(CI_new3$variable)
 CI_new4$variable <- as.factor(CI_new4$variable)
 CI_new_margay$variable <- as.factor(CI_new_margay$variable)
+CI_copossum$variable <- as.factor(CI_copossum$variable)
 
 CI_new1$species <- as.factor(CI_new1$species)
 CI_new2$species <- as.factor(CI_new2$species)
 CI_new3$species <- as.factor(CI_new3$species)
 CI_new4$species <- as.factor(CI_new4$species)
 CI_new_margay$species <- as.factor(CI_new_margay$species)
+CI_copossum$species <- as.factor(CI_copossum$species)
 
-CI <- rbind(CI_new1, CI_new2, CI_new3, CI_new4, CI_new_margay)
+CI <- rbind(CI_new1, CI_new2, CI_new3, CI_new4, CI_new_margay, CI_copossum)
 CI$species <- recode_factor(CI$species, "Great curassow" = "Great curassow*",
                             "Jaguar" = "Jaguar*",
                             "Ocellated turkey" = "Ocellated turkey*",
@@ -573,7 +577,8 @@ CI$species <- recode_factor(CI$species, "Great curassow" = "Great curassow*",
                             "Gray-headed Dove" = "Gray-headed dove",
                             "Gray Fox" = "Gray fox",
                             "White-nosed Coati" = "White-nosed coati",
-                            "White-tailed Deer" = "White-tailed deer")
+                            "White-tailed Deer" = "White-tailed deer",
+                            "Common Opossum" = "Common opossum")
 
 colnames(CI)[1] <- "Species"
 colnames(CI)[2] <- "Effect Size"
@@ -605,10 +610,11 @@ Logging_plot <- ggplot(
   theme(legend.position = "none") +
   theme(axis.title.y=element_blank()) +
   geom_vline(xintercept = 0, linetype="dashed", color = "tomato1") +
-  theme_bw()
+  theme_bw() +
+  scale_y_discrete(limits = rev)
 Logging_plot <- Logging_plot + labs(title = "Logging", size = 15) + theme(axis.title = element_text(size= 15))
 
-ggsave("Logging_plot_red.png", units = "in", width = 8, height = 9)
+ggsave("Logging_plot_june.png", units = "in", width = 8, height = 9)
 
 
 #Distance to Roads
@@ -742,7 +748,8 @@ ggp1_legend <- ggplot(NatD,
   theme_bw() +
   theme(axis.title.y=element_blank()) +
   geom_vline(xintercept = 0, linetype="dashed") +
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom") +
+  scale_y_discrete(limits = rev)
   
 # Create user-defined function, which extracts legends from ggplots
 extract_legend <- function(my_ggp) {
@@ -757,7 +764,7 @@ shared_legend <- extract_legend(ggp1_legend)
 
 ##grid of plots
 #install.packages("gridExtra")
-tiff("effectsplotbw_compressed.tiff", units = "in", width = 10, height = 14, res = 200)
+tiff("effectsplotbw_june.tiff", units = "in", width = 10, height = 14, res = 200)
 p <- grid.arrange(arrangeGrob(Roads_plot, Biomass_plot, Streams_plot, NDVI_plot, Season_plot, NatD_plot, nrow = 3), ncol = 1, heights = c(14, 1))
 dev.off()
 
