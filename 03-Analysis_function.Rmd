@@ -93,6 +93,15 @@ datecheck <- data.frame(IsDate(dat$date_time_obs))
 dat <- dat[-c(1557,4485, 11912, 13478),]
 ```
 
+```{r save cleaned data}
+save(camop, file = "./clean_data/camera_data.RData")
+save(cam_op, file = "./clean_data/cameras_operation.RData")
+save(covs_all, file = "./clean_data/covariates.RData")
+save(dat, file = "./clean_data/detections_data.RData")
+
+```
+
+
 ```{r mod list}
 #species vector 
 #mammals <- dat[dat$Mammal == "Yes",]
