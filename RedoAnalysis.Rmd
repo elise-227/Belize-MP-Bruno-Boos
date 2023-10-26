@@ -187,6 +187,22 @@ camgrid2019 <- left_join(grid_2019, Logging_Grid_2019.df, by = "group")
 
 ```
 
+```{r}
+grid_2020 <-filter(grid, year(Date.Placement) == 2020)
+
+
+Logging_Grid_2020 <- grid_2020 %>%
+  group_by(group) %>%
+  summarise(Logging_Grid = mode(Logging))
+
+mapview(Logging_Grid_2020, zcol = "Logging_Grid")
+
+Logging_Grid_2020.df <-dplyr::select(as.data.frame(Logging_Grid_2020), -geometry)
+
+camgrid2020 <- left_join(grid_2020, Logging_Grid_2020.df, by = "group")
+
+```
+
 
 ```{r}
 
@@ -473,6 +489,92 @@ species_list
  
 data_list <- list(ylist    = ylist,
                    siteCovs = Logging_Grid_2019.df,
+                   obsCovs  = list(effort = DetHist_list[[1]]$effort)) 
+
+# text file to save the model
+ modelfile1 <- tempfile(fileext = ".txt")
+
+ 
+ mod.jags <- communityModel(data_list,
+                            occuCovs = list(fixed = "Logging_Grid"),
+                            detCovsObservation = list(fixed = "effort"),
+                            intercepts = list(det = "ranef", occu = "ranef"),
+                            modelFile = modelfile1)
+summary(mod.jags)
+
+ fit.jags <- fit(mod.jags,
+                 n.iter = 1000,
+                 n.burnin = 500,
+                 chains = 3)
+ 
+ fit_summary <- summary(fit.jags)
+ 
+ DT::datatable(round(fit_summary$statistics, 3))
+ 
+  plot_effects(mod.jags,
+              fit.jags,
+              submodel = "state")
+  
+   plot_effects(mod.jags,
+              fit.jags,
+              submodel = "det")
+   
+    plot_coef(mod.jags,
+           fit.jags,
+           submodel = "state")
+
+```
+
+
+```{r}
+camgrid2020.df <- dplyr::select(as.data.frame(camgrid2020), -geometry)
+cam_op <- cameraOperation(camgrid2020.df, stationCol = "group", cameraCol = "site", setupCol = "Date.Placement", byCamera = FALSE, allCamsOn = FALSE, camerasIndependent = FALSE,
+                             retrievalCol = "Last.record", occasionStartTime = 0 , 
+                             dateFormat = "%Y-%m-%d", writecsv = FALSE)
+
+
+dat_2020  <-filter(dat, Year == 2020)
+# #removing 2017 data add back into 2017 or into this tbd 
+ dat_2020 <- dat_2020[-(1:50),]
+datgrid2020 <- left_join(dat_2020, camgrid2020.df, by = "site")
+
+
+ # list of detection histories
+datgrid2020$Species <- as.character(datgrid2020$Species)
+#remove error rows 
+datgrid20202 <- datgrid2020[-1019,]
+
+#get count of species
+count <- table(datgrid20202$Species)
+count
+#count
+list <- subset(count, count > 40)
+
+species_list <- names(list)
+species_list
+
+
+ DetHist_list <- lapply(species_list, FUN = function(x) {
+   detectionHistory(recordTable = datgrid20202, species = x,
+                                       camOp = cam_op, output = "binary", stationCol = "group", 
+                                       speciesCol = "Species", day1 ="station", 
+                                       recordDateTimeCol = "date_time_obs", 
+                                       recordDateTimeFormat =  "%Y-%m-%d %H.%M", 
+                                       timeZone = "UTC", occasionLength = 1, 
+                                       includeEffort = TRUE, scaleEffort = FALSE, 
+                                       writecsv = FALSE)}
+ )
+
+ # assign species names to the list items
+ names(DetHist_list) <- species_list
+
+ # note, DetHist_list is a list containing a list for each species
+ ylist <- lapply(DetHist_list, FUN = function(x) x$detection_history)
+
+ Logging_Grid_2020.df$Logging_Grid <- as.factor(Logging_Grid_2020.df$Logging_Grid)
+ 
+data_list <- list(ylist    = ylist,
+                   siteCovs = Logging_Grid_2020.df,
                    obsCovs  = list(effort = DetHist_list[[1]]$effort)) 
 
 # text file to save the model
