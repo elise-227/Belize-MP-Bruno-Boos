@@ -32,7 +32,11 @@ load("camop.RData")
 covs_all2 <- read.csv("covs_fin.csv",stringsAsFactors = TRUE)
 
 #fix logging column
-covs_all$Logging <- ifelse(covs_all$Logging %in% c("No", "No Logging"), "No", "Yes")
+covs_all2$Logging <- ifelse(covs_all2$Logging %in% c("No", "No Logging"), "No", "Yes")
+
+#another option to rewrite factor
+#library(forcats)
+#covs_all2$Logging_fix <- fct_collapse(covs_all2$Logging, No = c("No","No Logging"), Yes = c("Yes","Logging"))
 
 #missing lat and long 
 covs_all[covs_all$site =="908F",]$Lat <- 17.66851300
