@@ -42,7 +42,11 @@ covs_all <- read.csv("covs_fin.csv",stringsAsFactors = TRUE)
 
 ```{r final cleaning}
 #fix logging column
-covs_all$Logging <- ifelse(covs_all$Logging == c("No", "No Logging"), "No", "Yes")
+#covs_all$Logging <- ifelse(covs_all$Logging == c("No", "No Logging"), "No", "Yes")
+
+library(forcats)
+covs_all$Logging_fin <- fct_collapse(covs_all$Logging, No = c("No","No Logging"), Yes = c("Yes","Logging"))
+
 #fix mean bioma
 covs_all$mean_bioma <- replace_na(covs_all$mean_bioma, 117.817)
 
