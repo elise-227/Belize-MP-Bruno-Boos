@@ -19,6 +19,7 @@ require(snowfall)
 
 #install.packages("rjags")
 require(rjags)
+library(camtrapR)
 ```
 
 ## Post Rejection
@@ -205,8 +206,6 @@ camgrid2020 <- left_join(grid_2020, Logging_Grid_2020.df, by = "group")
 
 
 ```{r}
-
-library(camtrapR)
 
 camgrid2017.df <- dplyr::select(as.data.frame(camgrid2017), -geometry)
 cam_op <- cameraOperation(camgrid2017.df, stationCol = "group", cameraCol = "site", setupCol = "Date.Placement", byCamera = FALSE, allCamsOn = FALSE, camerasIndependent = FALSE,
