@@ -194,7 +194,7 @@ camgrid2019 <- left_join(grid_2019, Logging_Grid_2019.df, by = "group")
 
 ```{r}
 grid_2020 <-filter(grid, year(Date.Placement) == 2020)
-
+# 2 2019 sites in here - move to 2019 or keep in 2020? Date placement was 2020
 
 Logging_Grid_2020 <- grid_2020 %>%
   group_by(group) %>%
