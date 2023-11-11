@@ -1,17 +1,18 @@
 ---
-title: "Revisions"
-author: "Elise Boos"
-date: "2023-10-22"
+title: "New Analysis with Revisions"
+author: "Elise Boos, Kelly Bruno"
+date: "2023-11-10"
 output: pdf_document
+always_allow_html: true
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r packages}
+```{r packages, include=FALSE}
 require(tidyverse)
-require(mapview)
+#require(mapview)
 require(sf)
 require(raster)
 
@@ -22,9 +23,19 @@ require(rjags)
 library(camtrapR)
 ```
 
-## Post Rejection
+## Main critque that is addressed in new analysis:
+* Cameras too close to one another, breaking independence assumption - *Gridding attempts to solve*
+* Logged and Logged sites intermixed, breaking independence assumption - *Gridding attempts to solve*
+* Lumped years frowned upon - *separated the years*
+* single species is typically not done in these types of analyses - *switched to multi-species community model*
 
-```{r}
+# Run it back
+
+New analysis where years are separated - running single-season, multi-species models using JAGS. 2014, 2015, and 2016 were cut because they didn't have a good balance of logged and unlogged sites.  
+
+Referenced code from: https://cran.r-project.org/web/packages/camtrapR/vignettes/camtrapr5.html
+
+```{r load data, include=FALSE}
 #Load and Clean Data 
 
 ##load dfs
@@ -47,7 +58,7 @@ covs_all[covs_all$site =="908F",]$Long <- -89.01283000
 
 ```
 
-```{r}
+```{r fix easting northing, include=FALSE}
 # these sites missing easting northing 
 # 508H <- 288991 , 1929840
 # 502C <- 292758, 1955010
@@ -84,13 +95,13 @@ cams.sf <- camop %>%
 join <- left_join(cams.sf, covs_all, by = "site")
 ```
 
-```{r}
+```{r mapview intro, eval=FALSE, include=FALSE}
 #visualize
-mapview(join, zcol = "Logging")
-mapview(filter(join, year(Date.Placement) == 2019), zcol = "Logging")
+# mapview(join, zcol = "Logging")
+# mapview(filter(join, year(Date.Placement) == 2019), zcol = "Logging") 
 ```
 
-```{r}
+```{r making grid, include=FALSE}
 ### making grid
 # Create an sf object for the grid
 gridx <- seq(from = -89.1,to = -88.8, by = 0.01)
@@ -114,23 +125,44 @@ foo_trans <- st_transform(foo, crs(join))
  #      count = lengths(st_intersects(x = foo,  y = join))) -> foo
 ```
 
-```{r}
+## Gridding
+
+Making a 0.01 by 0.01 decimal degree grid (equating each grid to be a little bigger than 1km2). *"Our general recommendation is to separate cameras by as much as you can, with 500-1000m spacing being best, and anything >200m probably being acceptable."* These 1km2 grids allow for better distance separation between individual cameras by lumping those nearby into the same sampling grid. We are still able to reference the specific camera to account for differences in number of cameras in each grid.  
+
+
+All cameras from every year in the grid colored by logged or not:
+
+```{r cams and logging grid, echo=FALSE}
 # Draw a graphic
 
 ggplot() +
   geom_sf(data = foo)+
-  geom_sf(data = join)
-
-
-
-mapview(foo_trans)+
-  mapview(join, zcol = "Logging")
-
-mapview(foo)+
-mapview(filter(join, year(Date.Placement) == 2018), zcol = "Logging")
+  geom_sf(data = join, aes(col=Logging))+
+  xlim(-89.08, -88.9)+
+  ylim(17.4, 17.71)
 ```
 
-```{r}
+2018 cameras in the grid colored by logged or not:
+```{r cams and logging for 2018, echo=FALSE}
+
+
+ggplot() +
+  geom_sf(data = foo)+
+  geom_sf(data = filter(join, year(Date.Placement) == 2018), aes(col = Logging))+
+  xlim(-89.05, -88.9)+
+  ylim(17.48, 17.71)
+
+```
+
+```{r mapview, eval=FALSE, include=FALSE}
+# mapview(foo_trans)+
+#   mapview(join, zcol = "Logging")
+# 
+# mapview(foo)+
+# mapview(filter(join, year(Date.Placement) == 2018), zcol = "Logging")
+```
+
+```{r grid for everything, include=FALSE}
 grid <- st_join(join,
                 foo_trans,
                 left = F)
@@ -142,16 +174,24 @@ mode <- function(x) {
 
 ```
 
-# By Year 
+# Draft Analysis By Year 
 
-```{r}
+Need to increase iterations and chains for models, but preliminary code and workflow.
+
+Used the threshold of 40 detection, some species did not meet that threshold for all 4 years, treated each year separately and outputted results for any species meeting that threshold in the single single year. 
+
+Each call defines a model with a fixed effect of logging on occupancy probability of all species (have the option to add a species-specific (random) effect on occupancy probability). Furthermore, we specified effort as a covariate on detection probability (constant across species), and there are random effects of species on the intercepts of detection and occupancy probabilities.
+
+All these test models only have logging as a covariate of interest. We are not sure if or what covariates we will ad in as fixed or random effects on occupancy and/or detection. 
+
+```{r grid for 2017, include=FALSE}
 grid_2017 <-filter(grid, year(Date.Placement) == 2017)
 
 Logging_Grid_2017 <- grid_2017 %>%
   group_by(group) %>%
   summarise(Logging_Grid = mode(Logging))
 
-mapview(Logging_Grid_2017, zcol = "Logging_Grid")
+#mapview(Logging_Grid_2017, zcol = "Logging_Grid")
 
 Logging_Grid_2017.df <-dplyr::select(as.data.frame(Logging_Grid_2017), -geometry)
 
@@ -159,7 +199,7 @@ camgrid2017 <- left_join(grid_2017, Logging_Grid_2017.df, by = "group")
 
 ```
 
-```{r 2018}
+```{r grid for 2018, include=FALSE}
 grid_2018 <-filter(grid, year(Date.Placement) == 2018)
 
 
@@ -167,7 +207,7 @@ Logging_Grid_2018 <- grid_2018 %>%
   group_by(group) %>%
   summarise(Logging_Grid = mode(Logging))
 
-mapview(Logging_Grid_2018, zcol = "Logging_Grid")
+#mapview(Logging_Grid_2018, zcol = "Logging_Grid")
 
 Logging_Grid_2018.df <-dplyr::select(as.data.frame(Logging_Grid_2018), -geometry)
 
@@ -175,9 +215,11 @@ camgrid2018 <- left_join(grid_2018, Logging_Grid_2018.df, by = "group")
 
 ```
 
-```{r 2019}
+```{r grid for 2019, include=FALSE}
 grid_2019  <-filter(grid, year(Date.Placement) == 2019)
 
+grid_spillover <- filter(grid, site %in% c("909B", "909C"))
+grid_2019 <-rbind(grid_2019, grid_spillover)
 
 Logging_Grid_2019 <- grid_2019 %>%
   group_by(group) %>%
@@ -185,7 +227,7 @@ Logging_Grid_2019 <- grid_2019 %>%
 
 summary(Logging_Grid_2019$Logging_Grid)
 
-mapview(Logging_Grid_2019, zcol = "Logging_Grid")
+#mapview(Logging_Grid_2019, zcol = "Logging_Grid")
 
 Logging_Grid_2019.df <-dplyr::select(as.data.frame(Logging_Grid_2019), -geometry)
 
@@ -194,7 +236,7 @@ camgrid2019 <- left_join(grid_2019, Logging_Grid_2019.df, by = "group")
 
 ```
 
-```{r}
+```{r grid for 2020, include=FALSE}
 grid_2020 <-filter(grid, year(Date.Placement) == 2020)
 # 2 2019 sites in here - move to 2019 or keep in 2020? Date placement was 2020
 
@@ -202,7 +244,7 @@ Logging_Grid_2020 <- grid_2020 %>%
   group_by(group) %>%
   summarise(Logging_Grid = mode(Logging))
 
-mapview(Logging_Grid_2020, zcol = "Logging_Grid")
+#mapview(Logging_Grid_2020, zcol = "Logging_Grid")
 
 Logging_Grid_2020.df <-dplyr::select(as.data.frame(Logging_Grid_2020), -geometry)
 
@@ -211,7 +253,7 @@ camgrid2020 <- left_join(grid_2020, Logging_Grid_2020.df, by = "group")
 ```
 
 
-```{r}
+```{r 2017 cam grid, include=FALSE}
 
 camgrid2017.df <- dplyr::select(as.data.frame(camgrid2017), -geometry)
 cam_op <- cameraOperation(camgrid2017.df, stationCol = "group", cameraCol = "site", setupCol = "Date.Placement", byCamera = FALSE, allCamsOn = FALSE, camerasIndependent = FALSE,
@@ -229,8 +271,9 @@ datgrid2017 <- left_join(dat_2017, camgrid2017.df, by = "site")
 ```
 
 
-## working out code 
-```{r}
+```{r test code, eval=FALSE, include=FALSE}
+
+### TEST CODE ###
 detect_hist_agouti <- detectionHistory(recordTable = datgrid2017, species = "Agouti",
                                        camOp = cam_op, output = "binary", stationCol = "group", 
                                        speciesCol = "Species", day1 ="station", 
@@ -288,7 +331,7 @@ DT::datatable(round(fit_summary$statistics, 3))
 
 ```
 
-```{r}
+```{r 2017 species, include=FALSE}
 Logging_Grid_2017.df$Logging_Grid <- as.factor(Logging_Grid_2017.df$Logging_Grid)
  # list of detection histories
 datgrid2017$Species <- as.character(datgrid2017$Species)
@@ -305,7 +348,11 @@ list <- subset(count, count > 40)
 species_list <- names(list)
 species_list
 
+```
 
+## 2017 Prelim Results
+
+```{r run 2017 model, include=FALSE}
  DetHist_list <- lapply(species_list, FUN = function(x) {
    detectionHistory(recordTable = datgrid20172, species = x,
                                        camOp = cam_op, output = "binary", stationCol = "group", 
@@ -330,7 +377,9 @@ data_list <- list(ylist    = ylist,
 
 # text file to save the model
  modelfile1 <- tempfile(fileext = ".txt")
+```
 
+```{r model code 2017, echo=TRUE}
  mod.jags <- communityModel(data_list,
                             occuCovs = list(fixed = "Logging_Grid"),
                             detCovsObservation = list(fixed = "effort"),
@@ -338,14 +387,18 @@ data_list <- list(ylist    = ylist,
                             modelFile = modelfile1)
 summary(mod.jags)
 
+#will need to increase iterations and maybe chains when running for real
  fit.jags <- fit(mod.jags,
                  n.iter = 1000,
                  n.burnin = 500,
                  chains = 3)
- 
+``` 
+
+```{r model figures 2017, echo=FALSE}
  fit_summary <- summary(fit.jags)
+ as.data.frame(fit_summary$statistics)
  
- DT::datatable(round(fit_summary$statistics, 3))
+ #DT::datatable(round(fit_summary$statistics, 3))
  
   plot_effects(mod.jags,
               fit.jags,
@@ -361,7 +414,7 @@ summary(mod.jags)
    
 ```
 
-```{r}
+```{r 2018 cam grid, include=FALSE}
 camgrid2018.df <- dplyr::select(as.data.frame(camgrid2018), -geometry)
 cam_op <- cameraOperation(camgrid2018.df, stationCol = "group", cameraCol = "site", setupCol = "Date.Placement", byCamera = FALSE, allCamsOn = FALSE, camerasIndependent = FALSE,
                              retrievalCol = "Last.record", occasionStartTime = 0 , 
@@ -379,6 +432,8 @@ datgrid2018$Species <- as.character(datgrid2018$Species)
 #remove error rows 
 #datgrid20172 <- datgrid2017[-52,]
 
+
+
 #get count of species
 count <- table(datgrid2018$Species)
 count
@@ -387,7 +442,11 @@ list <- subset(count, count > 40)
 
 species_list <- names(list)
 species_list
+```
 
+## 2018 Prelim Results
+
+```{r run 2018 code, include=FALSE}
 
  DetHist_list <- lapply(species_list, FUN = function(x) {
    detectionHistory(recordTable = datgrid2018, species = x,
@@ -415,7 +474,9 @@ data_list <- list(ylist    = ylist,
 # text file to save the model
  modelfile1 <- tempfile(fileext = ".txt")
 
- 
+```
+
+```{r model code 2018, echo=TRUE}
  mod.jags <- communityModel(data_list,
                             occuCovs = list(fixed = "Logging_Grid"),
                             detCovsObservation = list(fixed = "effort"),
@@ -427,10 +488,13 @@ summary(mod.jags)
                  n.iter = 1000,
                  n.burnin = 500,
                  chains = 3)
+```
+
+```{r model graphs 2018, echo=FALSE}
  
  fit_summary <- summary(fit.jags)
- 
- DT::datatable(round(fit_summary$statistics, 3))
+ as.data.frame(fit_summary$statistics)
+ #DT::datatable(round(fit_summary$statistics, 3))
  
   plot_effects(mod.jags,
               fit.jags,
@@ -447,7 +511,7 @@ summary(mod.jags)
 ```
 
 
-```{r}
+```{r 2019 camgrid, include=FALSE}
 camgrid2019.df <- dplyr::select(as.data.frame(camgrid2019), -geometry)
 cam_op <- cameraOperation(camgrid2019.df, stationCol = "group", cameraCol = "site", setupCol = "Date.Placement", byCamera = FALSE, allCamsOn = FALSE, camerasIndependent = FALSE,
                              retrievalCol = "Last.record", occasionStartTime = 0 , 
@@ -455,8 +519,14 @@ cam_op <- cameraOperation(camgrid2019.df, stationCol = "group", cameraCol = "sit
 
 
 dat_2019  <-filter(dat, Year == 2019)
-# #removing 2017 data add back into 2017 or into this tbd 
-# dat_2018 <- dat_2018[-(1:17),]
+
+#add in spill over from 2020
+dat_2020 <-filter(dat, Year == 2020)
+spillover_2020 <- dat_2020[1:50,]
+
+dat_2019 <- rbind(dat_2019, spillover_2020)
+
+
 datgrid2019 <- left_join(dat_2019, camgrid2019.df, by = "site")
 
 
@@ -466,7 +536,7 @@ datgrid2019$Species <- as.character(datgrid2019$Species)
 datgrid20192 <- datgrid2019[-2227,]
 
 #get count of species
-count <- table(datgrid20192$Species)
+count <- table(datgrid2019$Species)
 count
 #count
 list <- subset(count, count > 40)
@@ -474,7 +544,11 @@ list <- subset(count, count > 40)
 species_list <- names(list)
 species_list
 
+```
 
+## 2019 Prelim Results
+
+```{r results 2019, include=FALSE}
  DetHist_list <- lapply(species_list, FUN = function(x) {
    detectionHistory(recordTable = datgrid20192, species = x,
                                        camOp = cam_op, output = "binary", stationCol = "group", 
@@ -501,7 +575,9 @@ data_list <- list(ylist    = ylist,
 # text file to save the model
  modelfile1 <- tempfile(fileext = ".txt")
 
- 
+```
+
+```{r model run for 2019, echo=TRUE}
  mod.jags <- communityModel(data_list,
                             occuCovs = list(fixed = "Logging_Grid"),
                             detCovsObservation = list(fixed = "effort"),
@@ -513,10 +589,13 @@ summary(mod.jags)
                  n.iter = 1000,
                  n.burnin = 500,
                  chains = 3)
- 
+```
+
+```{r model graphs for 2019, echo=FALSE}
  fit_summary <- summary(fit.jags)
+ as.data.frame(fit_summary$statistics)
  
- DT::datatable(round(fit_summary$statistics, 3))
+ #DT::datatable(round(fit_summary$statistics, 3))
  
   plot_effects(mod.jags,
               fit.jags,
@@ -533,7 +612,7 @@ summary(mod.jags)
 ```
 
 
-```{r}
+```{r camgrid 2020, include=FALSE}
 camgrid2020.df <- dplyr::select(as.data.frame(camgrid2020), -geometry)
 cam_op <- cameraOperation(camgrid2020.df, stationCol = "group", cameraCol = "site", setupCol = "Date.Placement", byCamera = FALSE, allCamsOn = FALSE, camerasIndependent = FALSE,
                              retrievalCol = "Last.record", occasionStartTime = 0 , 
@@ -560,7 +639,11 @@ list <- subset(count, count > 40)
 species_list <- names(list)
 species_list
 
+```
 
+## 2020 Prelim Results
+
+```{r 2020 results, include=FALSE}
  DetHist_list <- lapply(species_list, FUN = function(x) {
    detectionHistory(recordTable = datgrid20202, species = x,
                                        camOp = cam_op, output = "binary", stationCol = "group", 
@@ -587,7 +670,9 @@ data_list <- list(ylist    = ylist,
 # text file to save the model
  modelfile1 <- tempfile(fileext = ".txt")
 
- 
+```
+
+```{r model for 2020, echo=TRUE}
  mod.jags <- communityModel(data_list,
                             occuCovs = list(fixed = "Logging_Grid"),
                             detCovsObservation = list(fixed = "effort"),
@@ -599,10 +684,13 @@ summary(mod.jags)
                  n.iter = 1000,
                  n.burnin = 500,
                  chains = 3)
- 
+```
+
+```{r model figures for 2020, echo=FALSE}
  fit_summary <- summary(fit.jags)
+ as.data.frame(fit_summary$statistics)
  
- DT::datatable(round(fit_summary$statistics, 3))
+ #DT::datatable(round(fit_summary$statistics, 3))
  
   plot_effects(mod.jags,
               fit.jags,
