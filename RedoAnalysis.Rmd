@@ -30,10 +30,10 @@ library(camtrapR)
 ##load dfs
 load("dat.RData")
 load("camop.RData")
-covs_all2 <- read.csv("covs_fin.csv",stringsAsFactors = TRUE)
+covs_all <- read.csv("covs_fin.csv",stringsAsFactors = TRUE)
 
 #fix logging column
-covs_all2$Logging <- ifelse(covs_all2$Logging %in% c("No", "No Logging"), "No", "Yes")
+covs_all$Logging <- ifelse(covs_all$Logging %in% c("No", "No Logging"), "No", "Yes")
 
 #another option to rewrite factor
 #library(forcats)
@@ -183,6 +183,8 @@ Logging_Grid_2019 <- grid_2019 %>%
   group_by(group) %>%
   summarise(Logging_Grid = mode(Logging))
 
+summary(Logging_Grid_2019$Logging_Grid)
+
 mapview(Logging_Grid_2019, zcol = "Logging_Grid")
 
 Logging_Grid_2019.df <-dplyr::select(as.data.frame(Logging_Grid_2019), -geometry)
@@ -291,7 +293,8 @@ Logging_Grid_2017.df$Logging_Grid <- as.factor(Logging_Grid_2017.df$Logging_Grid
  # list of detection histories
 datgrid2017$Species <- as.character(datgrid2017$Species)
 #remove error rows if throws error 
-#datgrid20172 <- datgrid2017[-52,]
+datgrid20172 <- datgrid2017[-52,]
+#check if runs all species
 
 #get count of species
 count <- table(datgrid20172$Species)
@@ -316,6 +319,7 @@ species_list
 
  # assign species names to the list items
  names(DetHist_list) <- species_list
+ #double check correct naming
 
  # note, DetHist_list is a list containing a list for each species
  ylist <- lapply(DetHist_list, FUN = function(x) x$detection_history)
