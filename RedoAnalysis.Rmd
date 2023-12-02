@@ -148,10 +148,11 @@ ggplot() +
 
 ggplot() +
   geom_sf(data = foo)+
-  geom_sf(data = filter(join, year(Date.Placement) == 2018), aes(col = Logging))+
+  geom_sf(data = filter(join, year(Date.Placement) == 2020), aes(col = Logging))+
   xlim(-89.05, -88.9)+
   ylim(17.48, 17.71)
 
+#based on distribution of unlogged in 2020 and its proximity to logged sites I think we should drop it 
 ```
 
 ```{r mapview, eval=FALSE, include=FALSE}
@@ -270,6 +271,10 @@ dat_2017 <- rbind(dat_2017, spillover_2017)
 datgrid2017 <- left_join(dat_2017, camgrid2017.df, by = "site")
 ```
 
+```{r}
+detectionMaps(CTtable = camgrid2017.df, recordTable = datgrid20172, Xcol = "Long", Ycol = "Lat", stationCol = "group", speciesCol = "Species", richnessPlot = T, speciesPlots = T, printLabels = T, plotR = T)
+
+```
 
 ```{r test code, eval=FALSE, include=FALSE}
 
@@ -389,9 +394,9 @@ summary(mod.jags)
 
 #will need to increase iterations and maybe chains when running for real
  fit.jags <- fit(mod.jags,
-                 n.iter = 1000,
+                 n.iter = 10000,
                  n.burnin = 500,
-                 chains = 3)
+                 chains = 4)
 ``` 
 
 ```{r model figures 2017, echo=FALSE}
