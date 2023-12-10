@@ -29,6 +29,12 @@ library(camtrapR)
 * Lumped years frowned upon - *separated the years*
 * single species is typically not done in these types of analyses - *switched to multi-species community model*
 
+
+All of these have either more than 40 detections every year (2017-2019) or have over forty for at least one year after reviewing numbers for the other years and them being not too much lower than forty detections.
+
+Species list = Agouti, Baird’s Tapir, Crested Guan, Common Opossum, Gray Fox, Gray-headed Dove, Great Curassow, Jaguar, Ocellated Turkey, Ocelot, Paca, Puma, Red Brocket Deer, White-nosed Coati, White-tailed Deer
+
+
 # Run it back
 
 New analysis where years are separated - running single-season, multi-species models using JAGS. 2014, 2015, and 2016 were cut because they didn't have a good balance of logged and unlogged sites.  
