@@ -182,6 +182,15 @@ mode <- function(x) {
 
 ```
 
+```{r}
+belize_dem <- raster("./belize_dem_crop.tif")
+plot(belize_dem)
+plot(foo_trans$geometry, bg="transparent", add=TRUE)
+
+ex <- extract(belize_dem, foo_trans, method = 'bilinear', fun = mean, na.rm = TRUE, df =TRUE)
+summary(ex$belize_dem_crop)
+```
+
 # Draft Analysis By Year 
 
 Need to increase iterations and chains for models, but preliminary code and workflow.
