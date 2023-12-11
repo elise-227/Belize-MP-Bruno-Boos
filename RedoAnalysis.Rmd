@@ -409,7 +409,7 @@ data_list <- list(ylist    = ylist,
 
 ```{r model code 2017, echo=TRUE}
  mod.jags <- communityModel(data_list,
-                            occuCovs = list(fixed = "Logging_Grid", ranef = "belize_dem_crop"),
+                            occuCovs = list(ranef = "Logging_Grid"),
                             detCovsObservation = list(fixed = "effort"),
                             intercepts = list(det = "ranef", occu = "ranef"),
                             modelFile = modelfile1)
@@ -507,15 +507,15 @@ data_list <- list(ylist    = ylist,
 
 ```{r model code 2018, echo=TRUE}
  mod.jags <- communityModel(data_list,
-                            occuCovs = list(fixed = "Logging_Grid", ranef = "belize_dem_crop"),
+                            occuCovs = list(ranef = "Logging_Grid"),
                             detCovsObservation = list(fixed = "effort"),
                             intercepts = list(det = "ranef", occu = "ranef"),
                             modelFile = modelfile2)
 summary(mod.jags)
 
  fit.jags <- fit(mod.jags,
-                 n.iter = 1000,
-                 chains = 4)
+                 n.iter = 10000,
+                 chains = 3)
 ```
 
 ```{r model graphs 2018, echo=FALSE}
@@ -608,15 +608,14 @@ data_list <- list(ylist    = ylist,
 
 ```{r model run for 2019, echo=TRUE}
  mod.jags <- communityModel(data_list,
-                            occuCovs = list(fixed = "Logging_Grid", ranef = "belize_dem_crop"),
+                            occuCovs = list(ranef= "Logging_Grid"),
                             detCovsObservation = list(fixed = "effort"),
                             intercepts = list(det = "ranef", occu = "ranef"),
                             modelFile = modelfile1)
 summary(mod.jags)
 
  fit.jags <- fit(mod.jags,
-                 n.iter = 1000,
-                 n.burnin = 500,
+                 n.iter = 10000,
                  chains = 4)
 ```
 
