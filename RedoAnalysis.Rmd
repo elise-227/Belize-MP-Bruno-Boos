@@ -31,12 +31,19 @@ library(camtrapR)
 * Lumped years frowned upon - *separated the years*
 * single species is typically not done in these types of analyses - *switched to multi-species community model*
 
+# Updates:
 
 All of these have either more than 40 detections every year (2017-2019) or have over forty for at least one year after reviewing numbers for the other years and them being not too much lower than forty detections.
 
 Species list = Agouti, Baird's Tapir, Crested Guan, Common Opossum, Gray Fox, Gray-headed Dove, Great Curassow, Jaguar, Ocellated Turkey, Ocelot, Paca, Puma, Red Brocket Deer, White-nosed Coati, White-tailed Deer
 
-15 total species 
+*15 total species* 
+
+Removing 2020 - logged and unlogged not good distribution and too close together 
+
+logging with species as a random effect or a fixed effect??? - "If a random effect of a categorical covariate is defined, there will be independent species-level random effects within each factor level of the categorical covariate. In other words, each factor level will have its own and independent random effect of species."
+
+
 
 # Run it back
 
@@ -184,6 +191,7 @@ mode <- function(x) {
 
 ```
 
+### Elevation as a possible covariate 
 ```{r}
 belize_dem <- raster("./belize_dem_crop.tif")
 plot(belize_dem)
@@ -357,7 +365,7 @@ DT::datatable(round(fit_summary$statistics, 3))
 ```{r 2017 species, include=FALSE}
 Logging_Grid_2017.df$Logging_Grid <- as.factor(Logging_Grid_2017.df$Logging_Grid)
 
-Logging_Grid_2017.df <- left_join(Logging_Grid_2017.df, ex, by = c("group" = "ID"))
+#Logging_Grid_2017.df <- left_join(Logging_Grid_2017.df, ex, by = c("group" = "ID"))
 
  # list of detection histories
 datgrid2017$Species <- as.character(datgrid2017$Species)
@@ -418,7 +426,7 @@ summary(mod.jags)
 #will need to increase iterations and maybe chains when running for real
  fit.jags <- fit(mod.jags,
                  n.iter = 10000,
-                 n.burnin = 500,
+                 n.burnin = 5000,
                  chains = 4)
 ``` 
 
@@ -494,7 +502,7 @@ datgrid2018$Species <- as.character(datgrid2018$Species)
  ylist <- lapply(DetHist_list, FUN = function(x) x$detection_history)
 
  Logging_Grid_2018.df$Logging_Grid <- as.factor(Logging_Grid_2018.df$Logging_Grid)
- Logging_Grid_2018.df <- left_join(Logging_Grid_2018.df, ex, by = c("group" = "ID"))
+ #Logging_Grid_2018.df <- left_join(Logging_Grid_2018.df, ex, by = c("group" = "ID"))
  
 data_list <- list(ylist    = ylist,
                    siteCovs = Logging_Grid_2018.df,
@@ -515,7 +523,8 @@ summary(mod.jags)
 
  fit.jags <- fit(mod.jags,
                  n.iter = 10000,
-                 chains = 3)
+                 n.burnin = 5000,
+                 chains = 4)
 ```
 
 ```{r model graphs 2018, echo=FALSE}
@@ -595,14 +604,14 @@ datgrid20192 <- datgrid2019[-2227,]
  ylist <- lapply(DetHist_list, FUN = function(x) x$detection_history)
 
  Logging_Grid_2019.df$Logging_Grid <- as.factor(Logging_Grid_2019.df$Logging_Grid)
- Logging_Grid_2019.df <- left_join(Logging_Grid_2019.df, ex, by = c("group" = "ID"))
+ #Logging_Grid_2019.df <- left_join(Logging_Grid_2019.df, ex, by = c("group" = "ID"))
  
 data_list <- list(ylist    = ylist,
                    siteCovs = Logging_Grid_2019.df,
                    obsCovs  = list(effort = DetHist_list[[1]]$effort)) 
 
 # text file to save the model
- modelfile1 <- tempfile(fileext = ".txt")
+ modelfile3 <- tempfile(fileext = ".txt")
 
 ```
 
@@ -611,11 +620,12 @@ data_list <- list(ylist    = ylist,
                             occuCovs = list(ranef= "Logging_Grid"),
                             detCovsObservation = list(fixed = "effort"),
                             intercepts = list(det = "ranef", occu = "ranef"),
-                            modelFile = modelfile1)
+                            modelFile = modelfile3)
 summary(mod.jags)
 
  fit.jags <- fit(mod.jags,
                  n.iter = 10000,
+                 n.burnin = 5000,
                  chains = 4)
 ```
 
