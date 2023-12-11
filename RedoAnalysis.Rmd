@@ -461,13 +461,13 @@ datgrid2018$Species <- as.character(datgrid2018$Species)
 
 
 #get count of species
-count <- table(datgrid2018$Species)
-count
-#count
-list <- subset(count, count > 40)
-
-species_list <- names(list)
-species_list
+# count <- table(datgrid2018$Species)
+# count
+# #count
+# list <- subset(count, count > 40)
+# 
+# species_list <- names(list)
+# species_list
 ```
 
 ## 2018 Prelim Results
@@ -492,26 +492,27 @@ species_list
  ylist <- lapply(DetHist_list, FUN = function(x) x$detection_history)
 
  Logging_Grid_2018.df$Logging_Grid <- as.factor(Logging_Grid_2018.df$Logging_Grid)
+ Logging_Grid_2018.df <- left_join(Logging_Grid_2018.df, ex, by = c("group" = "ID"))
  
 data_list <- list(ylist    = ylist,
                    siteCovs = Logging_Grid_2018.df,
                    obsCovs  = list(effort = DetHist_list[[1]]$effort)) 
 
 # text file to save the model
- modelfile1 <- tempfile(fileext = ".txt")
+ modelfile2 <- tempfile(fileext = ".txt")
 
 ```
 
 ```{r model code 2018, echo=TRUE}
  mod.jags <- communityModel(data_list,
-                            occuCovs = list(fixed = "Logging_Grid"),
+                            occuCovs = list(fixed = "Logging_Grid", ranef = "belize_dem_crop"),
                             detCovsObservation = list(fixed = "effort"),
                             intercepts = list(det = "ranef", occu = "ranef"),
-                            modelFile = modelfile1)
+                            modelFile = modelfile2)
 summary(mod.jags)
 
  fit.jags <- fit(mod.jags,
-                 n.iter = 1000,
+                 n.iter = 10000,
                  n.burnin = 500,
                  chains = 3)
 ```
