@@ -34,7 +34,7 @@ All of these have either more than 40 detections every year (2017-2019) or have 
 
 Species list = Agouti, Baird’s Tapir, Crested Guan, Common Opossum, Gray Fox, Gray-headed Dove, Great Curassow, Jaguar, Ocellated Turkey, Ocelot, Paca, Puma, Red Brocket Deer, White-nosed Coati, White-tailed Deer
 
-16 total species 
+15 total species 
 
 # Run it back
 
