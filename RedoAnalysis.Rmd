@@ -4,6 +4,8 @@ author: "Elise Boos, Kelly Bruno"
 date: "2023-11-10"
 output: pdf_document
 always_allow_html: true
+editor_options: 
+  chunk_output_type: inline
 ---
 
 ```{r setup, include=FALSE}
@@ -512,9 +514,8 @@ data_list <- list(ylist    = ylist,
 summary(mod.jags)
 
  fit.jags <- fit(mod.jags,
-                 n.iter = 10000,
-                 n.burnin = 500,
-                 chains = 3)
+                 n.iter = 1000,
+                 chains = 4)
 ```
 
 ```{r model graphs 2018, echo=FALSE}
@@ -562,14 +563,14 @@ datgrid2019$Species <- as.character(datgrid2019$Species)
 #remove error rows 
 datgrid20192 <- datgrid2019[-2227,]
 
-#get count of species
-count <- table(datgrid2019$Species)
-count
-#count
-list <- subset(count, count > 40)
-
-species_list <- names(list)
-species_list
+# #get count of species
+# count <- table(datgrid2019$Species)
+# count
+# #count
+# list <- subset(count, count > 40)
+# 
+# species_list <- names(list)
+# species_list
 
 ```
 
@@ -594,6 +595,7 @@ species_list
  ylist <- lapply(DetHist_list, FUN = function(x) x$detection_history)
 
  Logging_Grid_2019.df$Logging_Grid <- as.factor(Logging_Grid_2019.df$Logging_Grid)
+ Logging_Grid_2019.df <- left_join(Logging_Grid_2019.df, ex, by = c("group" = "ID"))
  
 data_list <- list(ylist    = ylist,
                    siteCovs = Logging_Grid_2019.df,
@@ -606,7 +608,7 @@ data_list <- list(ylist    = ylist,
 
 ```{r model run for 2019, echo=TRUE}
  mod.jags <- communityModel(data_list,
-                            occuCovs = list(fixed = "Logging_Grid"),
+                            occuCovs = list(fixed = "Logging_Grid", ranef = "belize_dem_crop"),
                             detCovsObservation = list(fixed = "effort"),
                             intercepts = list(det = "ranef", occu = "ranef"),
                             modelFile = modelfile1)
@@ -615,7 +617,7 @@ summary(mod.jags)
  fit.jags <- fit(mod.jags,
                  n.iter = 1000,
                  n.burnin = 500,
-                 chains = 3)
+                 chains = 4)
 ```
 
 ```{r model graphs for 2019, echo=FALSE}
