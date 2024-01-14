@@ -10,6 +10,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r packages, include=FALSE}
+#load packages
+
 require(tidyverse)
 #require(mapview)
 require(sf)
@@ -89,50 +91,58 @@ summary(ex$belize_dem_crop)
 
 
 ```{r create sample year column}
-
+#creat sample year column
 dat <- dat %>% mutate(Sample_Year = substr(site, 1,1))
 #dat$Sample_Year
-dat <- subset(dat, Sample_Year !="6")
 
+#re wrtie as the year
 dat[dat$Sample_Year == 4,]$Sample_Year <- "2014"
 dat[dat$Sample_Year == 5,]$Sample_Year <- "2015"
+dat[dat$Sample_Year == 6,]$Sample_Year <- "2016"
 dat[dat$Sample_Year == 7,]$Sample_Year <- "2017"
 dat[dat$Sample_Year == 8,]$Sample_Year <- "2018"
 dat[dat$Sample_Year == 9,]$Sample_Year <- "2019"
 dat[dat$Sample_Year == 0,]$Sample_Year <- "2020"
 dat[dat$Sample_Year == 1,]$Sample_Year <- "2020"
 
+#as factor
 dat$Sample_Year <- as.factor(dat$Sample_Year)
 ```
 
 ```{r 2017 species, include=FALSE}
-
+#species as a character
 dat$Species <- as.character(dat$Species)
 
+#current species list - might change 
 species_list <- c("Agouti", "Baird's Tapir", "Crested Guan", "Common Opossum", "Gray Fox", "Gray-headed Dove", "Great Curassow", "Jaguar", "Ocellated Turkey", "Ocelot", "Paca", "Puma", "Red Brocket Deer", "White-nosed Coati", "White-tailed Deer")
 species_list
 
+#remove 2016
 camop <- camop %>% mutate(Sample_Year = substr(site, 1,1))
-#dat$Sample_Year
 camop <- subset(camop, Sample_Year !="6")
 
+#set up camera operation matrix
 cam_op <- cameraOperation(camop, stationCol = "site", setupCol = "Date.Placement", 
                              retrievalCol = "Last.record", occasionStartTime = 0 , 
                              dateFormat = "%Y-%m-%d", writecsv = FALSE)
 
-dat2 <- dat[-c(13493,15059),]
-1557,4439,4743,6066,
+#problem rows with dat and time
+dat2 <- dat[-c(1557,4439,4743,6066,13493,15059),]
+
+#remove 2016 from data
+dat2 <- subset(dat2, Sample_Year !="2016")
 ```
 
-#Another function to make cool maps if we want detection maps for a couple species
+# Optional - Another function to make cool maps if we want detection maps for a couple species
 ```{r}
 detectionMaps(CTtable = camop, recordTable = dat2, Xcol = "Northing", Ycol = "Easting", stationCol = "site", speciesCol = "Species", richnessPlot = T, speciesPlots = T, printLabels = T, plotR = T)
 
 ```
 
-## 2017 Prelim Results
+## Modeling
 
-```{r run 2017 model, include=FALSE}
+```{r model, include=FALSE}
+#make detection history for species list 
  DetHist_list <- lapply(species_list, FUN = function(x) {
    detectionHistory(recordTable = dat2, species = x,
                                        camOp = cam_op, output = "binary", stationCol = "site", 
@@ -146,10 +156,13 @@ detectionMaps(CTtable = camop, recordTable = dat2, Xcol = "Northing", Ycol = "Ea
 
  # assign species names to the list items
  names(DetHist_list) <- species_list
- #double check correct naming
+ # need to double check correct naming
 
+#remove 2016
 covs_all <- covs_all %>% mutate(Sample_Year = substr(site, 1,1))
+covs_all <- subset(covs_all, Sample_Year !="6")
 
+#rename to year 
 covs_all[covs_all$Sample_Year == 4,]$Sample_Year <- "2014"
 covs_all[covs_all$Sample_Year == 5,]$Sample_Year <- "2015"
 covs_all[covs_all$Sample_Year == 7,]$Sample_Year <- "2017"
@@ -158,12 +171,14 @@ covs_all[covs_all$Sample_Year == 9,]$Sample_Year <- "2019"
 covs_all[covs_all$Sample_Year == 0,]$Sample_Year <- "2020"
 covs_all[covs_all$Sample_Year == 1,]$Sample_Year <- "2020"
 
+#as factor
 covs_all$Logging <- as.factor(covs_all$Logging)
 covs_all$Sample_Year <- as.factor(covs_all$Sample_Year)
  
  # note, DetHist_list is a list containing a list for each species
  ylist <- lapply(DetHist_list, FUN = function(x) x$detection_history)
 
+ #create the data list for the model
 data_list <- list(ylist    = ylist,
                    siteCovs = covs_all,
                    obsCovs  = list(effort = DetHist_list[[1]]$effort)) 
@@ -172,7 +187,8 @@ data_list <- list(ylist    = ylist,
  modelfile1 <- tempfile(fileext = ".txt")
 ```
 
-```{r model code 2017, echo=TRUE}
+```{r model run, echo=TRUE}
+#select model variables here ranef = sets a species specifc random effect, fixed = is equal effect on all species 
  mod.jags <- communityModel(data_list,
                             occuCovs = list(fixed = c("Sample_Year"),ranef = c("Logging")),
                             detCovsObservation = list(fixed = "effort"),
@@ -180,7 +196,8 @@ data_list <- list(ylist    = ylist,
                             modelFile = modelfile1)
 summary(mod.jags)
 
-#will need to increase iterations and maybe chains when running for real
+#fit in jags
+#will need to increase iterations and hains when running for real
  fit.jags <- fit(mod.jags,
                  n.iter = 100,
                  n.burnin = 50,
@@ -188,7 +205,7 @@ summary(mod.jags)
 ``` 
 
 
-```{r model graphs for 2019, echo=FALSE}
+```{r inspect results, echo=FALSE}
  fit_summary <- summary(fit.jags)
  as.data.frame(fit_summary$statistics)
  
