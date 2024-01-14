@@ -203,6 +203,7 @@ dat2 <- dat[-c(1557,4439,4743,6066,13493,15059),]
 
 covs_all <- covs_all %>% mutate(Sample_Year = substr(site, 1,1))
 covs_all$Logging <- as.factor(covs_all$Logging)
+covs_all$Sample_Year <- as.factor(covs_all$Sample_Year)
  
  # note, DetHist_list is a list containing a list for each species
  ylist <- lapply(DetHist_list, FUN = function(x) x$detection_history)
@@ -217,7 +218,7 @@ data_list <- list(ylist    = ylist,
 
 ```{r model code 2017, echo=TRUE}
  mod.jags <- communityModel(data_list,
-                            occuCovs = list(fixed = "Logging"),
+                            occuCovs = list(fixed = c("Sample_Year"),ranef = c("Logging")),
                             detCovsObservation = list(fixed = "effort"),
                             intercepts = list(det = "ranef", occu = "ranef"),
                             modelFile = modelfile1)
@@ -225,9 +226,9 @@ summary(mod.jags)
 
 #will need to increase iterations and maybe chains when running for real
  fit.jags <- fit(mod.jags,
-                 n.iter = 1000,
-                 n.burnin = 500,
-                 chains = 3)
+                 n.iter = 100,
+                 n.burnin = 50,
+                 chains = 1)
 ``` 
 
 
