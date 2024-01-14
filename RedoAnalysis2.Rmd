@@ -1,0 +1,252 @@
+---
+title: "RedoAnalysis2"
+author: "Elise Boos"
+date: "2024-01-14"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r packages, include=FALSE}
+require(tidyverse)
+#require(mapview)
+require(sf)
+require(raster)
+
+require(snowfall)
+
+#install.packages("rjags")
+require(rjags)
+library(camtrapR)
+```
+
+
+logging with species as a random effect or a fixed effect??? - "If a random effect of a categorical covariate is defined, there will be independent species-level random effects within each factor level of the categorical covariate. In other words, each factor level will have its own and independent random effect of species."
+
+# Run it back
+```{r load data, include=FALSE}
+#Load and Clean Data 
+
+##load dfs
+load("dat.RData")
+load("camop.RData")
+covs_all <- read.csv("covs_fin.csv",stringsAsFactors = TRUE)
+
+#fix logging column
+covs_all$Logging <- ifelse(covs_all$Logging %in% c("No", "No Logging"), "No", "Yes")
+
+#another option to rewrite factor
+#library(forcats)
+#covs_all2$Logging_fix <- fct_collapse(covs_all2$Logging, No = c("No","No Logging"), Yes = c("Yes","Logging"))
+
+#missing lat and long 
+covs_all[covs_all$site =="908F",]$Lat <- 17.66851300
+covs_all[covs_all$site =="908F",]$Long <- -89.01283000
+
+
+
+```
+
+```{r fix easting northing, include=FALSE}
+# these sites missing easting northing 
+# 508H <- 288991 , 1929840
+# 502C <- 292758, 1955010
+# 503C <- 291102, 1950731
+# 506C <- 291308 , 1950725
+# 511C <- 282077, 1935175
+# 506F <- 283678, 1935452
+
+camop[camop$site == "508H",]$Easting <- 288991
+camop[camop$site == "508H",]$Northing <- 1929840
+
+camop[camop$site == "502C",]$Easting <- 292758
+camop[camop$site == "502C",]$Northing <- 1955010
+
+camop[camop$site == "503C",]$Easting <- 291102
+camop[camop$site == "503C",]$Northing <- 1950731
+
+camop[camop$site == "506C",]$Easting <- 291308
+camop[camop$site == "506C",]$Northing <- 1950725
+
+camop[camop$site == "511C",]$Easting <- 282077
+camop[camop$site == "511C",]$Northing <- 1935175
+
+camop[camop$site == "506F",]$Easting <- 283678
+camop[camop$site == "506F",]$Northing <- 1935452
+```
+
+
+### Elevation as a possible covariate 
+```{r}
+belize_dem <- raster("./belize_dem_crop.tif")
+plot(belize_dem)
+plot(foo_trans$geometry, bg="transparent", add=TRUE)
+
+ex <- extract(belize_dem, foo_trans, method = 'bilinear', fun = mean, na.rm = TRUE, df =TRUE)
+summary(ex$belize_dem_crop)
+```
+
+
+```{r 2017 cam grid, include=FALSE}
+
+dat <- dat %>% mutate(Sample_Year = substr(site, 1,1))
+
+dat$Sample_Year <- as.factor(dat$Sample_Year)
+
+
+```
+
+```{r}
+detectionMaps(CTtable = camgrid2017.df, recordTable = datgrid20172, Xcol = "Long", Ycol = "Lat", stationCol = "group", speciesCol = "Species", richnessPlot = T, speciesPlots = T, printLabels = T, plotR = T)
+
+```
+
+```{r test code, eval=FALSE, include=FALSE}
+
+### TEST CODE ###
+detect_hist_agouti <- detectionHistory(recordTable = datgrid2017, species = "Agouti",
+                                       camOp = cam_op, output = "binary", stationCol = "group", 
+                                       speciesCol = "Species", day1 ="station", 
+                                       recordDateTimeCol = "date_time_obs", 
+                                       recordDateTimeFormat =  "%Y-%m-%d %H.%M", 
+                                       timeZone = "UTC", occasionLength = 1, 
+                                       includeEffort = TRUE, scaleEffort = FALSE, 
+                                       writecsv = FALSE)
+
+detect_hist_puma <- detectionHistory(recordTable = datgrid2017, species = "Puma",
+                                       camOp = cam_op, output = "binary", stationCol = "group", 
+                                       speciesCol = "Species", day1 ="station", 
+                                       recordDateTimeCol = "date_time_obs", 
+                                       recordDateTimeFormat =  "%Y-%m-%d %H.%M", 
+                                       timeZone = "UTC", occasionLength = 1, 
+                                       includeEffort = TRUE, scaleEffort = FALSE, 
+                                       writecsv = FALSE)
+ylist <- list(Agouti=detect_hist_agouti$detection_history, Puma=detect_hist_puma$detection_history)
+
+obs <- list(effort = detect_hist_agouti$effort)
+
+
+Logging_Grid_2017.df$Logging_Grid <- as.factor(Logging_Grid_2017.df$Logging_Grid)
+data_list <- list(ylist    = ylist,
+                   siteCovs = Logging_Grid_2017.df,
+                   obsCovs  = obs)  # is identical for all species
+
+ modelfile1 <- tempfile(fileext = ".txt")
+mod.jags <- communityModel(data_list,
+                            occuCovs = list(fixed = "Logging_Grid"),
+                            detCovsObservation = list(fixed = "effort"),
+                            intercepts = list(det = "ranef", occu = "ranef"),
+                            modelFile = modelfile1)
+
+summary(mod.jags)
+
+
+fit.jags <- fit(mod.jags,
+                 n.iter = 1000,
+                 n.burnin = 500,
+                 chains = 3)
+
+fit_summary <- summary(fit.jags)
+
+DT::datatable(round(fit_summary$statistics, 3))
+
+ plot_effects(mod.jags,
+              fit.jags,
+              submodel = "state")
+ 
+  plot_effects(mod.jags,
+              fit.jags,
+              submodel = "det")
+  
+
+```
+
+```{r 2017 species, include=FALSE}
+#Logging_Grid_2017.df$Logging_Grid <- as.factor(Logging_Grid_2017.df$Logging_Grid)
+
+#Logging_Grid_2017.df <- left_join(Logging_Grid_2017.df, ex, by = c("group" = "ID"))
+
+ # list of detection histories
+dat$Species <- as.character(dat$Species)
+#remove error rows if throws error 
+
+species_list <- c("Agouti", "Baird's Tapir", "Crested Guan", "Common Opossum", "Gray Fox", "Gray-headed Dove", "Great Curassow", "Jaguar", "Ocellated Turkey", "Ocelot", "Paca", "Puma", "Red Brocket Deer", "White-nosed Coati", "White-tailed Deer")
+species_list
+
+
+cam_op <- cameraOperation(camop, stationCol = "site", setupCol = "Date.Placement", 
+                             retrievalCol = "Last.record", occasionStartTime = 0 , 
+                             dateFormat = "%Y-%m-%d", writecsv = FALSE)
+
+dat2 <- dat[-c(1557,4439,4743,6066,13493,15059),]
+```
+
+## 2017 Prelim Results
+
+```{r run 2017 model, include=FALSE}
+ DetHist_list <- lapply(species_list, FUN = function(x) {
+   detectionHistory(recordTable = dat2, species = x,
+                                       camOp = cam_op, output = "binary", stationCol = "site", 
+                                       speciesCol = "Species", day1 ="station", 
+                                       recordDateTimeCol = "date_time_obs", 
+                                       recordDateTimeFormat =  "%Y-%m-%d %H.%M", 
+                                       timeZone = "UTC", occasionLength = 1, 
+                                       includeEffort = TRUE, scaleEffort = FALSE, 
+                                       writecsv = FALSE)}
+ )
+
+ # assign species names to the list items
+ names(DetHist_list) <- species_list
+ #double check correct naming
+
+covs_all <- covs_all %>% mutate(Sample_Year = substr(site, 1,1))
+covs_all$Logging <- as.factor(covs_all$Logging)
+ 
+ # note, DetHist_list is a list containing a list for each species
+ ylist <- lapply(DetHist_list, FUN = function(x) x$detection_history)
+
+data_list <- list(ylist    = ylist,
+                   siteCovs = covs_all,
+                   obsCovs  = list(effort = DetHist_list[[1]]$effort)) 
+
+# text file to save the model
+ modelfile1 <- tempfile(fileext = ".txt")
+```
+
+```{r model code 2017, echo=TRUE}
+ mod.jags <- communityModel(data_list,
+                            occuCovs = list(fixed = "Logging"),
+                            detCovsObservation = list(fixed = "effort"),
+                            intercepts = list(det = "ranef", occu = "ranef"),
+                            modelFile = modelfile1)
+summary(mod.jags)
+
+#will need to increase iterations and maybe chains when running for real
+ fit.jags <- fit(mod.jags,
+                 n.iter = 1000,
+                 n.burnin = 500,
+                 chains = 3)
+``` 
+
+
+```{r model graphs for 2019, echo=FALSE}
+ fit_summary <- summary(fit.jags)
+ as.data.frame(fit_summary$statistics)
+ 
+ #DT::datatable(round(fit_summary$statistics, 3))
+ 
+  plot_effects(mod.jags,
+              fit.jags,
+              submodel = "state")
+  
+   plot_effects(mod.jags,
+              fit.jags,
+              submodel = "det")
+   
+    plot_coef(mod.jags,
+           fit.jags,
+           submodel = "state")
+
+```
