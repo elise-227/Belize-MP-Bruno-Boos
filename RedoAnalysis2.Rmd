@@ -85,8 +85,8 @@ plot(belize_dem)
 #plot(foo_trans$geometry, bg="transparent", add=TRUE)
 
 #will need to extract by points if want to use
-ex <- extract(belize_dem, foo_trans, method = 'bilinear', fun = mean, na.rm = TRUE, df =TRUE)
-summary(ex$belize_dem_crop)
+# ex <- extract(belize_dem, foo_trans, method = 'bilinear', fun = mean, na.rm = TRUE, df =TRUE)
+# summary(ex$belize_dem_crop)
 ```
 
 
