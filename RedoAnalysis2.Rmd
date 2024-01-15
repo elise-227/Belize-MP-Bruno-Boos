@@ -103,6 +103,7 @@ summary(ex$belize_dem_crop)
 
 mapview(buffer)
 #5 at the top are not within the raster need to get the one above if possible
+# 2 are 2016 and 3 are 2015 so maybe not life or death to assign mean or guess lol 
 ```
 
 
