@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 #load packages
 
 require(tidyverse)
-#require(mapview)
+require(mapview)
 require(sf)
 require(raster)
 
@@ -81,12 +81,28 @@ camop[camop$site == "506F",]$Northing <- 1935452
 ### Elevation as a possible covariate ?
 ```{r elevation}
 belize_dem <- raster("./belize_dem_crop.tif")
-plot(belize_dem)
-#plot(foo_trans$geometry, bg="transparent", add=TRUE)
 
-#will need to extract by points if want to use
-# ex <- extract(belize_dem, foo_trans, method = 'bilinear', fun = mean, na.rm = TRUE, df =TRUE)
-# summary(ex$belize_dem_crop)
+cams.sf <- camop %>%
+ # drop_na(Easting, Northing) %>%
+  st_as_sf(coords = c('Easting','Northing'),
+           crs=26716)
+
+plot(belize_dem)
+plot(cams.sf$geometry, col = "blue", cex =0.6, add=TRUE)
+
+buffer <- st_buffer(cams.sf, dist = 50)
+
+plot(belize_dem)
+plot(buffer$geometry, add = TRUE)
+
+
+#will need to extract by buffer points if want to use
+ex <- extract(belize_dem, buffer, method = 'bilinear', fun = mean, na.rm = TRUE, df =TRUE, extract = TRUE)
+summary(ex$belize_dem_crop)
+
+
+mapview(buffer)
+#5 at the top are not within the raster need to get the one above if possible
 ```
 
 
