@@ -80,7 +80,8 @@ camop[camop$site == "506F",]$Northing <- 1935452
 
 ### Elevation as a possible covariate ?
 ```{r elevation}
-belize_dem <- raster("./belize_dem_crop.tif")
+#belize_dem <- raster("./belize_dem_crop.tif")
+belize_dem <- raster("Belize.tif")
 
 cams.sf <- camop %>%
  # drop_na(Easting, Northing) %>%
@@ -92,13 +93,15 @@ plot(cams.sf$geometry, col = "blue", cex =0.6, add=TRUE)
 
 buffer <- st_buffer(cams.sf, dist = 50)
 
-plot(belize_dem)
+plot(belize_dem_2)
 plot(buffer$geometry, add = TRUE)
 
 
 #will need to extract by buffer points if want to use
-ex <- extract(belize_dem, buffer, method = 'bilinear', fun = mean, na.rm = TRUE, df =TRUE, extract = TRUE)
+ex <- extract(belize_dem_2, buffer, method = 'bilinear', fun = mean, na.rm = TRUE, df =TRUE, extract = TRUE)
 summary(ex$belize_dem_crop)
+summary(ex$BinValues)
+
 
 
 mapview(buffer)
