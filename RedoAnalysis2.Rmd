@@ -93,16 +93,20 @@ plot(cams.sf$geometry, col = "blue", cex =0.6, add=TRUE)
 
 buffer <- st_buffer(cams.sf, dist = 50)
 
-plot(belize_dem_2)
+plot(belize_dem)
 plot(buffer$geometry, add = TRUE)
 
 
 #will need to extract by buffer points if want to use
-ex <- extract(belize_dem_2, buffer, method = 'bilinear', fun = mean, na.rm = TRUE, df =TRUE, extract = TRUE)
+ex <- extract(belize_dem, buffer, method = 'bilinear', fun = mean, na.rm = TRUE, df =TRUE, extract = TRUE)
 summary(ex$belize_dem_crop)
 summary(ex$BinValues)
 
+colnames(ex)[2] ="mean_elev"
 
+ex <- ex %>% dplyr::select(mean_elev)
+
+covs_all <- cbind(covs_all, ex)
 
 mapview(buffer)
 #5 at the top are not within the raster need to get the one above if possible
