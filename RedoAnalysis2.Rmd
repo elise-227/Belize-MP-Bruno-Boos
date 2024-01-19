@@ -198,21 +198,27 @@ covs_all[covs_all$Sample_Year == 1,]$Sample_Year <- "2020"
 #as factor
 covs_all$Logging <- as.factor(covs_all$Logging)
 covs_all$Sample_Year <- as.factor(covs_all$Sample_Year)
+covs_all$site <- as.factor(covs_all$site)
+covs_all$Season <- as.factor(covs_all$Season)
  
  # note, DetHist_list is a list containing a list for each species
  ylist <- lapply(DetHist_list, FUN = function(x) x$detection_history)
 
+ effort <- DetHist_list[[1]]$effort
  #create the data list for the model
 data_list <- list(ylist    = ylist,
                    siteCovs = covs_all,
-                   obsCovs  = list(effort = DetHist_list[[1]]$effort)) 
+                   obsCovs  = list(effort = effort)) 
 
 # text file to save the model
- modelfile1 <- tempfile(fileext = ".txt")
+#modelfile1 <- "modelfile1.txt"
+modelfile1 <- tempfile(fileext = ".txt")
+modelfile1 <- "modelfile1.txt"
 ```
 
 ```{r model run, echo=TRUE}
 #select model variables here ranef = sets a species specifc random effect, fixed = is equal effect on all species 
+
  mod.jags <- communityModel(data_list,
                             occuCovs = list(fixed = c("Sample_Year"),ranef = c("Logging","mean_elev")),
                             detCovsObservation = list(fixed = "effort"),
@@ -223,8 +229,8 @@ summary(mod.jags)
 #fit in jags
 #will need to increase iterations and hains when running for real
  fit.jags <- fit(mod.jags,
-                 n.iter = 1000,
-                 n.burnin = 500,
+                 n.iter = 10000,
+                 n.burnin = 5000,
                  chains = 3)
 ``` 
 
