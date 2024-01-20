@@ -220,17 +220,18 @@ modelfile1 <- "modelfile1.txt"
 #select model variables here ranef = sets a species specifc random effect, fixed = is equal effect on all species 
 
  mod.jags <- communityModel(data_list,
-                            occuCovs = list(fixed = c("Sample_Year"),ranef = c("Logging","mean_elev")),
+                            occuCovs = list(fixed = "Sample_Year",ranef = c("Logging","mean_elev")),
                             detCovsObservation = list(fixed = "effort"),
                             intercepts = list(det = "ranef", occu = "ranef"),
                             modelFile = modelfile1)
 summary(mod.jags)
+check_model(mod.jags)
 
 #fit in jags
 #will need to increase iterations and hains when running for real
  fit.jags <- fit(mod.jags,
-                 n.iter = 10000,
-                 n.burnin = 5000,
+                 n.iter = 1000,
+                 n.burnin = 500,
                  chains = 3)
 ``` 
 
