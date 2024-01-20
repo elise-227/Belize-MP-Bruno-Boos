@@ -213,30 +213,6 @@ covs_all$Sample_Year <- as.numeric(covs_all$Sample_Year)
 dim(cam_op)
 mat <- matrix(nrow = 372, ncol = 2448)  
 
-# 1:19
-# 
-# 19
-# 30
-# 31
-# (19+30+31)
-# 
-# 31
-# 28
-# 31
-# 30
-# 31
-# 
-# 151
-# 152 2016 + 2020
-# #end dry
-# 30
-# 31
-# 31
-# 30
-# 31
-# 30
-# 31
-
 dry <- 151
 wet <- 214
 dry_ly <- 152
@@ -261,22 +237,16 @@ check <- replace(mat, mask, NA)
 check2 <- split(check,seq(nrow(check)))    
 check3 <-lapply(check2, na.omit)
 
-season <- matrix(nrow=372,ncol =144)
-check4 <- as.vector(check3$`1`)
-season[1,1:length(as.vector(check3$`1`))] <- as.vector(check3$`1`)
-
-range <- 1:372
-for (r in range) {
-    season[r,1:length(as.vector(check3[r]))] <- as.vector(check3[r])
-}
-
-
-
-
+l <- lapply(check3, function(v) { c(v, rep(NA, 144-length(v)))})
+## Rbind
+season <- do.call(rbind, l)
+rnames <- rownames(effort)
+rownames(season) <-rnames
  #create the data list for the model
 data_list <- list(ylist    = ylist,
                    siteCovs = covs_all,
-                   obsCovs  = list(effort = effort)) 
+                   obsCovs  = list(effort = effort,
+                                   Season = season)) 
 
 # text file to save the model
 #modelfile1 <- "modelfile1.txt"
@@ -289,14 +259,14 @@ modelfile1 <- "modelfile1.txt"
 
  mod.jags <- communityModel(data_list,
                             occuCovs = list(fixed = "Sample_Year",ranef = c("Logging","mean_elev")),
-                            detCovsObservation = list(fixed = "effort"),
+                            detCovsObservation = list(fixed = c("effort", "Season")),
                             speciesSiteRandomEffect = list(det= T,occu=F) ,
                             intercepts = list(det = "ranef", occu = "ranef"),
                             effortCov = "effort",
                             modelFile = modelfile1)
 summary(mod.jags)
 
-test <- mod.jags@data[1]
+
 #fit in jags
 #will need to increase iterations and hains when running for real
  fit.jags <- fit(mod.jags,
