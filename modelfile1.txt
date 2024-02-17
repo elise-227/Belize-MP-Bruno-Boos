@@ -29,29 +29,40 @@ alpha0.sigma <- sqrt(1 / alpha0.tau)
 # < empty > 
 
 ## Continuous observation-level covariates on detection - Fixed effects
-# < empty > 
+# Covariate: effort
+alpha.obs.fixed.cont.effort ~ dnorm(0, 0.05)
 
 ## Continuous observation-level covariates on detection - with random effects
 # < empty > 
 
 ## Categorical observation-level covariates on detection - Fixed effect
-# Covariate: Season
-alpha.obs.fixed.categ.Season[1] <- 0
-for(index_cat_fixed_obs_categ_Season in 2:2) {
-alpha.obs.fixed.categ.Season[index_cat_fixed_obs_categ_Season] ~ dnorm(0, 0.05)
-}
+# < empty > 
 
 ## Categorical observation-level covariates on detection - with random effects
-# < empty > 
+# Community mean effects of Season
+alpha.obs.ranef.categ.Season.mean[1] <- 0
+alpha.obs.ranef.categ.Season.sigma[1] <- 0
+alpha.obs.ranef.categ.Season.tau[1] <- 0
 
+for(index_cat_ranef_obs_categ_Season in 2:2) {
+alpha.obs.ranef.categ.Season.mean[index_cat_ranef_obs_categ_Season] ~ dnorm(0, 0.05)
+alpha.obs.ranef.categ.Season.tau[index_cat_ranef_obs_categ_Season] ~ dgamma(0.1, 0.1)
+alpha.obs.ranef.categ.Season.sigma[index_cat_ranef_obs_categ_Season] <- sqrt(1 / alpha.obs.ranef.categ.Season.tau[index_cat_ranef_obs_categ_Season])
+}
 ## Continuous site covariates on Occupancy - Fixed effects
-# < empty > 
+# Covariate: Sample_Year
+beta.fixed.cont.Sample_Year ~ dnorm(0, 0.05)
 
 ## Continuous site covariates on Occupancy - Independent effects
 # < empty > 
 
 ## Continuous site covariates on occupancy - with random effects
-# < empty > 
+# Covariate: mean_elev|Species
+
+beta.ranef.cont.mean_elev.mean ~ dnorm(0, 0.05)
+beta.ranef.cont.mean_elev.tau ~ dgamma(0.1, 0.1)
+beta.ranef.cont.mean_elev.sigma <- sqrt(1 / beta.ranef.cont.mean_elev.tau)
+
 
 ## Categorical site covariates on Occupancy - Fixed effects
 # < empty > 
@@ -93,10 +104,15 @@ alpha0[i] ~ dnorm(alpha0.mean, alpha0.tau)
 # continuous observation-level detection covariates: no random effect of species
 
 
-# categorical observation covariates: no random effect of species
+# categorical detection covariates with random effects:
+alpha.obs.ranef.categ.Season[i, 1] <- 0
+for (index_cat_ranef_obs_categ_Season in 2:2){
+alpha.obs.ranef.categ.Season[i, index_cat_ranef_obs_categ_Season] ~ dnorm(alpha.obs.ranef.categ.Season.mean[index_cat_ranef_obs_categ_Season], alpha.obs.ranef.categ.Season.tau[index_cat_ranef_obs_categ_Season])
+}
 
 
-
+# continuous occupancy covariate with random effects: mean_elev|Species
+beta.ranef.cont.mean_elev[i] ~ dnorm(beta.ranef.cont.mean_elev.mean, beta.ranef.cont.mean_elev.tau)
 
 
 # categorical occupancy covariates with random effects:
@@ -110,7 +126,7 @@ for (j in 1:J){
 
 # Occupancy probability formula
 
-logit.psi[i,j] <- beta0[i] + beta.ranef.categ.Logging[i, Logging[j]]
+logit.psi[i,j] <- beta0[i] + beta.ranef.categ.Logging[i, Logging[j]] + beta.fixed.cont.Sample_Year * Sample_Year[j] + beta.ranef.cont.mean_elev[i] * mean_elev[j]
 psi[i,j] <- exp(logit.psi[i,j]) / (exp(logit.psi[i,j]) + 1)
 z[i,j] ~ dbern(psi[i, j])
 
@@ -121,7 +137,7 @@ alpha.speciesstation.ranef[i, j] ~ dnorm(0, alpha.speciesstation.ranef.tau)
 # occasion loop
 for (k in 1:maxocc){
 # Detection probability formula
-logit.p[i,j,k] <- alpha0[i] + alpha.obs.fixed.categ.Season[Season_integer[j, k]] + alpha.speciesstation.ranef[i, j]
+logit.p[i,j,k] <- alpha0[i] + alpha.obs.fixed.cont.effort * effort[j, k] + alpha.obs.ranef.categ.Season[i, Season_integer[j, k]] + alpha.speciesstation.ranef[i, j]
 
 # convert p to real scale
 p[i,j,k] <- exp(logit.p[i,j,k]) / (1+exp(logit.p[i,j,k]))
