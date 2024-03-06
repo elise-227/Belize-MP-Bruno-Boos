@@ -81,6 +81,7 @@ camop[camop$site == "506F",]$Northing <- 1935452
 ### Elevation as a possible covariate ?
 ```{r elevation}
 #belize_dem <- raster("./belize_dem_crop.tif")
+setwd("/Users/elise/Desktop/3_DEMs")
 belize_dem <- raster("Belize.tif")
 
 cams.sf <- camop %>%
@@ -159,7 +160,7 @@ dat2 <- subset(dat2, Sample_Year !="2016")
 
 # Optional - Another function to make cool maps if we want detection maps for a couple species
 ```{r}
-detectionMaps(CTtable = camop, recordTable = dat2, Xcol = "Northing", Ycol = "Easting", stationCol = "site", speciesCol = "Species", richnessPlot = T, speciesPlots = T, printLabels = T, plotR = T)
+#detectionMaps(CTtable = camop, recordTable = dat2, Xcol = "Northing", Ycol = "Easting", stationCol = "site", speciesCol = "Species", richnessPlot = T, speciesPlots = T, printLabels = T, plotR = T)
 
 ```
 
@@ -217,20 +218,20 @@ dry <- 151
 wet <- 214
 dry_ly <- 152
 
-mat[,1:80] <- "Dry" #2014
-mat[,81:(80+wet)] <- "Wet" #2014
-mat[,(80+wet+1):(80+wet+dry)] <- "Dry" #2015
-mat[,(80+wet+dry+1):(80+(wet*2)+dry)] <- "Wet" #2015
-mat[,(80+(wet*2)+dry+1):(80+(wet*2)+dry+dry_ly)] <- "Dry" #2016
-mat[,(80+(wet*2)+dry+dry_ly+1):(80+(wet*3)+dry+dry_ly)] <-"Wet" #2016
-mat[,(80+(wet*3)+dry+dry_ly+1):(80+(wet*3)+(dry*2)+dry_ly)] <-"Dry" #2017
-mat[,(80+(wet*3)+(dry*2)+dry_ly+1):(80+(wet*4)+(dry*2)+dry_ly)] <-"Wet" #2017
-mat[,(80+(wet*4)+(dry*2)+dry_ly+1):(80+(wet*4)+(dry*3)+dry_ly)] <- "Dry" #2018
-mat[,(80+(wet*4)+(dry*3)+dry_ly+1):(80+(wet*5)+(dry*3)+dry_ly)] <- "Wet" #2018
-mat[,(80+(wet*5)+(dry*3)+dry_ly+1):(80+(wet*5)+(dry*4)+dry_ly)] <- "Dry" #2019
-mat[,(80+(wet*5)+(dry*4)+dry_ly+1):(80+(wet*6)+(dry*4)+dry_ly)] <- "Wet" #2019
-mat[,(80+(wet*6)+(dry*4)+dry_ly+1):(80+(wet*6)+(dry*4)+(dry_ly*2))] <- "Dry" #2020
-mat[,(80+(wet*6)+(dry*4)+(dry_ly*2)+1):2448] <- "Wet" #2020
+mat[,1:75] <- "Dry" #2014
+mat[,76:(75+wet)] <- "Wet" #2014
+mat[,(75+wet+1):(75+wet+dry)] <- "Dry" #2015
+mat[,(75+wet+dry+1):(75+(wet*2)+dry)] <- "Wet" #2015
+mat[,(75+(wet*2)+dry+1):(75+(wet*2)+dry+dry_ly)] <- "Dry" #2016
+mat[,(75+(wet*2)+dry+dry_ly+1):(75+(wet*3)+dry+dry_ly)] <-"Wet" #2016
+mat[,(75+(wet*3)+dry+dry_ly+1):(75+(wet*3)+(dry*2)+dry_ly)] <-"Dry" #2017
+mat[,(75+(wet*3)+(dry*2)+dry_ly+1):(75+(wet*4)+(dry*2)+dry_ly)] <-"Wet" #2017
+mat[,(75+(wet*4)+(dry*2)+dry_ly+1):(75+(wet*4)+(dry*3)+dry_ly)] <- "Dry" #2018
+mat[,(75+(wet*4)+(dry*3)+dry_ly+1):(75+(wet*5)+(dry*3)+dry_ly)] <- "Wet" #2018
+mat[,(75+(wet*5)+(dry*3)+dry_ly+1):(75+(wet*5)+(dry*4)+dry_ly)] <- "Dry" #2019
+mat[,(75+(wet*5)+(dry*4)+dry_ly+1):(75+(wet*6)+(dry*4)+dry_ly)] <- "Wet" #2019
+mat[,(75+(wet*6)+(dry*4)+dry_ly+1):(75+(wet*6)+(dry*4)+(dry_ly*2))] <- "Dry" #2020
+mat[,(75+(wet*6)+(dry*4)+(dry_ly*2)+1):2448] <- "Wet" #2020
 
 mask <- is.na(cam_op)
 check <- replace(mat, mask, NA)
@@ -247,11 +248,16 @@ cnames <- colnames(effort)
 colnames(season) <-cnames
 season[is.na(season)] <- "Wet"
  #create the data list for the model
+# covs_all$mean_elev <-scale(covs_all$mean_elev)
+# covs_all$Sample_Year <- scale(covs_all$Sample_Year)
+
 data_list <- list(ylist    = ylist,
                    siteCovs = covs_all,
                    obsCovs  = list(effort = effort,
                                    Season = season)) 
 
+# data_list$siteCovs$mean_elev <- scale(data_list$siteCovs$mean_elev)
+# data_list$siteCovs$Sample_Year <- scale(data_list$siteCovs$Sample_Year)
 # data_list$ylist <- lapply(data_list$ylist, FUN = function(x) {
 #   x[is.na(x)] <- 0
 #   x
@@ -259,7 +265,7 @@ data_list <- list(ylist    = ylist,
 # text file to save the model
 #modelfile1 <- "modelfile1.txt"
 #modelfile1 <- tempfile(fileext = ".txt")
-modelfile1 <- "modelfile1.txt"
+modelfile1 <- "modelfile2_29.txt"
 ```
 
 ```{r model run, echo=TRUE}
@@ -272,17 +278,18 @@ modelfile1 <- "modelfile1.txt"
                             intercepts = list(det = "ranef", occu = "ranef"),
                             effortCov = "effort",
                             modelFile = modelfile1)
+
+#mod.jags@inits_fun()
 summary(mod.jags)
 
-
+rm(buffer);rm(cam_op);rm(camop);rm(cams.sf);rm(check);rm(check2);rm(check3);rm(covs_all);rm(dat);rm(dat2);rm(effort);rm(ex);rm(l);rm(mask);rm(mat);rm(season);rm(ylist);rm(cnames);rm(dry);rm(dry_ly);rm(rnames);rm(wet);rm(belize_dem)
 #fit in jags
 #will need to increase iterations and hains when running for real
 
  fit.jags <- fit(mod.jags,
                  n.iter = 100000,
-                 n.burnin = 70000,
-                    chains = 4,
-                    quiet = T
+                 n.burnin = 50000,
+                    chains = 4
 )
 
 ``` 
@@ -291,9 +298,10 @@ summary(mod.jags)
 ```{r inspect results, echo=FALSE}
  fit_summary <- summary(fit.jags)
  as.data.frame(fit_summary$statistics)
- 
+
  #DT::datatable(round(fit_summary$statistics, 3))
- 
+#install.packages("reshape2") 
+require(reshape2)
    camtrapR::plot_effects(mod.jags,
               fit.jags,
               submodel = "state")
@@ -309,5 +317,14 @@ summary(mod.jags)
     plot_coef(mod.jags,
            fit.jags,
            submodel = "det")
+
+```
+
+```{r}
+setwd("/Users/elise/Desktop/MP/Belize-Outputs")
+save(mod.jags, file = "model_10kit.RData")
+save(fit.jags, file = "modelfit_10kit.RData")
+save(fit_summary, file = "fit_sum_10kit.RData")
+
 
 ```
