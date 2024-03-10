@@ -89,13 +89,13 @@ cams.sf <- camop %>%
   st_as_sf(coords = c('Easting','Northing'),
            crs=26716)
 
-plot(belize_dem)
-plot(cams.sf$geometry, col = "blue", cex =0.6, add=TRUE)
+#plot(belize_dem)
+#plot(cams.sf$geometry, col = "blue", cex =0.6, add=TRUE)
 
 buffer <- st_buffer(cams.sf, dist = 50)
 
-plot(belize_dem)
-plot(buffer$geometry, add = TRUE)
+#plot(belize_dem)
+#plot(buffer$geometry, add = TRUE)
 
 
 #will need to extract by buffer points if want to use
@@ -109,7 +109,7 @@ ex <- ex %>% dplyr::select(mean_elev)
 
 covs_all <- cbind(covs_all, ex)
 
-mapview(buffer)
+#mapview(buffer)
 #5 at the top are not within the raster need to get the one above if possible
 # 2 are 2016 and 3 are 2015 so maybe not life or death to assign mean or guess lol 
 ```
@@ -265,7 +265,7 @@ data_list <- list(ylist    = ylist,
 # text file to save the model
 #modelfile1 <- "modelfile1.txt"
 #modelfile1 <- tempfile(fileext = ".txt")
-modelfile1 <- "modelfile2_29.txt"
+modelfile1 <- "modelfile3_09.txt"
 ```
 
 ```{r model run, echo=TRUE}
