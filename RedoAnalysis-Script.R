@@ -1,0 +1,296 @@
+
+
+#load packages
+
+require(tidyverse)
+
+require(sf)
+require(raster)
+
+require(snowfall)
+
+#install.packages("rjags")
+require(rjags)
+library(camtrapR)
+
+
+#Load and Clean Data 
+
+##load dfs
+load("dat.RData")
+load("camop.RData")
+covs_all <- read.csv("covs_fin.csv",stringsAsFactors = TRUE)
+
+#fix logging column
+covs_all$Logging <- ifelse(covs_all$Logging %in% c("No", "No Logging"), "No", "Yes")
+
+#another option to rewrite factor
+#library(forcats)
+#covs_all2$Logging_fix <- fct_collapse(covs_all2$Logging, No = c("No","No Logging"), Yes = c("Yes","Logging"))
+
+#missing lat and long 
+covs_all[covs_all$site =="908F",]$Lat <- 17.66851300
+covs_all[covs_all$site =="908F",]$Long <- -89.01283000
+
+# these sites missing easting northing 
+# 508H <- 288991 , 1929840
+# 502C <- 292758, 1955010
+# 503C <- 291102, 1950731
+# 506C <- 291308 , 1950725
+# 511C <- 282077, 1935175
+# 506F <- 283678, 1935452
+
+camop[camop$site == "508H",]$Easting <- 288991
+camop[camop$site == "508H",]$Northing <- 1929840
+
+camop[camop$site == "502C",]$Easting <- 292758
+camop[camop$site == "502C",]$Northing <- 1955010
+
+camop[camop$site == "503C",]$Easting <- 291102
+camop[camop$site == "503C",]$Northing <- 1950731
+
+camop[camop$site == "506C",]$Easting <- 291308
+camop[camop$site == "506C",]$Northing <- 1950725
+
+camop[camop$site == "511C",]$Easting <- 282077
+camop[camop$site == "511C",]$Northing <- 1935175
+
+camop[camop$site == "506F",]$Easting <- 283678
+camop[camop$site == "506F",]$Northing <- 1935452
+
+#belize_dem <- raster("./belize_dem_crop.tif")
+setwd("/Users/elise/Desktop/3_DEMs")
+belize_dem <- raster("Belize.tif")
+
+cams.sf <- camop %>%
+  # drop_na(Easting, Northing) %>%
+  st_as_sf(coords = c('Easting','Northing'),
+           crs=26716)
+
+#plot(belize_dem)
+#plot(cams.sf$geometry, col = "blue", cex =0.6, add=TRUE)
+
+buffer <- st_buffer(cams.sf, dist = 50)
+
+#plot(belize_dem)
+#plot(buffer$geometry, add = TRUE)
+
+
+#will need to extract by buffer points if want to use
+ex <- extract(belize_dem, buffer, method = 'bilinear', fun = mean, na.rm = TRUE, df =TRUE, extract = TRUE)
+summary(ex$BinValues)
+
+colnames(ex)[2] ="mean_elev"
+
+ex <- ex %>% dplyr::select(mean_elev)
+
+covs_all <- cbind(covs_all, ex)
+
+#mapview(buffer)
+#5 at the top are not within the raster need to get the one above if possible
+# 2 are 2016 and 3 are 2015 so maybe not life or death to assign mean or guess lol 
+setwd("~/Desktop/MP/Belize-MP-Bruno-Boos")
+
+
+#creat sample year column
+dat <- dat %>% mutate(Sample_Year = substr(site, 1,1))
+#dat$Sample_Year
+
+#re wrtie as the year
+dat[dat$Sample_Year == 4,]$Sample_Year <- "2014"
+dat[dat$Sample_Year == 5,]$Sample_Year <- "2015"
+dat[dat$Sample_Year == 6,]$Sample_Year <- "2016"
+dat[dat$Sample_Year == 7,]$Sample_Year <- "2017"
+dat[dat$Sample_Year == 8,]$Sample_Year <- "2018"
+dat[dat$Sample_Year == 9,]$Sample_Year <- "2019"
+dat[dat$Sample_Year == 0,]$Sample_Year <- "2020"
+dat[dat$Sample_Year == 1,]$Sample_Year <- "2020"
+
+#as factor
+dat$Sample_Year <- as.factor(dat$Sample_Year)
+
+#species as a character
+dat$Species <- as.character(dat$Species)
+
+#current species list - might change 
+species_list <- c("Agouti", "Baird's Tapir", "Crested Guan", "Common Opossum", "Gray Fox", "Gray-headed Dove", "Great Curassow", "Jaguar", "Ocellated Turkey", "Ocelot", "Paca", "Puma", "Red Brocket Deer", "White-nosed Coati", "White-tailed Deer")
+species_list
+
+#remove 2016
+camop <- camop %>% mutate(Sample_Year = substr(site, 1,1))
+camop <- subset(camop, Sample_Year !="6")
+
+#set up camera operation matrix
+cam_op <- cameraOperation(camop, stationCol = "site", setupCol = "Date.Placement", 
+                          retrievalCol = "Last.record", occasionStartTime = 0 , 
+                          dateFormat = "%Y-%m-%d", writecsv = FALSE)
+
+#problem rows with dat and time
+dat2 <- dat[-c(1557,4439,4743,6066,13493,15059),]
+
+#remove 2016 from data
+dat2 <- subset(dat2, Sample_Year !="2016")
+
+
+# Optional - Another function to make cool maps if we want detection maps for a couple species
+
+#detectionMaps(CTtable = camop, recordTable = dat2, Xcol = "Northing", Ycol = "Easting", stationCol = "site", speciesCol = "Species", richnessPlot = T, speciesPlots = T, printLabels = T, plotR = T)
+
+
+
+## Modeling
+
+#make detection history for species list 
+DetHist_list <- lapply(species_list, FUN = function(x) {
+  detectionHistory(recordTable = dat2, species = x,
+                   camOp = cam_op, output = "binary", stationCol = "site", 
+                   speciesCol = "Species", day1 ="station", 
+                   recordDateTimeCol = "date_time_obs", 
+                   recordDateTimeFormat =  "%Y-%m-%d %H.%M", 
+                   timeZone = "UTC", occasionLength = 1, 
+                   includeEffort = TRUE, scaleEffort = FALSE, 
+                   writecsv = FALSE)}
+)
+
+# assign species names to the list items
+names(DetHist_list) <- species_list
+# need to double check correct naming
+
+#remove 2016
+covs_all <- covs_all %>% mutate(Sample_Year = substr(site, 1,1))
+covs_all <- subset(covs_all, Sample_Year !="6")
+
+#rename to year 
+covs_all[covs_all$Sample_Year == 4,]$Sample_Year <- "2014"
+covs_all[covs_all$Sample_Year == 5,]$Sample_Year <- "2015"
+covs_all[covs_all$Sample_Year == 7,]$Sample_Year <- "2017"
+covs_all[covs_all$Sample_Year == 8,]$Sample_Year <- "2018"
+covs_all[covs_all$Sample_Year == 9,]$Sample_Year <- "2019"
+covs_all[covs_all$Sample_Year == 0,]$Sample_Year <- "2020"
+covs_all[covs_all$Sample_Year == 1,]$Sample_Year <- "2020"
+
+#as factor
+covs_all$Logging <- as.factor(covs_all$Logging)
+#covs_all$Sample_Year <- as.factor(covs_all$Sample_Year)
+covs_all$site <- as.factor(covs_all$site)
+covs_all$Season <- as.factor(covs_all$Season)
+
+covs_all$Sample_Year <- as.numeric(covs_all$Sample_Year)
+
+# note, DetHist_list is a list containing a list for each species
+ylist <- lapply(DetHist_list, FUN = function(x) x$detection_history)
+
+effort <- DetHist_list[[1]]$effort
+
+#The wet season runs from June to December and the dry season from January through May. 
+#2014-03-18 - 2020-11-28
+dim(cam_op)
+mat <- matrix(nrow = 372, ncol = 2448)  
+
+dry <- 151
+wet <- 214
+dry_ly <- 152
+
+mat[,1:75] <- "Dry" #2014
+mat[,76:(75+wet)] <- "Wet" #2014
+mat[,(75+wet+1):(75+wet+dry)] <- "Dry" #2015
+mat[,(75+wet+dry+1):(75+(wet*2)+dry)] <- "Wet" #2015
+mat[,(75+(wet*2)+dry+1):(75+(wet*2)+dry+dry_ly)] <- "Dry" #2016
+mat[,(75+(wet*2)+dry+dry_ly+1):(75+(wet*3)+dry+dry_ly)] <-"Wet" #2016
+mat[,(75+(wet*3)+dry+dry_ly+1):(75+(wet*3)+(dry*2)+dry_ly)] <-"Dry" #2017
+mat[,(75+(wet*3)+(dry*2)+dry_ly+1):(75+(wet*4)+(dry*2)+dry_ly)] <-"Wet" #2017
+mat[,(75+(wet*4)+(dry*2)+dry_ly+1):(75+(wet*4)+(dry*3)+dry_ly)] <- "Dry" #2018
+mat[,(75+(wet*4)+(dry*3)+dry_ly+1):(75+(wet*5)+(dry*3)+dry_ly)] <- "Wet" #2018
+mat[,(75+(wet*5)+(dry*3)+dry_ly+1):(75+(wet*5)+(dry*4)+dry_ly)] <- "Dry" #2019
+mat[,(75+(wet*5)+(dry*4)+dry_ly+1):(75+(wet*6)+(dry*4)+dry_ly)] <- "Wet" #2019
+mat[,(75+(wet*6)+(dry*4)+dry_ly+1):(75+(wet*6)+(dry*4)+(dry_ly*2))] <- "Dry" #2020
+mat[,(75+(wet*6)+(dry*4)+(dry_ly*2)+1):2448] <- "Wet" #2020
+
+mask <- is.na(cam_op)
+check <- replace(mat, mask, NA)
+check2 <- split(check,seq(nrow(check)))    
+check3 <-lapply(check2, na.omit)
+
+l <- lapply(check3, function(v) { c(v, rep(NA, 144-length(v)))})
+## Rbind
+season <- do.call(rbind, l)
+rnames <- rownames(effort)
+rownames(season) <-rnames
+
+cnames <- colnames(effort)
+colnames(season) <-cnames
+season[is.na(season)] <- "Wet"
+#create the data list for the model
+# covs_all$mean_elev <-scale(covs_all$mean_elev)
+# covs_all$Sample_Year <- scale(covs_all$Sample_Year)
+
+data_list <- list(ylist    = ylist,
+                  siteCovs = covs_all,
+                  obsCovs  = list(effort = effort,
+                                  Season = season)) 
+
+# data_list$siteCovs$mean_elev <- scale(data_list$siteCovs$mean_elev)
+# data_list$siteCovs$Sample_Year <- scale(data_list$siteCovs$Sample_Year)
+# data_list$ylist <- lapply(data_list$ylist, FUN = function(x) {
+#   x[is.na(x)] <- 0
+#   x
+# })
+# text file to save the model
+#modelfile1 <- "modelfile1.txt"
+#modelfile1 <- tempfile(fileext = ".txt")
+modelfile1 <- "modelfile3_13.txt"
+
+
+
+#select model variables here ranef = sets a species specifc random effect, fixed = is equal effect on all species 
+
+mod.jags <- communityModel(data_list,
+                           occuCovs = list(fixed = "Sample_Year", ranef = c("Logging", "mean_elev")),
+                           detCovsObservation = list(fixed = "effort", ranef = "Season"),
+                           speciesSiteRandomEffect = list(det= T),
+                           intercepts = list(det = "ranef", occu = "ranef"),
+                           effortCov = "effort",
+                           modelFile = modelfile1)
+
+#mod.jags@inits_fun()
+summary(mod.jags)
+
+rm(buffer);rm(cam_op);rm(camop);rm(cams.sf);rm(check);rm(check2);rm(check3);rm(covs_all);rm(dat);rm(dat2);rm(effort);rm(ex);rm(l);rm(mask);rm(mat);rm(season);rm(ylist);rm(cnames);rm(dry);rm(dry_ly);rm(rnames);rm(wet);rm(belize_dem)
+#fit in jags
+#will need to increase iterations and hains when running for real
+
+fit.jags <- fit(mod.jags,
+                n.iter = 100000,
+                n.burnin = 50000,
+                chains = 4
+)
+
+
+fit_summary <- summary(fit.jags)
+as.data.frame(fit_summary$statistics)
+
+#DT::datatable(round(fit_summary$statistics, 3))
+#install.packages("reshape2") 
+require(reshape2)
+# camtrapR::plot_effects(mod.jags,
+#                        fit.jags,
+#                        submodel = "state")
+# 
+# camtrapR::plot_effects(mod.jags,
+#                        fit.jags,
+#                        submodel = "det")
+# 
+# plot_coef(mod.jags,
+#           fit.jags,
+#           submodel = "state")
+# 
+# plot_coef(mod.jags,
+#           fit.jags,
+#           submodel = "det")
+
+
+setwd("/Users/elise/Desktop/MP/Belize-Outputs")
+save(mod.jags, file = "model_100kit.RData")
+save(fit.jags, file = "modelfit_100kit.RData")
+save(fit_summary, file = "fit_sum_100kit.RData")
+
