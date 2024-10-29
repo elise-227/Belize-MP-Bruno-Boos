@@ -9,22 +9,173 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## SET UP 
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r set up }
+#clean space
+rm(list=ls())
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+#load packages
+#packages
+require(tidyverse)
+require(dplyr)
+require(sf)
+require(leaflet)
+require(mapview)
+require(readxl)
+require(lubridate)
+require(readxl)
+library(unmarked)
+library(AICcmodavg)
+library(camtrapR)
+library(ubms)
+library(gridExtra)
 ```
 
-## Including Plots
+```{r load results}
+setwd("~/Belize-MP-Bruno-Boos/Results_2024")
 
-You can also embed plots, for example:
+##load csvs
+comDet <- read.csv("community-level-detection.csv", header = T)
+comOcc <- read.csv("community-level-occupancy.csv", header = T)
+speDet <- read.csv("species-level-detection.csv", header = T)
+speOcc <- read.csv("species-level-occupancy.csv", header = T)
 
-```{r pressure, echo=FALSE}
-plot(pressure)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r data prep}
+
+#prepare species data for plotting
+colnames(speOcc) <- c("Species","Effect Size", "SD", "X2.5", "X50", "X97.5", "Rhat", "ESS")
+
+```
+
+
+##Plot effects
+
+```{r species plot}
+
+#split df
+n <- 3
+
+# Split the data frame into n equal-sized data frames
+split_df <- split(speOcc, factor(sort(rank(row.names(speOcc)) %% n)))
+
+speOcc_int <- split_df[[1]]
+speOcc_log <- split_df[[2]]
+speOcc_ele <- split_df[[3]]
+
+#remove string from Species Column
+#load the stringr package if you haven't already
+library(stringr)
+
+# Remove the string
+speOcc_log$Species <- str_remove(speOcc_log$Species, "LoggingYes-")
+
+
+#does the value cross zero?
+speOcc_log$pass <- ifelse(speOcc_log$X2.5 < 0  & speOcc_log$X97.5 >= 0 | speOcc_log$X2.5 > 0  & speOcc_log$X97.5 <= 0, 0, 1)
+#0 means passes (if CI crosses zero - no effect of variable)
+speOcc_log$pass <- as.factor(speOcc_log$pass)
+
+#Logging <- CI %>% group_by(Species, Cov) %>% filter(Cov == "Logging")
+
+#Logging$Species <- factor(Logging$Species, levels = c("Russet-naped wood rail","Red brocket*","White-tailed deer","White-lipped peccary","Collared peccary","Gray fox","Jaguar*","Ocelot*", "Puma*","Margay*","Striped hog-nosed skunk","Tayra","White-nosed coati","Nine-banded armadillo","Gray-headed dove","Ruddy quail-dove","Common opossum","Brown four-eyed opossum","Crested guan", "Great curassow*", "Ocellated turkey*","Wood thrush","Bare-throated tiger heron","Baird's tapir*","Paca","Agouti","Great tinamou"))
+
+#set wd to save in the correct folder
+setwd("~/Belize-MP-Bruno-Boos/Results_2024")
+
+Logging_plot <- ggplot(
+  speOcc_log, 
+  aes(x = `Effect Size`, y = Species, xmin = X2.5, xmax =X97.5)) +
+  geom_point(fill = speOcc_log$pass,
+        shape = 21, 
+        size = 4) +
+  geom_errorbarh(aes(height=.2)) +
+  theme(legend.position = "none") +
+  theme(axis.title.y=element_blank()) +
+  geom_vline(xintercept = 0, linetype="dashed", color = "tomato1") +
+  theme_bw() +
+  scale_y_discrete(limits = rev)
+Logging_plot <- Logging_plot + labs(title = "Species Occupancy - Logging", size = 15) +
+  ylab("") +
+  xlab("")
+  theme(axis.title = element_text(size= 15))
+
+ggsave("Logging_plot_2024.png", units = "in", width = 8, height = 9)
+
+```
+
+```{r community level plot}
+
+comOcc$Variable <- as.factor(comOcc$Variable)
+
+#rename Varibles (to be replaced = replaced with)
+comOcc$Variable <- recode_factor(comOcc$Variable, "(Intercept)" = "Intercept",
+                            "LoggingYes" = "Logging",
+                            "mean_elev" = "Elevation")
+
+#does the value cross zero?
+comOcc$pass <- ifelse(comOcc$X2.5 < 0  & comOcc$X97.5 >= 0 | comOcc$X2.5 > 0  & comOcc$X97.5 <= 0, 0, 1)
+#0 means passes (if CI crosses zero - no effect of variable)
+comOcc$pass <- as.factor(comOcc$pass)
+
+comOcc <- comOcc[-1,]
+
+#set wd to save in the correct folder
+setwd("~/Belize-MP-Bruno-Boos/Results_2024")
+
+Community_plot <- ggplot(
+  comOcc, 
+  aes(x = `Mean`, y = Variable, xmin = X2.50., xmax =X97.50.)) +
+  geom_point(fill = comOcc$pass,
+        shape = 21, 
+        size = 3) +
+  geom_errorbarh(aes(height=.2)) +
+  theme(legend.position = "none") +
+  theme(axis.title.y=element_blank()) +
+  geom_vline(xintercept = 0, linetype="dashed", color = "tomato1") +
+  theme_bw() +
+  scale_y_discrete(limits = rev)
+Community_plot <- Community_plot + labs(title = "Community Level Occupancy", size = 15) +
+  xlab("") +
+  ylab("") +
+  theme(axis.title = element_text(size= 15))
+
+ggsave("Community_plot.png", units = "in", width = 4.5, height = 4)
+
+```
+
+```{r bonus plots}
+# # Create plot with legend
+# require("gridExtra")
+# ggp1_legend <- ggplot(NatD, 
+#   aes(x = `Effect Size`, y = Species, xmin = X2.5, xmax =X97.5)) +
+#   geom_point(fill = NatD$pass,
+#         shape = 21, 
+#         size = 3) +
+#   geom_errorbarh(aes(height=.2, colour = Species)) +
+#   theme_bw() +
+#   theme(axis.title.y=element_blank()) +
+#   geom_vline(xintercept = 0, linetype="dashed") +
+#   theme(legend.position = "bottom") +
+#   scale_y_discrete(limits = rev)
+#   
+# # Create user-defined function, which extracts legends from ggplots
+# extract_legend <- function(my_ggp) {
+#   step1 <- ggplot_gtable(ggplot_build(my_ggp))
+#   step2 <- which(sapply(step1$grobs, function(x) x$name) == "guide-box")
+#   step3 <- step1$grobs[[step2]]
+#   return(step3)
+# }
+# 
+# # Apply user-defined function to extract legend
+# shared_legend <- extract_legend(ggp1_legend)
+# 
+# ##grid of plots
+# #install.packages("gridExtra")
+# tiff("effectsplotbw_june.tiff", units = "in", width = 10, height = 14, res = 200)
+# p <- grid.arrange(arrangeGrob(Roads_plot, Biomass_plot, Streams_plot, NDVI_plot, Season_plot, NatD_plot, nrow = 3), ncol = 1, heights = c(14, 1))
+# dev.off()
+
+```

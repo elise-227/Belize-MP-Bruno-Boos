@@ -1,0 +1,596 @@
+Lmod Warning:
+-------------------------------------------------------------------------------
+The following dependent module(s) are not currently loaded: libtiff/4.0.8
+(required by: proj/8.2.1), readline/8.2 (required by: sqlite/3.44.2)
+-------------------------------------------------------------------------------
+
+
+
+
+The following have been reloaded with a version change:
+  1) libjpeg-turbo/1.5.1 => libjpeg-turbo/2.1.4
+  2) libtiff/4.0.8 => libtiff/4.5.0
+  3) readline/8.2 => readline/7.0
+
+Loading required package: tidyverse
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+✔ lubridate 1.9.3     ✔ tidyr     1.3.1
+✔ purrr     1.0.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+Loading required package: sf
+Linking to GEOS 3.6.2, GDAL 3.4.1, PROJ 8.2.1; sf_use_s2() is TRUE
+Loading required package: raster
+Loading required package: sp
+
+Attaching package: ‘raster’
+
+The following object is masked from ‘package:dplyr’:
+
+    select
+
+Loading required package: spOccupancy
+Warning message:
+In .local(x, y, ...) :
+  Transforming SpatialPolygons to the crs of the Raster
+ [1] "Agouti"                    "Baird's Tapir"            
+ [3] "Bare-throated Tiger Heron" "Brown Four-eyed Opossum"  
+ [5] "Crested Guan"              "Collared Peccary"         
+ [7] "Common Opossum"            "Gray Fox"                 
+ [9] "Gray-headed Dove"          "Great Curassow"           
+[11] "Great Tinamou"             "Jaguar"                   
+[13] "Margay"                    "Nine-banded Armadillo"    
+[15] "Ocellated Turkey"          "Ocelot"                   
+[17] "Paca"                      "Puma"                     
+[19] "Red Brocket Deer"          "Ruddy Quail-dove"         
+[21] "Russet-naped Woodrail"     "Striped Hog-nosed Skunk"  
+[23] "Tayra"                     "White-lipped Peccary"     
+[25] "White-nosed Coati"         "White-tailed Deer"        
+[27] "Wood Thrush"              
+[1]  372 2448
+----------------------------------------
+	Preparing to run the model
+----------------------------------------
+No prior specified for beta.comm.normal.
+Setting prior mean to 0 and prior variance to 2.72
+
+No prior specified for alpha.comm.normal.
+Setting prior mean to 0 and prior variance to 2.72
+
+No prior specified for tau.sq.beta.ig.
+Setting prior shape to 0.1 and prior scale to 0.1
+
+No prior specified for tau.sq.alpha.ig.
+Setting prior shape to 0.1 and prior scale to 0.1
+
+No prior specified for sigma.sq.psi.ig.
+Setting prior shape to 0.1 and prior scale to 0.1
+
+z is not specified in initial values.
+Setting initial values based on observed data
+
+beta.comm is not specified in initial values.
+Setting initial values to random values from the prior distribution
+
+alpha.comm is not specified in initial values.
+Setting initial values to random values from the prior distribution
+
+tau.sq.beta is not specified in initial values.
+Setting initial values to random values between 0.5 and 10
+
+tau.sq.alpha is not specified in initial values.
+Setting to initial values to random values between 0.5 and 10
+
+beta is not specified in initial values.
+Setting initial values to random values from the community-level normal distribution
+
+alpha is not specified in initial values.
+Setting initial values to random values from the community-level normal distribution
+
+sigma.sq.psi is not specified in initial values.
+Setting initial values to random values between 0.5 and 10
+
+----------------------------------------
+	Model description
+----------------------------------------
+Multi-species Occupancy Model with Polya-Gamma latent
+variable fit with 372 sites and 27 species.
+
+Samples per Chain: 10000 
+Burn-in: 5000 
+Thinning Rate: 1 
+Number of Chains: 4 
+Total Posterior Samples: 20000 
+
+
+Source compiled with OpenMP support and model fit using 1 thread(s).
+
+----------------------------------------
+	Chain 1
+----------------------------------------
+Sampling ... 
+Sampled: 1000 of 10000, 10.00%
+-------------------------------------------------
+Sampled: 2000 of 10000, 20.00%
+-------------------------------------------------
+Sampled: 3000 of 10000, 30.00%
+-------------------------------------------------
+Sampled: 4000 of 10000, 40.00%
+-------------------------------------------------
+Sampled: 5000 of 10000, 50.00%
+-------------------------------------------------
+Sampled: 6000 of 10000, 60.00%
+-------------------------------------------------
+Sampled: 7000 of 10000, 70.00%
+-------------------------------------------------
+Sampled: 8000 of 10000, 80.00%
+-------------------------------------------------
+Sampled: 9000 of 10000, 90.00%
+-------------------------------------------------
+Sampled: 10000 of 10000, 100.00%
+----------------------------------------
+	Chain 2
+----------------------------------------
+Sampling ... 
+Sampled: 1000 of 10000, 10.00%
+-------------------------------------------------
+Sampled: 2000 of 10000, 20.00%
+-------------------------------------------------
+Sampled: 3000 of 10000, 30.00%
+-------------------------------------------------
+Sampled: 4000 of 10000, 40.00%
+-------------------------------------------------
+Sampled: 5000 of 10000, 50.00%
+-------------------------------------------------
+Sampled: 6000 of 10000, 60.00%
+-------------------------------------------------
+Sampled: 7000 of 10000, 70.00%
+-------------------------------------------------
+Sampled: 8000 of 10000, 80.00%
+-------------------------------------------------
+Sampled: 9000 of 10000, 90.00%
+-------------------------------------------------
+Sampled: 10000 of 10000, 100.00%
+----------------------------------------
+	Chain 3
+----------------------------------------
+Sampling ... 
+Sampled: 1000 of 10000, 10.00%
+-------------------------------------------------
+Sampled: 2000 of 10000, 20.00%
+-------------------------------------------------
+Sampled: 3000 of 10000, 30.00%
+-------------------------------------------------
+Sampled: 4000 of 10000, 40.00%
+-------------------------------------------------
+Sampled: 5000 of 10000, 50.00%
+-------------------------------------------------
+Sampled: 6000 of 10000, 60.00%
+-------------------------------------------------
+Sampled: 7000 of 10000, 70.00%
+-------------------------------------------------
+Sampled: 8000 of 10000, 80.00%
+-------------------------------------------------
+Sampled: 9000 of 10000, 90.00%
+-------------------------------------------------
+Sampled: 10000 of 10000, 100.00%
+----------------------------------------
+	Chain 4
+----------------------------------------
+Sampling ... 
+Sampled: 1000 of 10000, 10.00%
+-------------------------------------------------
+Sampled: 2000 of 10000, 20.00%
+-------------------------------------------------
+Sampled: 3000 of 10000, 30.00%
+-------------------------------------------------
+Sampled: 4000 of 10000, 40.00%
+-------------------------------------------------
+Sampled: 5000 of 10000, 50.00%
+-------------------------------------------------
+Sampled: 6000 of 10000, 60.00%
+-------------------------------------------------
+Sampled: 7000 of 10000, 70.00%
+-------------------------------------------------
+Sampled: 8000 of 10000, 80.00%
+-------------------------------------------------
+Sampled: 9000 of 10000, 90.00%
+-------------------------------------------------
+Sampled: 10000 of 10000, 100.00%
+
+Call:
+msPGOcc(occ.formula = ~(1 | Sample_Year) + Logging + mean_elev, 
+    det.formula = ~effort + Season, data = data_list, n.samples = n.samples, 
+    verbose = TRUE, n.report = 1000, n.burn = n.burn, n.thin = n.thin, 
+    n.chains = n.chains)
+
+Samples per Chain: 10000
+Burn-in: 5000
+Thinning Rate: 1
+Number of Chains: 4
+Total Posterior Samples: 20000
+Run Time (min): 93.3086
+
+----------------------------------------
+	Community Level
+----------------------------------------
+Occurrence Means (logit scale): 
+               Mean     SD    2.5%     50%   97.5%   Rhat  ESS
+(Intercept) -0.9653 0.5113 -2.1802 -0.9381 -0.2231 1.1014  468
+LoggingYes  -0.1251 0.1386 -0.4088 -0.1228  0.1429 1.0023 4327
+mean_elev    0.0037 0.0181 -0.0321  0.0036  0.0396 1.0143 4472
+
+Occurrence Variances (logit scale): 
+               Mean      SD   2.5%    50%    97.5%   Rhat  ESS
+(Intercept) 14.5879 50.4682 0.6965 1.4778 189.0029 1.7625   15
+LoggingYes   0.3191  0.1545 0.1107 0.2888   0.7040 1.0027 2545
+mean_elev    0.0086  0.0027 0.0049 0.0081   0.0152 1.0452 1488
+
+Occurrence Random Effect Variances (logit scale): 
+              Mean      SD   2.5%    50%    97.5%   Rhat ESS
+Sample_Year 8.1472 27.6258 0.2933 0.4545 109.1219 1.7704  17
+
+Detection Means (logit scale): 
+               Mean     SD    2.5%     50%   97.5%   Rhat  ESS
+(Intercept) -4.0390 0.2243 -4.4838 -4.0362 -3.6061 1.0072 1932
+effort       1.0575 0.1666  0.7169  1.0635  1.3697 1.0076 1071
+SeasonWet   -0.1904 0.0873 -0.3613 -0.1908 -0.0147 1.0008 5342
+
+Detection Variances (logit scale): 
+              Mean     SD   2.5%    50%  97.5%   Rhat  ESS
+(Intercept) 0.7615 0.2871 0.3548 0.7105 1.4741 1.0148 2166
+effort      0.1421 0.1025 0.0324 0.1137 0.4158 1.0046 1444
+SeasonWet   0.1642 0.0675 0.0733 0.1514 0.3303 1.0027 2658
+
+Call:
+msPGOcc(occ.formula = ~(1 | Sample_Year) + Logging + mean_elev, 
+    det.formula = ~effort + Season, data = data_list, n.samples = n.samples, 
+    verbose = TRUE, n.report = 1000, n.burn = n.burn, n.thin = n.thin, 
+    n.chains = n.chains)
+
+Samples per Chain: 10000
+Burn-in: 5000
+Thinning Rate: 1
+Number of Chains: 4
+Total Posterior Samples: 20000
+Run Time (min): 93.3086
+
+----------------------------------------
+	Species Level
+----------------------------------------
+Occurrence (logit scale): 
+                                         Mean     SD     2.5%     50%   97.5%
+(Intercept)-Agouti                     0.3385 1.7274  -5.9425  0.6953  1.8287
+(Intercept)-Baird's Tapir             -3.0205 2.9415 -14.2635 -2.1894 -1.1640
+(Intercept)-Bare-throated Tiger Heron -3.3953 3.8678 -15.5939 -2.5566 -1.0252
+(Intercept)-Brown Four-eyed Opossum   -4.3748 8.1499 -36.7887 -2.0574 -0.6850
+(Intercept)-Crested Guan              -0.6819 1.5517  -6.2527 -0.5228  2.0621
+(Intercept)-Collared Peccary          -1.3247 1.2520  -3.4645 -1.4236  2.2686
+(Intercept)-Common Opossum            -0.6402 1.7419  -7.3450 -0.2699  0.8100
+(Intercept)-Gray Fox                   0.4677 3.5990  -1.3248 -0.4199 15.7302
+(Intercept)-Gray-headed Dove          -0.8122 1.4924  -2.0856 -1.0883  4.5986
+(Intercept)-Great Curassow             1.6755 4.7529  -0.4931  0.5284 23.1951
+(Intercept)-Great Tinamou             -1.2397 1.0418  -3.0056 -1.3170  1.8958
+(Intercept)-Jaguar                    -1.6901 0.7916  -4.0320 -1.5753 -0.5641
+(Intercept)-Margay                     0.6337 5.3226  -3.3982 -0.6353 20.7052
+(Intercept)-Nine-banded Armadillo     -2.1849 2.3115 -10.8211 -1.6764 -0.2693
+(Intercept)-Ocellated Turkey           1.1867 3.8832  -0.7542  0.3427 18.1529
+(Intercept)-Ocelot                    -0.2751 2.7501 -12.7726  0.0271  4.1195
+(Intercept)-Paca                      -0.3689 1.0073  -2.8714 -0.3466  1.8119
+(Intercept)-Puma                      -0.1833 1.7355  -3.4673 -0.3195  4.4461
+(Intercept)-Red Brocket Deer          -1.0423 1.4582  -4.2051 -1.0545  3.4258
+(Intercept)-Ruddy Quail-dove          -2.0034 1.7954  -7.4806 -1.8510 -0.1014
+(Intercept)-Russet-naped Woodrail     -4.7525 7.2606 -30.9613 -2.6876 -1.2116
+(Intercept)-Striped Hog-nosed Skunk   -1.7640 2.0958  -4.6918 -2.0421  6.0710
+(Intercept)-Tayra                     -2.0976 2.4754  -9.7031 -1.4372 -0.3347
+(Intercept)-White-lipped Peccary      -2.6774 4.0173 -16.9891 -1.5260 -0.3423
+(Intercept)-White-nosed Coati         -0.4777 1.1455  -4.4954 -0.2591  0.7764
+(Intercept)-White-tailed Deer          1.2789 2.1820  -6.1548  1.4857  4.8740
+(Intercept)-Wood Thrush               -2.1542 1.3604  -6.6584 -1.9306 -0.5066
+LoggingYes-Agouti                     -0.3000 0.2495  -0.7921 -0.2967  0.1846
+LoggingYes-Baird's Tapir              -0.5302 0.2853  -1.1084 -0.5232  0.0100
+LoggingYes-Bare-throated Tiger Heron  -0.3657 0.4431  -1.2666 -0.3562  0.4781
+LoggingYes-Brown Four-eyed Opossum    -0.9126 0.4654  -1.8977 -0.8871 -0.0659
+LoggingYes-Crested Guan               -0.6015 0.3136  -1.2348 -0.5951 -0.0079
+LoggingYes-Collared Peccary           -0.5754 0.4275  -1.4030 -0.5788  0.2893
+LoggingYes-Common Opossum             -0.1454 0.3234  -0.7806 -0.1431  0.4871
+LoggingYes-Gray Fox                    0.8157 0.2747   0.2840  0.8135  1.3629
+LoggingYes-Gray-headed Dove           -0.5250 0.2672  -1.0576 -0.5246 -0.0088
+LoggingYes-Great Curassow              0.1076 0.2981  -0.4743  0.1045  0.7023
+LoggingYes-Great Tinamou               0.0140 0.3325  -0.6318  0.0129  0.6794
+LoggingYes-Jaguar                     -0.0286 0.3098  -0.6404 -0.0273  0.5735
+LoggingYes-Margay                     -0.1474 0.5356  -1.2863 -0.1307  0.8716
+LoggingYes-Nine-banded Armadillo       0.1473 0.3955  -0.6106  0.1428  0.9398
+LoggingYes-Ocellated Turkey            0.1922 0.2662  -0.3228  0.1912  0.7160
+LoggingYes-Ocelot                      0.1960 0.2928  -0.3727  0.1941  0.7819
+LoggingYes-Paca                       -0.0588 0.2610  -0.5675 -0.0609  0.4560
+LoggingYes-Puma                        0.0373 0.3261  -0.6024  0.0371  0.6962
+LoggingYes-Red Brocket Deer            0.3967 0.2769  -0.1297  0.3921  0.9404
+LoggingYes-Ruddy Quail-dove           -0.4005 0.3676  -1.1377 -0.3951  0.3126
+LoggingYes-Russet-naped Woodrail      -0.8203 0.4759  -1.8236 -0.7966  0.0466
+LoggingYes-Striped Hog-nosed Skunk    -0.0127 0.3569  -0.7105 -0.0129  0.6882
+LoggingYes-Tayra                      -0.0660 0.3345  -0.7201 -0.0660  0.5968
+LoggingYes-White-lipped Peccary       -0.0450 0.3690  -0.7660 -0.0488  0.6859
+LoggingYes-White-nosed Coati           0.3110 0.2959  -0.2613  0.3074  0.9024
+LoggingYes-White-tailed Deer           0.5019 0.2915  -0.0580  0.4982  1.0827
+LoggingYes-Wood Thrush                -0.5859 0.4089  -1.4459 -0.5734  0.1753
+mean_elev-Agouti                      -0.0059 0.0023  -0.0105 -0.0059 -0.0014
+mean_elev-Baird's Tapir                0.0106 0.0043   0.0037  0.0101  0.0215
+mean_elev-Bare-throated Tiger Heron   -0.0068 0.0072  -0.0207 -0.0069  0.0083
+mean_elev-Brown Four-eyed Opossum     -0.0078 0.0065  -0.0206 -0.0079  0.0052
+mean_elev-Crested Guan                 0.0005 0.0030  -0.0054  0.0005  0.0064
+mean_elev-Collared Peccary             0.0094 0.0058   0.0003  0.0087  0.0237
+mean_elev-Common Opossum              -0.0003 0.0033  -0.0068 -0.0003  0.0063
+mean_elev-Gray Fox                     0.0069 0.0025   0.0021  0.0069  0.0119
+mean_elev-Gray-headed Dove             0.0040 0.0025  -0.0009  0.0040  0.0088
+mean_elev-Great Curassow               0.0074 0.0030   0.0019  0.0073  0.0136
+mean_elev-Great Tinamou                0.0000 0.0034  -0.0065  0.0000  0.0067
+mean_elev-Jaguar                       0.0145 0.0037   0.0079  0.0143  0.0224
+mean_elev-Margay                       0.0550 0.0682  -0.0001  0.0275  0.2567
+mean_elev-Nine-banded Armadillo       -0.0003 0.0045  -0.0090 -0.0004  0.0086
+mean_elev-Ocellated Turkey             0.0028 0.0024  -0.0018  0.0028  0.0075
+mean_elev-Ocelot                       0.0064 0.0029   0.0008  0.0063  0.0120
+mean_elev-Paca                        -0.0025 0.0024  -0.0072 -0.0024  0.0023
+mean_elev-Puma                         0.0113 0.0078   0.0035  0.0103  0.0206
+mean_elev-Red Brocket Deer             0.0066 0.0027   0.0014  0.0066  0.0120
+mean_elev-Ruddy Quail-dove            -0.0012 0.0041  -0.0092 -0.0012  0.0071
+mean_elev-Russet-naped Woodrail       -0.0038 0.0075  -0.0174 -0.0042  0.0135
+mean_elev-Striped Hog-nosed Skunk      0.0117 0.0103   0.0030  0.0099  0.0446
+mean_elev-Tayra                       -0.0010 0.0037  -0.0083 -0.0010  0.0063
+mean_elev-White-lipped Peccary         0.0004 0.0040  -0.0074  0.0003  0.0081
+mean_elev-White-nosed Coati           -0.0023 0.0027  -0.0075 -0.0023  0.0029
+mean_elev-White-tailed Deer           -0.0090 0.0026  -0.0142 -0.0090 -0.0040
+mean_elev-Wood Thrush                 -0.0076 0.0055  -0.0185 -0.0075  0.0029
+                                        Rhat   ESS
+(Intercept)-Agouti                    1.4394    19
+(Intercept)-Baird's Tapir             1.7092    15
+(Intercept)-Bare-throated Tiger Heron 2.6896    17
+(Intercept)-Brown Four-eyed Opossum   1.4882    17
+(Intercept)-Crested Guan              2.1858    19
+(Intercept)-Collared Peccary          1.3650    59
+(Intercept)-Common Opossum            1.4204    33
+(Intercept)-Gray Fox                  3.0694    11
+(Intercept)-Gray-headed Dove          2.4643    20
+(Intercept)-Great Curassow            3.5921    11
+(Intercept)-Great Tinamou             1.2701    54
+(Intercept)-Jaguar                    1.1960   109
+(Intercept)-Margay                    1.5139    30
+(Intercept)-Nine-banded Armadillo     1.1273    36
+(Intercept)-Ocellated Turkey          3.6879    12
+(Intercept)-Ocelot                    2.5627    15
+(Intercept)-Paca                      1.3276    73
+(Intercept)-Puma                      1.4917    41
+(Intercept)-Red Brocket Deer          1.6838    31
+(Intercept)-Ruddy Quail-dove          1.4385    36
+(Intercept)-Russet-naped Woodrail     1.7580    16
+(Intercept)-Striped Hog-nosed Skunk   2.0234    26
+(Intercept)-Tayra                     1.5715    21
+(Intercept)-White-lipped Peccary      1.5248    18
+(Intercept)-White-nosed Coati         1.3908    34
+(Intercept)-White-tailed Deer         2.3336    25
+(Intercept)-Wood Thrush               1.2452    36
+LoggingYes-Agouti                     1.0026  8457
+LoggingYes-Baird's Tapir              1.0008  6844
+LoggingYes-Bare-throated Tiger Heron  1.0078  3629
+LoggingYes-Brown Four-eyed Opossum    1.0024  2590
+LoggingYes-Crested Guan               1.0023  4273
+LoggingYes-Collared Peccary           1.0370   726
+LoggingYes-Common Opossum             1.0069  3692
+LoggingYes-Gray Fox                   1.0011  5907
+LoggingYes-Gray-headed Dove           1.0017  7677
+LoggingYes-Great Curassow             1.0065  5052
+LoggingYes-Great Tinamou              1.0017  4848
+LoggingYes-Jaguar                     1.0014  5252
+LoggingYes-Margay                     1.0268  1154
+LoggingYes-Nine-banded Armadillo      1.0000  3475
+LoggingYes-Ocellated Turkey           1.0017  8079
+LoggingYes-Ocelot                     1.0007  6019
+LoggingYes-Paca                       1.0012  7712
+LoggingYes-Puma                       1.0019  5097
+LoggingYes-Red Brocket Deer           1.0042  5957
+LoggingYes-Ruddy Quail-dove           1.0004  4597
+LoggingYes-Russet-naped Woodrail      1.0006  2614
+LoggingYes-Striped Hog-nosed Skunk    1.0021  3512
+LoggingYes-Tayra                      1.0011  5107
+LoggingYes-White-lipped Peccary       1.0004  3915
+LoggingYes-White-nosed Coati          1.0031  5370
+LoggingYes-White-tailed Deer          1.0088  5325
+LoggingYes-Wood Thrush                1.0012  3653
+mean_elev-Agouti                      1.0043 10560
+mean_elev-Baird's Tapir               1.1087   114
+mean_elev-Bare-throated Tiger Heron   1.0336   817
+mean_elev-Brown Four-eyed Opossum     1.0107  1393
+mean_elev-Crested Guan                1.0007  5773
+mean_elev-Collared Peccary            1.1655   259
+mean_elev-Common Opossum              1.0044  4361
+mean_elev-Gray Fox                    1.0039  9408
+mean_elev-Gray-headed Dove            1.0002  9944
+mean_elev-Great Curassow              1.0312  1547
+mean_elev-Great Tinamou               1.0025  4710
+mean_elev-Jaguar                      1.0070  2337
+mean_elev-Margay                      2.2367    16
+mean_elev-Nine-banded Armadillo       1.0140  2518
+mean_elev-Ocellated Turkey            1.0009 10739
+mean_elev-Ocelot                      1.0015  6384
+mean_elev-Paca                        1.0018  9891
+mean_elev-Puma                        1.6270    86
+mean_elev-Red Brocket Deer            1.0003  7608
+mean_elev-Ruddy Quail-dove            1.0083  3612
+mean_elev-Russet-naped Woodrail       1.0590   370
+mean_elev-Striped Hog-nosed Skunk     2.4633    27
+mean_elev-Tayra                       1.0131  3429
+mean_elev-White-lipped Peccary        1.0011  2861
+mean_elev-White-nosed Coati           1.0007  7333
+mean_elev-White-tailed Deer           1.0087  5064
+mean_elev-Wood Thrush                 1.0072  2149
+
+Detection (logit scale): 
+                                         Mean     SD    2.5%     50%   97.5%
+(Intercept)-Agouti                    -3.6843 0.3153 -4.3595 -3.6633 -3.1148
+(Intercept)-Baird's Tapir             -4.1197 0.3477 -4.8075 -4.1202 -3.4238
+(Intercept)-Bare-throated Tiger Heron -3.5951 0.4124 -4.4095 -3.5943 -2.7822
+(Intercept)-Brown Four-eyed Opossum   -3.8829 0.3989 -4.6943 -3.8787 -3.1109
+(Intercept)-Crested Guan              -4.4427 0.3666 -5.1633 -4.4469 -3.7106
+(Intercept)-Collared Peccary          -5.1014 0.4531 -5.9960 -5.1011 -4.2151
+(Intercept)-Common Opossum            -4.6393 0.3678 -5.3590 -4.6417 -3.9019
+(Intercept)-Gray Fox                  -2.5887 0.2357 -3.0511 -2.5905 -2.1237
+(Intercept)-Gray-headed Dove          -3.4626 0.3233 -4.1069 -3.4609 -2.8298
+(Intercept)-Great Curassow            -2.7388 0.2309 -3.2052 -2.7340 -2.2952
+(Intercept)-Great Tinamou             -4.5944 0.3994 -5.3736 -4.5993 -3.8044
+(Intercept)-Jaguar                    -4.6604 0.3567 -5.3729 -4.6583 -3.9607
+(Intercept)-Margay                    -5.4060 0.4758 -6.2723 -5.4272 -4.4055
+(Intercept)-Nine-banded Armadillo     -5.3713 0.5343 -6.4151 -5.3757 -4.3091
+(Intercept)-Ocellated Turkey          -2.6264 0.2459 -3.1375 -2.6177 -2.1672
+(Intercept)-Ocelot                    -3.7386 0.2902 -4.3273 -3.7349 -3.1825
+(Intercept)-Paca                      -3.9123 0.3287 -4.5750 -3.9083 -3.2703
+(Intercept)-Puma                      -3.9323 0.3173 -4.5398 -3.9393 -3.2859
+(Intercept)-Red Brocket Deer          -4.0866 0.3283 -4.7617 -4.0768 -3.4581
+(Intercept)-Ruddy Quail-dove          -4.1289 0.3791 -4.9001 -4.1238 -3.3932
+(Intercept)-Russet-naped Woodrail     -3.7102 0.4207 -4.5399 -3.7123 -2.8637
+(Intercept)-Striped Hog-nosed Skunk   -4.7032 0.4449 -5.5883 -4.7110 -3.8018
+(Intercept)-Tayra                     -4.8438 0.4597 -5.7123 -4.8587 -3.8897
+(Intercept)-White-lipped Peccary      -4.9370 0.4374 -5.7907 -4.9421 -4.0665
+(Intercept)-White-nosed Coati         -4.0893 0.3459 -4.7392 -4.1027 -3.3678
+(Intercept)-White-tailed Deer         -3.4746 0.2511 -3.9656 -3.4778 -2.9817
+(Intercept)-Wood Thrush               -3.7197 0.3914 -4.5018 -3.7169 -2.9509
+effort-Agouti                          1.4363 0.3144  0.8675  1.4153  2.1111
+effort-Baird's Tapir                   1.0452 0.3344  0.3644  1.0497  1.6942
+effort-Bare-throated Tiger Heron       1.1321 0.3644  0.4137  1.1315  1.8768
+effort-Brown Four-eyed Opossum         1.1620 0.3617  0.4507  1.1561  1.8968
+effort-Crested Guan                    1.0576 0.3496  0.3427  1.0642  1.7342
+effort-Collared Peccary                0.9845 0.3732  0.1955  1.0024  1.6854
+effort-Common Opossum                  1.0358 0.3488  0.3151  1.0440  1.7150
+effort-Gray Fox                        1.0294 0.2338  0.5733  1.0311  1.4891
+effort-Gray-headed Dove                1.1289 0.3190  0.5060  1.1274  1.7630
+effort-Great Curassow                  1.1524 0.2303  0.7109  1.1474  1.6136
+effort-Great Tinamou                   1.0363 0.3611  0.2884  1.0485  1.7338
+effort-Jaguar                          1.1502 0.3389  0.4797  1.1482  1.8367
+effort-Margay                          0.6759 0.4365 -0.3084  0.7257  1.4087
+effort-Nine-banded Armadillo           0.8142 0.4202 -0.1494  0.8546  1.5177
+effort-Ocellated Turkey                1.3754 0.2474  0.9172  1.3670  1.8916
+effort-Ocelot                          1.1257 0.2908  0.5614  1.1214  1.7202
+effort-Paca                            1.1602 0.3189  0.5411  1.1562  1.8059
+effort-Puma                            0.9203 0.3124  0.2830  0.9277  1.5069
+effort-Red Brocket Deer                1.2087 0.3222  0.5955  1.2019  1.8790
+effort-Ruddy Quail-dove                1.1549 0.3567  0.4514  1.1504  1.8816
+effort-Russet-naped Woodrail           1.0003 0.3700  0.2281  1.0101  1.7036
+effort-Striped Hog-nosed Skunk         0.8421 0.3879 -0.0062  0.8744  1.5282
+effort-Tayra                           0.8085 0.4046 -0.0959  0.8462  1.5119
+effort-White-lipped Peccary            0.9833 0.3726  0.2110  0.9998  1.6800
+effort-White-nosed Coati               0.9397 0.3373  0.2261  0.9555  1.5671
+effort-White-tailed Deer               1.0734 0.2492  0.5867  1.0762  1.5629
+effort-Wood Thrush                     1.1548 0.3586  0.4494  1.1493  1.8874
+SeasonWet-Agouti                      -0.2520 0.0834 -0.4143 -0.2523 -0.0892
+SeasonWet-Baird's Tapir                0.2970 0.1508  0.0060  0.2945  0.5982
+SeasonWet-Bare-throated Tiger Heron   -0.6303 0.3059 -1.2646 -0.6158 -0.0588
+SeasonWet-Brown Four-eyed Opossum     -0.3733 0.2830 -0.9547 -0.3676  0.1661
+SeasonWet-Crested Guan                -0.2934 0.1739 -0.6425 -0.2919  0.0472
+SeasonWet-Collared Peccary            -0.4430 0.2352 -0.9161 -0.4394  0.0079
+SeasonWet-Common Opossum              -0.0920 0.1625 -0.4124 -0.0931  0.2310
+SeasonWet-Gray Fox                    -0.2691 0.0552 -0.3749 -0.2693 -0.1594
+SeasonWet-Gray-headed Dove            -0.3689 0.1141 -0.5949 -0.3693 -0.1441
+SeasonWet-Great Curassow              -0.3924 0.0510 -0.4923 -0.3923 -0.2925
+SeasonWet-Great Tinamou               -0.2782 0.2186 -0.7056 -0.2785  0.1554
+SeasonWet-Jaguar                      -0.0205 0.1408 -0.2909 -0.0225  0.2607
+SeasonWet-Margay                      -0.3460 0.1923 -0.7197 -0.3466  0.0303
+SeasonWet-Nine-banded Armadillo        0.2639 0.3252 -0.3430  0.2483  0.9454
+SeasonWet-Ocellated Turkey            -0.7627 0.0515 -0.8628 -0.7628 -0.6612
+SeasonWet-Ocelot                      -0.2902 0.0835 -0.4551 -0.2902 -0.1262
+SeasonWet-Paca                         0.0136 0.1260 -0.2299  0.0128  0.2652
+SeasonWet-Puma                        -0.3065 0.1010 -0.5053 -0.3061 -0.1118
+SeasonWet-Red Brocket Deer            -0.2294 0.1144 -0.4538 -0.2304 -0.0034
+SeasonWet-Ruddy Quail-dove            -0.6364 0.2473 -1.1405 -0.6290 -0.1647
+SeasonWet-Russet-naped Woodrail        0.3092 0.2894 -0.2402  0.3025  0.8963
+SeasonWet-Striped Hog-nosed Skunk     -0.2823 0.2169 -0.7098 -0.2843  0.1359
+SeasonWet-Tayra                        0.5626 0.2696  0.0615  0.5518  1.1194
+SeasonWet-White-lipped Peccary        -0.3528 0.2520 -0.8544 -0.3502  0.1357
+SeasonWet-White-nosed Coati           -0.2999 0.1345 -0.5614 -0.2992 -0.0391
+SeasonWet-White-tailed Deer            0.4948 0.0705  0.3588  0.4943  0.6337
+SeasonWet-Wood Thrush                 -0.1663 0.2432 -0.6424 -0.1636  0.3109
+                                        Rhat  ESS
+(Intercept)-Agouti                    1.0005 3551
+(Intercept)-Baird's Tapir             1.0055 3717
+(Intercept)-Bare-throated Tiger Heron 1.0006 4769
+(Intercept)-Brown Four-eyed Opossum   1.0016 4860
+(Intercept)-Crested Guan              1.0005 2695
+(Intercept)-Collared Peccary          1.0704  563
+(Intercept)-Common Opossum            1.0091 2243
+(Intercept)-Gray Fox                  1.0027 4411
+(Intercept)-Gray-headed Dove          1.0012 4592
+(Intercept)-Great Curassow            1.0125 4658
+(Intercept)-Great Tinamou             1.0056 2125
+(Intercept)-Jaguar                    1.0017 2430
+(Intercept)-Margay                    1.0386  656
+(Intercept)-Nine-banded Armadillo     1.0170  690
+(Intercept)-Ocellated Turkey          1.0008 4669
+(Intercept)-Ocelot                    1.0019 3752
+(Intercept)-Paca                      1.0005 4109
+(Intercept)-Puma                      1.0039 2143
+(Intercept)-Red Brocket Deer          1.0018 3085
+(Intercept)-Ruddy Quail-dove          1.0005 4382
+(Intercept)-Russet-naped Woodrail     1.0010 4448
+(Intercept)-Striped Hog-nosed Skunk   1.0507  705
+(Intercept)-Tayra                     1.0110 1618
+(Intercept)-White-lipped Peccary      1.0111 1124
+(Intercept)-White-nosed Coati         1.0042 2533
+(Intercept)-White-tailed Deer         1.0043 4869
+(Intercept)-Wood Thrush               1.0008 5311
+effort-Agouti                         1.0005 3529
+effort-Baird's Tapir                  1.0030 3746
+effort-Bare-throated Tiger Heron      1.0008 4766
+effort-Brown Four-eyed Opossum        1.0017 5111
+effort-Crested Guan                   1.0006 3021
+effort-Collared Peccary               1.0039 2780
+effort-Common Opossum                 1.0025 2777
+effort-Gray Fox                       1.0007 4827
+effort-Gray-headed Dove               1.0008 4576
+effort-Great Curassow                 1.0036 5101
+effort-Great Tinamou                  1.0017 2952
+effort-Jaguar                         1.0012 2677
+effort-Margay                         1.0065 1386
+effort-Nine-banded Armadillo          1.0051 1789
+effort-Ocellated Turkey               1.0008 4629
+effort-Ocelot                         1.0021 3306
+effort-Paca                           1.0003 4188
+effort-Puma                           1.0011 2906
+effort-Red Brocket Deer               1.0026 3245
+effort-Ruddy Quail-dove               1.0012 4785
+effort-Russet-naped Woodrail          1.0019 4279
+effort-Striped Hog-nosed Skunk        1.0093 2161
+effort-Tayra                          1.0064 2011
+effort-White-lipped Peccary           1.0015 2565
+effort-White-nosed Coati              1.0028 2609
+effort-White-tailed Deer              1.0035 4865
+effort-Wood Thrush                    1.0004 5427
+SeasonWet-Agouti                      1.0019 4796
+SeasonWet-Baird's Tapir               1.0033 3045
+SeasonWet-Bare-throated Tiger Heron   1.0026 4349
+SeasonWet-Brown Four-eyed Opossum     1.0009 4426
+SeasonWet-Crested Guan                1.0009 2010
+SeasonWet-Collared Peccary            1.0106 1310
+SeasonWet-Common Opossum              1.0099 1785
+SeasonWet-Gray Fox                    1.0048 3685
+SeasonWet-Gray-headed Dove            1.0003 5032
+SeasonWet-Great Curassow              1.0006 8671
+SeasonWet-Great Tinamou               1.0039 2022
+SeasonWet-Jaguar                      1.0062 2125
+SeasonWet-Margay                      1.0100  887
+SeasonWet-Nine-banded Armadillo       1.0060 1270
+SeasonWet-Ocellated Turkey            1.0009 8516
+SeasonWet-Ocelot                      1.0029 3663
+SeasonWet-Paca                        1.0007 3778
+SeasonWet-Puma                        1.0044 2604
+SeasonWet-Red Brocket Deer            1.0028 3101
+SeasonWet-Ruddy Quail-dove            1.0036 2150
+SeasonWet-Russet-naped Woodrail       1.0010 5251
+SeasonWet-Striped Hog-nosed Skunk     1.0025 1665
+SeasonWet-Tayra                       1.0073 1371
+SeasonWet-White-lipped Peccary        1.0047 1603
+SeasonWet-White-nosed Coati           1.0095 2481
+SeasonWet-White-tailed Deer           1.0017 4935
+SeasonWet-Wood Thrush                 1.0019 5520
